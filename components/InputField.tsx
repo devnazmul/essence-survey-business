@@ -169,7 +169,7 @@ export const TextAreaInputField = ({
   keyboardType,
   rows = 7,
   disable = false,
-  onChangeText = (e: any) => ({ name: name, value: e }),
+  onChangeText = (e: any) => ({ target: { name: name, value: e } }),
 }: {
   label?: string;
   placeholder?: string;

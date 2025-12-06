@@ -1,7 +1,15 @@
+import { useAuthStore } from "@/store/useAuthStore";
 import axios, { AxiosError, AxiosResponse } from "axios";
 
 const axiosPublic = axios.create({
-  baseURL: `${process.env.EXPO_PUBLIC_BASE_URL}/api`,
+  baseURL: `${process.env.EXPO_PUBLIC_API_BASE_URL}/api`,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+const axiosPrivate = axios.create({
+  baseURL: `${process.env.EXPO_PUBLIC_API_BASE_URL}/api`,
   headers: {
     "Content-Type": "application/json",
   },
@@ -20,4 +28,27 @@ axiosPublic.interceptors.response.use(
   (error: AxiosError) => Promise.reject(error)
 );
 
+axiosPrivate.interceptors.request.use(
+  (config) => {
+    const token = useAuthStore.getState().token;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+axiosPrivate.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    // Optional: Handle 401 Unauthorized (e.g., logout)
+    if (error.response?.status === 401) {
+      useAuthStore.getState().logout();
+    }
+    return Promise.reject(error);
+  }
+);
+
+export { axiosPrivate };
 export default axiosPublic;
