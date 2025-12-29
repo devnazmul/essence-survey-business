@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { useLoginMutation } from "@/hooks/useAuthMutation";
 import { useDimension } from "@/hooks/useDimension";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Image,
@@ -17,6 +18,7 @@ import {
 const CREDENTIALS_STORAGE_KEY = "@login_credentials";
 
 export default function LoginScreen() {
+  const router = useRouter();
   const { getResponsiveFontSize } = useDimension();
   const [formData, setFormData] = useState({
     email: "",
@@ -152,7 +154,7 @@ export default function LoginScreen() {
             onChange={setRememberMe}
             label="Remember me"
           />
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/forgot-password")}>
             <Text className="text-primary font-medium">Forgot Password?</Text>
           </TouchableOpacity>
         </View>

@@ -12,3 +12,8 @@ export const login = async (data: any) => {
 
   return response.data;
 };
+
+export const forgotPassword = async (email: string) => {
+  const response = await axiosPublic.post(`/v1.0/forgot-password`, { email });
+  return response.data;
+};

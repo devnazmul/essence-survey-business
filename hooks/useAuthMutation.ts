@@ -1,4 +1,4 @@
-import { login } from "@/api/auth";
+import { forgotPassword, login } from "@/api/auth";
 import { getDashboardData } from "@/api/dashboard";
 import { useCustomMutation } from "@/hooks/useCustomMutation";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -114,6 +114,28 @@ export const useLoginMutation = () => {
     },
     onError: (error: any) => {
       console.log("Login error:", error);
+    },
+  });
+};
+
+export const useForgotPasswordMutation = () => {
+  const router = useRouter();
+
+  return useCustomMutation({
+    mutationFn: forgotPassword,
+    onSuccess: () => {
+      Alert.alert(
+        "Success",
+        "A password reset link has been sent to your email address.",
+        [{ text: "OK", onPress: () => router.back() }]
+      );
+    },
+    onError: (error: any) => {
+      console.log("Forgot password error:", error);
+      Alert.alert(
+        "Error",
+        "Could not send reset link. Please check your email and try again."
+      );
     },
   });
 };

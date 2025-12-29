@@ -3,6 +3,7 @@ import IMAGES from "@/assets";
 import Header from "@/components/Header";
 import HeaderButton from "@/components/HeaderButton";
 import { TextAreaInputField } from "@/components/InputField";
+import { SuccessModal } from "@/components/modals/SuccessModal";
 import Button from "@/components/ui/Button";
 import { COLORS } from "@/constants";
 import { useCustomMutation } from "@/hooks/useCustomMutation";
@@ -29,6 +30,7 @@ export default function RespondReviewScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const [response, setResponse] = useState("");
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   // Fetch review data
   const {
@@ -50,16 +52,7 @@ export default function RespondReviewScreen() {
       mutationFn: (responseText: string) =>
         respondToReview(id as string, responseText),
       onSuccess: () => {
-        Alert.alert(
-          "Success",
-          "Your response has been submitted successfully!",
-          [
-            {
-              text: "OK",
-              onPress: () => router.back(),
-            },
-          ]
-        );
+        setShowSuccessModal(true);
       },
       onError: () => {
         Alert.alert("Error", "Failed to submit response. Please try again.", [
@@ -253,6 +246,17 @@ export default function RespondReviewScreen() {
           }
         />
       </View>
+
+      <SuccessModal
+        visible={showSuccessModal}
+        onClose={() => {
+          setShowSuccessModal(false);
+          router.back();
+        }}
+        title="Reply Submitted!"
+        message="Your response has been successfully posted. It will now be visible to the customer."
+        buttonText="Back to Review"
+      />
     </SafeAreaView>
   );
 }

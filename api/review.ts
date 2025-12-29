@@ -20,3 +20,24 @@ export const respondToReview = async (id: string, responseText: string) => {
     apiErrorHandler(error);
   }
 };
+
+export const getReviews = async (
+  businessId: string | number,
+  page: number = 1,
+  limit: number = 20
+) => {
+  try {
+    const response = await axiosPrivate.get(
+      `/v1.0/reviews/overall-dashboard/${businessId}`,
+      {
+        params: {
+          page,
+          limit,
+        },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    apiErrorHandler(error);
+  }
+};

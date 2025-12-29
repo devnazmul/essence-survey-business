@@ -1,4 +1,5 @@
 import IMAGES from "@/assets";
+import BottomNav from "@/components/BottomNav";
 import FilterTab from "@/components/FilterTab";
 import Header from "@/components/Header";
 import HeaderButton from "@/components/HeaderButton";
@@ -10,7 +11,7 @@ import { useDashboard } from "@/hooks/useDashboard";
 import { useDimension } from "@/hooks/useDimension";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useBusinessStore } from "@/store/useBusinessStore";
-import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -27,10 +28,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function DashboardScreen() {
   const { getResponsiveFontSize } = useDimension();
   const router = useRouter();
-  const { user, stats, reviews } = useBusinessStore();
-  const { isLoading, refetch } = useDashboard();
+  const { stats, reviews } = useBusinessStore();
+  const [activeTab, setActiveTab] = useState<string>("last_30_days");
+  const { isLoading, refetch } = useDashboard(activeTab);
 
-  const [activeTab, setActiveTab] = useState<string>("all");
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = async () => {
@@ -47,7 +48,7 @@ export default function DashboardScreen() {
   const [isUpdate, setIsUpdate] = useState<number>(0);
   useEffect(() => {
     const int = setInterval(() => {
-      setIsUpdate(isUpdate + 1);
+      setIsUpdate((prev) => prev + 1);
     }, 1000);
     return () => {
       clearInterval(int);
@@ -88,31 +89,31 @@ export default function DashboardScreen() {
         activeTab={activeTab}
         tabs={[
           {
-            label: "All",
-            value: "all",
+            label: "30 Days",
+            value: "last_30_days",
             onPress: () => {
-              setActiveTab("all");
+              setActiveTab("last_30_days");
             },
           },
           {
-            label: "Today",
-            value: "today",
+            label: "7 Days",
+            value: "last_7_days",
             onPress: () => {
-              setActiveTab("today");
+              setActiveTab("last_7_days");
             },
           },
           {
-            label: "Last 7 Days",
-            value: "thisWeek",
+            label: "This Month",
+            value: "this_month",
             onPress: () => {
-              setActiveTab("thisWeek");
+              setActiveTab("this_month");
             },
           },
           {
-            label: "Last 30 Days",
-            value: "thisMonth",
+            label: "Last Month",
+            value: "last_month",
             onPress: () => {
-              setActiveTab("thisMonth");
+              setActiveTab("last_month");
             },
           },
         ]}
@@ -160,7 +161,7 @@ export default function DashboardScreen() {
           >
             Recent Reviews
           </Text>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/reviews" as any)}>
             <Text
               style={{
                 fontSize: getResponsiveFontSize("sm"),
@@ -193,61 +194,7 @@ export default function DashboardScreen() {
       </ScrollView>
 
       {/* Bottom Navigation */}
-      <View className="absolute bottom-0 left-0 right-0 bg-base-300 border-t border-gray-200 flex-row justify-around py-4 pb-6">
-        <TouchableOpacity className="items-center">
-          <MaterialIcons name="dashboard" size={24} color={COLORS.primary} />
-          <Text
-            style={{
-              color: COLORS.primary,
-              fontSize: getResponsiveFontSize("xs"),
-            }}
-            className="mt-1 font-medium"
-          >
-            Dashboard
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity className="items-center">
-          <MaterialIcons
-            name="star-border"
-            size={24}
-            color={COLORS["gray-400"]}
-          />
-          <Text
-            style={{
-              fontSize: getResponsiveFontSize("xs"),
-            }}
-            className="text-gray-400 mt-1 font-medium"
-          >
-            Reviews
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity className="items-center">
-          <MaterialIcons
-            name="bar-chart"
-            size={24}
-            color={COLORS["gray-400"]}
-          />
-          <Text
-            style={{
-              fontSize: getResponsiveFontSize("xs"),
-            }}
-            className="text-gray-400 mt-1 font-medium"
-          >
-            Analytics
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity className="items-center">
-          <Feather name="settings" size={24} color={COLORS["gray-400"]} />
-          <Text
-            style={{
-              fontSize: getResponsiveFontSize("xs"),
-            }}
-            className="text-gray-400 mt-1 font-medium"
-          >
-            Settings
-          </Text>
-        </TouchableOpacity>
-      </View>
+      <BottomNav activeTab="dashboard" />
     </SafeAreaView>
   );
 }

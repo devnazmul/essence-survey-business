@@ -8,15 +8,16 @@ export const IMAGES = {
     emoji3: require("./rating/emoji-3.png"),
     emoji4: require("./rating/emoji-4.png"),
     emoji5: require("./rating/emoji-5.png"),
-
-    emoji1x2: require("./rating/emoji-1x2.png"),
-    emoji2x2: require("./rating/emoji-2x2.png"),
-    emoji3x2: require("./rating/emoji-3x2.png"),
-    emoji4x2: require("./rating/emoji-4x2.png"),
-    emoji5x2: require("./rating/emoji-5x2.png"),
+    emoji1Gray: require("./rating/emoji-1-g.png"),
+    emoji2Gray: require("./rating/emoji-2-g.png"),
+    emoji3Gray: require("./rating/emoji-3-g.png"),
+    emoji4Gray: require("./rating/emoji-4-g.png"),
+    emoji5Gray: require("./rating/emoji-5-g.png"),
   },
 
   logo: require("./logo.png"),
+  comingSoon: require("./coming-soon.png"),
+  success: require("./success.png"),
   logoV3: require("./logoV3.png"),
 };
 

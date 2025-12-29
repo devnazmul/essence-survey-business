@@ -4,7 +4,7 @@ import { useBusinessStore } from "@/store/useBusinessStore";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
-export const useDashboard = () => {
+export const useDashboard = (period?: string) => {
   const { user, logout } = useAuthStore();
   const setDashboardData = useBusinessStore((state) => state.setDashboardData);
   const setLoading = useBusinessStore((state) => state.setLoading);
@@ -13,8 +13,8 @@ export const useDashboard = () => {
   const businessId = user?.business?.id || user?.business?.[0]?.id;
 
   const query = useQuery({
-    queryKey: ["dashboard", businessId],
-    queryFn: () => getDashboardData(businessId),
+    queryKey: ["dashboard", businessId, period],
+    queryFn: () => getDashboardData(businessId, period),
     enabled: !!businessId, // Only fetch if businessId exists
     staleTime: 5 * 60 * 1000, // 5 minutes
     refetchOnWindowFocus: true,

@@ -10,7 +10,7 @@ import { formatRole } from "@/utils/formatRole";
 import { transformReviewData } from "@/utils/transformReviewData";
 import { Entypo, Feather, FontAwesome } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import React from "react";
 import {
   ActivityIndicator,
   Image,
@@ -24,7 +24,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function ReviewDetailsScreen() {
   const { getResponsiveFontSize } = useDimension();
   const router = useRouter();
-  const { id } = useLocalSearchParams();
+  const { id, from } = useLocalSearchParams();
 
   const {
     data: rawReview,
@@ -38,10 +38,6 @@ export default function ReviewDetailsScreen() {
 
   // Transform the review data
   const review = transformReviewData(rawReview as any);
-
-  useEffect(() => {
-    console.log("hello", { id, review, rawReview });
-  }, [rawReview]);
 
   if (isLoading) {
     return (
@@ -69,7 +65,13 @@ export default function ReviewDetailsScreen() {
             IconComponent={Feather}
             iconName="arrow-left"
             iconSize={20}
-            onPress={() => router.back()}
+            onPress={() => {
+              if (from === "notifications") {
+                router.replace("/notifications");
+              } else {
+                router.back();
+              }
+            }}
           />
         }
         centerComponent={<Image source={IMAGES.logo} className={`w-16 h-16`} />}
@@ -123,9 +125,9 @@ export default function ReviewDetailsScreen() {
           {/* Overall Rating */}
           <View className="flex-row items-center mb-4">
             <View className="flex-row mr-2">
-              {[1, 2, 3, 4, 5].map((star) => (
+              {[1, 2, 3, 4, 5].map((star, index) => (
                 <FontAwesome
-                  key={star}
+                  key={index}
                   name="star"
                   size={25}
                   color={star <= review?.overallRating ? "#FFD700" : "#E5E7EB"}
@@ -171,7 +173,7 @@ export default function ReviewDetailsScreen() {
             </Text>
             {review?.questions?.map((question, index) => (
               <View
-                key={question.id}
+                key={index}
                 className={`${index !== review?.questions?.length - 1 ? "mb-4 pb-4 border-b border-gray-200" : ""}`}
               >
                 <Text
@@ -192,6 +194,7 @@ export default function ReviewDetailsScreen() {
                             case "numbers":
                               return (
                                 <View
+                                  key={idx}
                                   className={`${question.value === idx + 1 ? "bg-green-400" : "bg-gray-200"} justify-center items-center w-7 h-7 rounded-md mx-1`}
                                 >
                                   <Text
@@ -217,11 +220,9 @@ export default function ReviewDetailsScreen() {
                             case "emoji":
                               const emojiIndex: string = `emoji${idx + 1}`;
                               return (
-                                <View>
+                                <View key={idx}>
                                   <Image
                                     style={{
-                                      opacity:
-                                        question.value === idx + 1 ? 1 : 0.4,
                                       width: 30,
                                       height: 30,
                                       transform: [
@@ -236,9 +237,13 @@ export default function ReviewDetailsScreen() {
                                         question.value === idx + 1 ? 5 : 0,
                                     }}
                                     source={
-                                      IMAGES.rating[
-                                        emojiIndex as keyof typeof IMAGES.rating
-                                      ]
+                                      question.value === idx + 1
+                                        ? IMAGES.rating[
+                                            emojiIndex as keyof typeof IMAGES.rating
+                                          ]
+                                        : IMAGES.rating[
+                                            `${emojiIndex}Gray` as keyof typeof IMAGES.rating
+                                          ]
                                     }
                                   />
                                 </View>
@@ -333,20 +338,23 @@ export default function ReviewDetailsScreen() {
             </View>
           </View>
         )} */}
-        <View className="mb-6">
-          <Text className="font-bold text-gray-900 mb-2">Replay</Text>
-          <View className="bg-base-300 flex-row items-start p-4 rounded-xl border border-l-4 border-l-green-500 border-gray-200">
-            <Entypo
-              name="reply"
-              size={15}
-              color={COLORS["green-500"]}
-              className={`mr-4`}
-            />
-            <Text className="text-gray-400 leading-6 font-medium">
-              {review?.replyContent}
-            </Text>
+
+        {review?.replyContent && (
+          <View className="mb-6">
+            <Text className="font-bold text-gray-900 mb-2">Replay</Text>
+            <View className="bg-base-300 flex-row items-start p-4 rounded-xl border border-l-4 border-l-green-500 border-gray-200">
+              <Entypo
+                name="reply"
+                size={15}
+                color={COLORS["green-500"]}
+                className={`mr-4`}
+              />
+              <Text className="text-gray-400 pr-6 leading-6 font-medium">
+                {review?.replyContent}
+              </Text>
+            </View>
           </View>
-        </View>
+        )}
       </ScrollView>
 
       {/* Footer Button */}

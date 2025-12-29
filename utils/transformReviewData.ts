@@ -124,7 +124,7 @@ export const transformReviewData = (
     orderNo: data.order_no,
     submittedAt: data.created_at,
     status: data.status,
-    overallRating: parseFloat(apiResponse.calculated_rating),
+    overallRating: parseFloat(data.calculated_rating),
     sentimentScore: parseFloat(data.sentiment_score) || 0,
 
     customer,
