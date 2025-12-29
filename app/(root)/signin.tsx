@@ -109,15 +109,7 @@ export default function LoginScreen() {
       className="flex-1 bg-base-100 px-6 justify-center"
     >
       <View className="items-center mb-10">
-        <View className="flex items-center mb-10">
-          <Image source={IMAGES.ratingStars} />
-          <Text
-            style={{ fontSize: getResponsiveFontSize("3xl") }}
-            className="font-bold text-gray-800"
-          >
-            Essence Survey
-          </Text>
-        </View>
+        <Image source={IMAGES.logo} className="w-24 h-24" />
         <Text
           style={{ fontSize: getResponsiveFontSize("4xl") }}
           className="font-bold text-gray-900 mb-2"

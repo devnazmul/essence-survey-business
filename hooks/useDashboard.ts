@@ -30,6 +30,7 @@ export const useDashboard = () => {
   // Update store when data changes
   useEffect(() => {
     if (query.data?.data) {
+      console.log("ReviewData:", query.data.data.review_feed);
       const structuredData = {
         stats: {
           avgRating: {
@@ -55,12 +56,12 @@ export const useDashboard = () => {
             comment,
             is_ai_flagged,
             is_voice,
-
             sentiment,
             staff_name,
             tags,
             time_ago,
             calculated_rating,
+            responded_at,
           }: {
             id: string | number;
             author: string;
@@ -72,6 +73,7 @@ export const useDashboard = () => {
             staff_name: string;
             tags: string[];
             time_ago: string;
+            responded_at: string | null;
           }) => ({
             id,
             customerName: author,
@@ -83,6 +85,7 @@ export const useDashboard = () => {
             sentiment,
             is_ai_flagged,
             is_voice,
+            responded_at,
           })
         ),
         notifications: [],

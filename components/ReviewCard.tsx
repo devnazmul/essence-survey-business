@@ -7,6 +7,7 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 const ReviewCard = ({ review }: any) => {
   const { getResponsiveFontSize } = useDimension();
   const router = useRouter();
+  console.log({ review });
   return (
     <TouchableOpacity
       onPress={() => router.push(`/review/${review.id}`)}
@@ -62,7 +63,7 @@ const ReviewCard = ({ review }: any) => {
           {review.tags.map((tag: string, index: number) => (
             <View
               key={index}
-              className={`bg-primary py-0 px-2 mx-1 rounded-md inline justify-center items-center`}
+              className={`bg-primary py-1 px-2 mx-1 rounded-md inline justify-center items-center`}
             >
               <Text
                 style={{
@@ -79,7 +80,7 @@ const ReviewCard = ({ review }: any) => {
 
       {review.responded_at ? (
         <View className="flex-row items-center mt-3">
-          <View className="w-3 h-3 rounded-full bg-green-500 mr-2 " />
+          <View className="w-3 h-3 rounded-full bg-green-500 mr-2" />
           <Text
             style={{
               fontSize: getResponsiveFontSize("sm"),
