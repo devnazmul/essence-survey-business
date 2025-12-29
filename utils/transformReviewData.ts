@@ -12,6 +12,7 @@ export interface TransformedReviewQuestion {
 export interface TransformedReviewData {
   id: number;
   orderNo: number;
+  replyContent: string | null;
   submittedAt: string;
   status: "Replied" | "Reply needed";
   overallRating: number;
@@ -61,7 +62,6 @@ export interface TransformedReviewData {
 export const transformReviewData = (
   apiResponse: any
 ): TransformedReviewData | null => {
-  console.log("apiResponse");
   // Handle both cases: full response with success flag, or just the data object
   const data = apiResponse?.success ? apiResponse.data : apiResponse;
 
@@ -118,13 +118,13 @@ export const transformReviewData = (
       };
     }
   );
-
   return {
     id: data.id,
+    replyContent: data.reply_content,
     orderNo: data.order_no,
     submittedAt: data.created_at,
     status: data.status,
-    overallRating: parseFloat(data.rate) || 0,
+    overallRating: parseFloat(apiResponse.calculated_rating),
     sentimentScore: parseFloat(data.sentiment_score) || 0,
 
     customer,
@@ -142,10 +142,22 @@ export const transformReviewData = (
       actionMessage: "Content approved",
     },
 
-    aiSuggestions: data.ai_suggestions || [],
-    staffSuggestions: data.staff_suggestions || [],
-    keyPhrases: data.key_phrases || [],
-    topics: data.topics || [],
+    aiSuggestions: Array.isArray(data.ai_suggestions)
+      ? data.ai_suggestions
+      : [],
+    staffSuggestions: Array.isArray(data.staff_suggestions)
+      ? data.staff_suggestions
+      : [],
+    keyPhrases: Array.isArray(data.key_phrases)
+      ? data.key_phrases
+      : typeof data.key_phrases === "string"
+        ? data.key_phrases.split(",").map((s: string) => s.trim())
+        : [],
+    topics: Array.isArray(data.topics)
+      ? data.topics
+      : typeof data.topics === "string"
+        ? data.topics.split(",").map((s: string) => s.trim())
+        : [],
 
     isVoiceReview: data.is_voice_review || false,
     voiceUrl: data.voice_url,

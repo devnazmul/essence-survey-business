@@ -1,4 +1,5 @@
 import { respondToReview, singleReview } from "@/api/review";
+import IMAGES from "@/assets";
 import Header from "@/components/Header";
 import HeaderButton from "@/components/HeaderButton";
 import { TextAreaInputField } from "@/components/InputField";
@@ -28,14 +29,15 @@ export default function RespondReviewScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams();
   const [response, setResponse] = useState("");
-  const [refreshing, setRefreshing] = useState<boolean>(false);
 
   // Fetch review data
   const {
     data: rawReview,
     isLoading,
+    isFetching,
     refetch,
   } = useCustomQuery({
+    queryKey: ["review", id],
     queryFunc: () => singleReview(id as string),
   });
 
@@ -110,20 +112,13 @@ export default function RespondReviewScreen() {
             onPress={() => router.back()}
           />
         }
-        centerComponent={
-          <Text
-            style={{ fontSize: getResponsiveFontSize("lg") }}
-            className="font-bold text-center text-primary"
-          >
-            Respond to Review
-          </Text>
-        }
+        centerComponent={<Image source={IMAGES.logo} className={`w-16 h-16`} />}
       />
 
       <ScrollView
         className="flex-1 pt-4"
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={refetch} />
+          <RefreshControl refreshing={isFetching} onRefresh={refetch} />
         }
       >
         {/* Review Summary Card */}
@@ -223,6 +218,7 @@ export default function RespondReviewScreen() {
         >
           Your Public Reply
         </Text>
+
         <View className="bg-base-300 p-4 rounded-xl border border-gray-200 overflow-hidden">
           <TextAreaInputField
             placeholder="Write your public response here..."

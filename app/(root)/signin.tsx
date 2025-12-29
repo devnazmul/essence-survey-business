@@ -5,7 +5,6 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { useLoginMutation } from "@/hooks/useAuthMutation";
 import { useDimension } from "@/hooks/useDimension";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
   Image,
@@ -18,8 +17,7 @@ import {
 const CREDENTIALS_STORAGE_KEY = "@login_credentials";
 
 export default function LoginScreen() {
-  const { getResponsiveFontSize, getResponsiveHeight, WP } = useDimension();
-  const router = useRouter();
+  const { getResponsiveFontSize } = useDimension();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -35,7 +33,6 @@ export default function LoginScreen() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
   const { mutate: loginUser, isPending } = useLoginMutation();
-
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {}
   );

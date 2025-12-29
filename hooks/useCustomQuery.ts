@@ -1,71 +1,49 @@
 import { apiErrorHandler } from "@/utils/apiErrorHandler";
-import { useEffect, useState } from "react";
+import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 
 type QueryFunc<T> = (params: { signal: AbortSignal }) => Promise<T>;
 
-interface UseCustomQueryProps<T> {
+interface UseCustomQueryProps<T>
+  extends Omit<UseQueryOptions<T>, "queryKey" | "queryFn"> {
+  queryKey: any[];
   queryFunc: QueryFunc<T>;
-  enabled?: boolean;
   onError?: (error: unknown) => void;
   showErrorMessage?: boolean;
 }
 
 export const useCustomQuery = <T>({
+  queryKey,
   queryFunc,
   enabled = true,
   onError = () => {},
   showErrorMessage = true,
+  ...options
 }: UseCustomQueryProps<T>) => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [isError, setIsError] = useState(false);
-  // FIXED
-  const [data, setData] = useState<T | null>(null);
-  const [error, setError] = useState<unknown>(null);
-  const [isUpdated, setIsUpdated] = useState(Math.random());
-
-  const refetch = () => setIsUpdated(Math.random());
-
-  useEffect(() => {
-    const controller = new AbortController();
-    const signal = controller.signal;
-
-    const fetchData = async () => {
-      setIsLoading(true);
-
+  const query = useQuery({
+    queryKey,
+    queryFn: async ({ signal }) => {
       try {
-        const response = await queryFunc({ signal });
-        setData(response);
-        setIsSuccess(true);
-        setIsError(false);
+        return await queryFunc({ signal });
       } catch (err) {
-        if (signal.aborted) return;
-
         if (showErrorMessage) {
           apiErrorHandler(err);
         }
-
-        setIsError(true);
-        setError(err);
         onError(err);
-      } finally {
-        if (!signal.aborted) {
-          setIsLoading(false);
-        }
+        throw err;
       }
-    };
-
-    if (enabled) fetchData();
-
-    return () => controller.abort();
-  }, [isUpdated, enabled]);
+    },
+    enabled,
+    ...options,
+  });
 
   return {
-    isLoading,
-    isError,
-    data,
-    error,
-    refetch,
-    isSuccess,
+    isLoading: query.isLoading,
+    isFetching: query.isFetching,
+    isError: query.isError,
+    data: query.data ?? null,
+    error: query.error,
+    refetch: query.refetch,
+    isSuccess: query.isSuccess,
+    isFetched: query.isFetched,
   };
 };

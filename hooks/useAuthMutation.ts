@@ -15,15 +15,22 @@ export const useLoginMutation = () => {
   return useCustomMutation({
     mutationFn: login,
     onSuccess: async (data: any) => {
-      // Check if business array exists and has at least one business
-      if (data?.data?.business && data.data.business.length > 0) {
+      const user = data?.data || null;
+      const token = data?.data?.token || null;
+
+      if (user && user.business) {
         try {
-          // Fetch dashboard data
-          const businessId = data.data.business[0].id;
+          // 1. Set Auth FIRST so subsequent private API calls have the token
+          setAuth(user, token);
+
+          // 2. Fetch dashboard data (now axiosPrivate will have the token)
+          const businessId = user.business.id || user.business[0]?.id;
+          if (!businessId) {
+            throw new Error("No business ID found");
+          }
           const dashboardResponse = await getDashboardData(businessId);
 
-          // Update business store with dashboard data
-          console.log("Dashboard data:", dashboardResponse?.data);
+          // 3. Update business store with dashboard data
           const structuredData = {
             stats: {
               avgRating: {
@@ -71,7 +78,7 @@ export const useLoginMutation = () => {
                 rating: string;
                 sentiment: string;
                 staff_name: string;
-                tags: Array<string>;
+                tags: string[];
                 time_ago: string;
                 responded_at: null | string;
               }) => ({
@@ -92,12 +99,11 @@ export const useLoginMutation = () => {
           };
           setDashboardData(structuredData);
 
-          setAuth(data?.data || null, data?.token || null);
-          // Navigate to dashboard
+          // 4. Navigate to dashboard
           router.replace("/(dashboard)");
         } catch (error) {
           console.log("Error fetching dashboard data:", error);
-          // Still navigate to dashboard even if dashboard data fetch fails
+          // Still navigate if we have the token
           router.replace("/(dashboard)");
         }
       } else {

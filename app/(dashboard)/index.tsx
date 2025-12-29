@@ -1,9 +1,11 @@
+import IMAGES from "@/assets";
 import FilterTab from "@/components/FilterTab";
 import Header from "@/components/Header";
 import HeaderButton from "@/components/HeaderButton";
 import ReviewCard from "@/components/ReviewCard";
 import ScreenTitle from "@/components/ScreenTitle";
 import StatCard from "@/components/StatCard";
+import { COLORS } from "@/constants";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useDimension } from "@/hooks/useDimension";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -12,6 +14,8 @@ import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
+  ActivityIndicator,
+  Image,
   RefreshControl,
   ScrollView,
   Text,
@@ -21,7 +25,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function DashboardScreen() {
-  const { getResponsiveFontSize, getResponsiveHeight, WP } = useDimension();
+  const { getResponsiveFontSize } = useDimension();
   const router = useRouter();
   const { user, stats, reviews } = useBusinessStore();
   const { isLoading, refetch } = useDashboard();
@@ -66,14 +70,7 @@ export default function DashboardScreen() {
             onPress={() => router.push("/notifications")}
           />
         }
-        centerComponent={
-          <Text
-            style={{ fontSize: getResponsiveFontSize("lg") }}
-            className="font-bold text-primary"
-          >
-            {user.name}
-          </Text>
-        }
+        centerComponent={<Image source={IMAGES.logo} className={`w-16 h-16`} />}
         rightComponent={
           <HeaderButton
             IconComponent={AntDesign}
@@ -87,6 +84,7 @@ export default function DashboardScreen() {
 
       {/* Filters */}
       <FilterTab
+        isLoading={isLoading}
         activeTab={activeTab}
         tabs={[
           {
@@ -129,16 +127,19 @@ export default function DashboardScreen() {
         {/* Stats */}
         <View className="flex-row flex-wrap justify-between gap-x-4">
           <StatCard
+            isLoading={isLoading}
             title="Avg. Rating"
             value={stats.avgRating.value}
             change={stats.avgRating.change}
           />
           <StatCard
+            isLoading={isLoading}
             title="Total Reviews"
             value={stats.totalReviews.value}
             change={stats.totalReviews.change}
           />
           <StatCard
+            isLoading={isLoading}
             title="Staff Linked Reviews"
             value={stats.staffLinkedReviews.value}
             change={stats.staffLinkedReviews.change}
@@ -172,18 +173,32 @@ export default function DashboardScreen() {
         </View>
 
         {/* Reviews List */}
-        {reviews.map((review) => (
-          <ReviewCard key={review.id} review={review} />
-        ))}
+        {isLoading ? (
+          <View className="flex-1 items-center justify-center">
+            <ActivityIndicator size="large" color={COLORS.primary} />
+          </View>
+        ) : (
+          <>
+            {reviews.length === 0 ? (
+              <View className="flex-1 items-center justify-center">
+                <Text className="text-gray-400">No Reviews</Text>
+              </View>
+            ) : (
+              reviews.map((review) => (
+                <ReviewCard key={review.id} review={review} />
+              ))
+            )}
+          </>
+        )}
       </ScrollView>
 
       {/* Bottom Navigation */}
       <View className="absolute bottom-0 left-0 right-0 bg-base-300 border-t border-gray-200 flex-row justify-around py-4 pb-6">
         <TouchableOpacity className="items-center">
-          <MaterialIcons name="dashboard" size={24} color="#DC2D2A" />
+          <MaterialIcons name="dashboard" size={24} color={COLORS.primary} />
           <Text
             style={{
-              color: "#DC2D2A",
+              color: COLORS.primary,
               fontSize: getResponsiveFontSize("xs"),
             }}
             className="mt-1 font-medium"
@@ -192,7 +207,11 @@ export default function DashboardScreen() {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity className="items-center">
-          <MaterialIcons name="star-border" size={24} color="#9CA3AF" />
+          <MaterialIcons
+            name="star-border"
+            size={24}
+            color={COLORS["gray-400"]}
+          />
           <Text
             style={{
               fontSize: getResponsiveFontSize("xs"),
@@ -203,7 +222,11 @@ export default function DashboardScreen() {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity className="items-center">
-          <MaterialIcons name="bar-chart" size={24} color="#9CA3AF" />
+          <MaterialIcons
+            name="bar-chart"
+            size={24}
+            color={COLORS["gray-400"]}
+          />
           <Text
             style={{
               fontSize: getResponsiveFontSize("xs"),
@@ -214,7 +237,7 @@ export default function DashboardScreen() {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity className="items-center">
-          <Feather name="settings" size={24} color="#9CA3AF" />
+          <Feather name="settings" size={24} color={COLORS["gray-400"]} />
           <Text
             style={{
               fontSize: getResponsiveFontSize("xs"),

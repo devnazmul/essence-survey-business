@@ -60,7 +60,7 @@ interface IBusinessStore {
 export const useBusinessStore = create<IBusinessStore>((set, get) => ({
   user: {
     email: "",
-    name: "The Corner Cafe",
+    name: "Feed Genius",
   },
   stats: {
     avgRating: {

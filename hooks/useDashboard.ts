@@ -5,13 +5,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 
 export const useDashboard = () => {
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const setDashboardData = useBusinessStore((state) => state.setDashboardData);
   const setLoading = useBusinessStore((state) => state.setLoading);
 
-  // Get business ID from the first business in the user's business array
-  const businessId = user?.business?.[0]?.id;
-  console.log({ user });
+  // Get business ID from business object or first business in the array
+  const businessId = user?.business?.id || user?.business?.[0]?.id;
+
   const query = useQuery({
     queryKey: ["dashboard", businessId],
     queryFn: () => getDashboardData(businessId),
@@ -20,10 +20,16 @@ export const useDashboard = () => {
     refetchOnWindowFocus: true,
   });
 
+  useEffect(() => {
+    if (query.error) {
+      console.log("useDashboard error:", query.error);
+      // logout();
+    }
+  }, [query.error]);
+
   // Update store when data changes
   useEffect(() => {
     if (query.data?.data) {
-      console.log({ data: query.data.data });
       const structuredData = {
         stats: {
           avgRating: {
@@ -64,7 +70,7 @@ export const useDashboard = () => {
             calculated_rating: string | number;
             sentiment: string;
             staff_name: string;
-            tags: Array<string>;
+            tags: string[];
             time_ago: string;
           }) => ({
             id,
@@ -81,8 +87,6 @@ export const useDashboard = () => {
         ),
         notifications: [],
       };
-
-      console.log({ structuredData });
 
       setDashboardData(structuredData);
     }

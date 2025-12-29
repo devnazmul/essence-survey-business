@@ -8,9 +8,9 @@ import { useCustomQuery } from "@/hooks/useCustomQuery";
 import { useDimension } from "@/hooks/useDimension";
 import { formatRole } from "@/utils/formatRole";
 import { transformReviewData } from "@/utils/transformReviewData";
-import { Feather, FontAwesome } from "@expo/vector-icons";
+import { Entypo, Feather, FontAwesome } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -25,13 +25,14 @@ export default function ReviewDetailsScreen() {
   const { getResponsiveFontSize } = useDimension();
   const router = useRouter();
   const { id } = useLocalSearchParams();
-  const [refreshing, setRefreshing] = useState<boolean>(false);
 
   const {
     data: rawReview,
     isLoading,
+    isFetching,
     refetch,
   } = useCustomQuery({
+    queryKey: ["review", id],
     queryFunc: () => singleReview(id as string),
   });
 
@@ -39,8 +40,8 @@ export default function ReviewDetailsScreen() {
   const review = transformReviewData(rawReview as any);
 
   useEffect(() => {
-    console.log({ id, review });
-  }, [review]);
+    console.log("hello", { id, review, rawReview });
+  }, [rawReview]);
 
   if (isLoading) {
     return (
@@ -71,28 +72,21 @@ export default function ReviewDetailsScreen() {
             onPress={() => router.back()}
           />
         }
-        centerComponent={
-          <Text
-            style={{ fontSize: getResponsiveFontSize("lg") }}
-            className="font-bold text-center text-primary"
-          >
-            Review Details
-          </Text>
-        }
+        centerComponent={<Image source={IMAGES.logo} className={`w-16 h-16`} />}
       />
 
       <ScrollView
         className="flex-1 pt-4"
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={refetch} />
+          <RefreshControl refreshing={isFetching} onRefresh={refetch} />
         }
       >
         <View className="bg-base-300 p-4 rounded-xl border border-gray-200 mb-6">
           {/* User Info */}
           <View className="flex-row items-center mb-4">
-            {review.customer.avatar ? (
+            {review?.customer?.avatar ? (
               <Image
-                source={{ uri: review.customer.avatar }}
+                source={{ uri: review?.customer?.avatar }}
                 className="w-12 h-12 rounded-full mr-3"
               />
             ) : (
@@ -109,15 +103,15 @@ export default function ReviewDetailsScreen() {
                 style={{ fontSize: getResponsiveFontSize("lg") }}
                 className="font-bold text-gray-900"
               >
-                {formatRole(review.customer.name)}
+                {formatRole(review?.customer?.name)}
               </Text>
               <View className="flex-row items-center gap-2">
-                {review.customer.email && (
+                {review?.customer?.email && (
                   <Text className="text-gray-500 text-sm">
-                    {review.customer.email}
+                    {review?.customer?.email}
                   </Text>
                 )}
-                {review.customer.isGuest && (
+                {review?.customer?.isGuest && (
                   <View className="bg-gray-200 px-2 py-0.5 mt-1 rounded">
                     <Text className="text-gray-600 text-xs">Guest</Text>
                   </View>
@@ -134,13 +128,13 @@ export default function ReviewDetailsScreen() {
                   key={star}
                   name="star"
                   size={25}
-                  color={star <= review.overallRating ? "#FFD700" : "#E5E7EB"}
+                  color={star <= review?.overallRating ? "#FFD700" : "#E5E7EB"}
                   style={{ marginRight: 4 }}
                 />
               ))}
             </View>
             <Text className="text-lg font-bold text-gray-900">
-              ({review.overallRating.toFixed(1)})
+              ({review?.overallRating?.toFixed(1)})
             </Text>
           </View>
 
@@ -148,24 +142,24 @@ export default function ReviewDetailsScreen() {
           <View className="flex-row items-center">
             <View
               className={`px-3 py-1 rounded-full ${
-                review.status === "Replied" ? "bg-green-100" : "bg-yellow-100"
+                review?.status === "Replied" ? "bg-green-100" : "bg-yellow-100"
               }`}
             >
               <Text
                 className={`font-medium text-sm ${
-                  review.status === "Replied"
+                  review?.status === "Replied"
                     ? "text-green-800"
                     : "text-yellow-800"
                 }`}
               >
-                {review.status}
+                {review?.status}
               </Text>
             </View>
           </View>
         </View>
 
         {/* Questions and Answers */}
-        {review.questions.length > 0 && (
+        {review?.questions?.length > 0 && (
           <View className="bg-base-300 p-4 rounded-xl border border-gray-200 mb-6">
             <Text
               style={{
@@ -175,10 +169,10 @@ export default function ReviewDetailsScreen() {
             >
               Question Responses
             </Text>
-            {review.questions.map((question, index) => (
+            {review?.questions?.map((question, index) => (
               <View
                 key={question.id}
-                className={`${index !== review.questions.length - 1 ? "mb-4 pb-4 border-b border-gray-200" : ""}`}
+                className={`${index !== review?.questions?.length - 1 ? "mb-4 pb-4 border-b border-gray-200" : ""}`}
               >
                 <Text
                   style={{
@@ -226,6 +220,8 @@ export default function ReviewDetailsScreen() {
                                 <View>
                                   <Image
                                     style={{
+                                      opacity:
+                                        question.value === idx + 1 ? 1 : 0.4,
                                       width: 30,
                                       height: 30,
                                       transform: [
@@ -283,21 +279,23 @@ export default function ReviewDetailsScreen() {
         )}
 
         {/* Full Comment */}
-        {review.comment && (
+        {review?.comment && (
           <View className="mb-6">
-            <Text className="font-bold text-gray-900 mb-2">Full Comment</Text>
+            <Text className="font-bold text-gray-900 mb-2">Comment</Text>
             <View className="bg-base-300 p-4 rounded-xl border border-gray-200">
-              <Text className="text-gray-700 leading-6">{review.comment}</Text>
+              <Text className="text-gray-400 leading-6 font-medium">
+                {review?.comment}
+              </Text>
             </View>
           </View>
         )}
 
         {/* Key Phrases */}
-        {review.keyPhrases.length > 0 && (
+        {/* {review?.keyPhrases?.length > 0 && (
           <View className="bg-base-300 p-4 rounded-xl border border-gray-200 mb-6">
             <Text className="font-bold text-gray-900 mb-2">Key Phrases</Text>
             <View className="flex-row flex-wrap gap-2">
-              {review.keyPhrases.map((phrase, index) => (
+              {review?.keyPhrases?.map((phrase, index) => (
                 <View
                   key={index}
                   className="bg-blue-100 px-3 py-1 rounded-full"
@@ -307,45 +305,61 @@ export default function ReviewDetailsScreen() {
               ))}
             </View>
           </View>
-        )}
+        )} */}
 
         {/* Topics */}
-        {review.topics.length > 0 && (
+        {/* {review?.topics?.length > 0 && (
           <View className="bg-base-300 p-4 rounded-xl border border-gray-200 mb-6">
             <Text className="font-bold text-gray-900 mb-2">Topics</Text>
             <View className="flex-row flex-wrap gap-2">
-              {review.topics.map((topic, index) => (
+              {review?.topics?.map((topic, index) => (
                 <View key={index} className="bg-primary px-3 py-1 rounded-full">
                   <Text className="text-base-300 text-sm">{topic}</Text>
                 </View>
               ))}
             </View>
           </View>
-        )}
+        )} */}
 
         {/* Voice Review */}
-        {review.isVoiceReview && review.voiceUrl && (
+        {/* {review?.isVoiceReview && review?.voiceUrl && (
           <View className="bg-base-300 p-4 rounded-xl border border-gray-200 mb-6">
             <Text className="font-bold text-gray-900 mb-2">Voice Review</Text>
             <View className="flex-row items-center">
               <FontAwesome name="microphone" size={20} color={COLORS.primary} />
               <Text className="text-gray-600 ml-2">
-                Duration: {review.voiceDuration}s
+                Duration: {review?.voiceDuration}s
               </Text>
             </View>
           </View>
-        )}
+        )} */}
+        <View className="mb-6">
+          <Text className="font-bold text-gray-900 mb-2">Replay</Text>
+          <View className="bg-base-300 flex-row items-start p-4 rounded-xl border border-l-4 border-l-green-500 border-gray-200">
+            <Entypo
+              name="reply"
+              size={15}
+              color={COLORS["green-500"]}
+              className={`mr-4`}
+            />
+            <Text className="text-gray-400 leading-6 font-medium">
+              {review?.replyContent}
+            </Text>
+          </View>
+        </View>
       </ScrollView>
 
       {/* Footer Button */}
-      <View className="p-4 bg-base-300 border-t border-gray-200">
-        <Button
-          label="Respond to Review"
-          onPress={() => router.push(`/review/respond/${review.id}`)}
-          size="lg"
-          textClassName="text-center"
-        />
-      </View>
+      {!review?.replyContent && (
+        <View className="p-4 bg-base-300 border-t border-gray-200">
+          <Button
+            label="Respond to Review"
+            onPress={() => router.push(`/review/respond/${review?.id}`)}
+            size="lg"
+            textClassName="text-center"
+          />
+        </View>
+      )}
     </SafeAreaView>
   );
 }

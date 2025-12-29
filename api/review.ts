@@ -12,8 +12,8 @@ export const singleReview = async (id: string) => {
 
 export const respondToReview = async (id: string, responseText: string) => {
   try {
-    const response = await axiosPrivate.post(`/v1.0/review-new/${id}/respond`, {
-      response: responseText,
+    const response = await axiosPrivate.put(`/v1.0/reviews/${id}/reply`, {
+      reply_content: responseText,
     });
     return response.data;
   } catch (error) {

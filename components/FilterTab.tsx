@@ -3,7 +3,8 @@ import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 interface IFilterTabProps {
-  tabs: Array<{
+  isLoading?: boolean;
+  tabs: {
     IconComponent?: React.FC<any>;
     iconName?: string;
     iconSize?: number;
@@ -13,15 +14,20 @@ interface IFilterTabProps {
     label: string;
     value: string;
     onPress: () => void;
-  }>;
+  }[];
   activeTab: string;
 }
-const FilterTab: React.FC<IFilterTabProps> = ({ tabs, activeTab }) => {
+const FilterTab: React.FC<IFilterTabProps> = ({
+  isLoading = false,
+  tabs,
+  activeTab,
+}) => {
   const { getResponsiveFontSize } = useDimension();
   return (
     <View className="flex-row gap-2 mb-6">
       {tabs.map((tab) => (
         <TouchableOpacity
+          disabled={isLoading}
           key={tab.value}
           className={
             tab.tabClassName ||

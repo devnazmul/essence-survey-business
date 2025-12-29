@@ -1,9 +1,5 @@
 import { apiErrorHandler } from "@/utils/apiErrorHandler";
-import {
-  useMutation,
-  UseMutationOptions,
-  UseMutationResult,
-} from "@tanstack/react-query";
+import { useMutation, UseMutationOptions } from "@tanstack/react-query";
 
 interface UseCustomMutationProps<TData, TError, TVariables, TContext>
   extends UseMutationOptions<TData, TError, TVariables, TContext> {
@@ -19,14 +15,7 @@ export const useCustomMutation = <
   showErrorMessage = true,
   onError,
   ...options
-}: UseCustomMutationProps<
-  TData,
-  TError,
-  TVariables,
-  TContext
->): UseMutationResult<TData, TError, TVariables, TContext> & {
-  isLoading: boolean;
-} => {
+}: UseCustomMutationProps<TData, TError, TVariables, TContext>) => {
   const mutation = useMutation({
     ...options,
     onError: (error, variables, context, mutationContext) => {
@@ -41,6 +30,6 @@ export const useCustomMutation = <
 
   return {
     ...mutation,
-    isLoading: mutation.isPending,
+    isLoading: mutation.isPending, // Map isPending to isLoading for compatibility
   };
 };

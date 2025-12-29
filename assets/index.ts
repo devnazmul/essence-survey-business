@@ -15,6 +15,9 @@ export const IMAGES = {
     emoji4x2: require("./rating/emoji-4x2.png"),
     emoji5x2: require("./rating/emoji-5x2.png"),
   },
+
+  logo: require("./logo.png"),
+  logoV3: require("./logoV3.png"),
 };
 
 export default IMAGES;

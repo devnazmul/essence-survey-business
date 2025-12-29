@@ -1,5 +1,5 @@
 const COLORS = {
-  primary: "#DC2D2A", // Active Icon Color
+  primary: "#2DCE24", // Active Icon Color
   "primary-content": "#D3E1FE", // Active Icon Color
   secondary: "#61C2E2", // Label Text Color
 
