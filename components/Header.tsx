@@ -12,7 +12,7 @@ const Header: React.FC<IHeaderProps> = ({
   leftComponent,
 }) => {
   return (
-    <View className="flex-row justify-between items-center mb-6">
+    <View className="flex-row justify-between items-center mb-6 w-full">
       {leftComponent ?? <View className="w-10" />}
       {centerComponent ?? <View className="min-w-10" />}
       {rightComponent ?? <View className="w-10" />}

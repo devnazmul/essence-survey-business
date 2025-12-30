@@ -37,6 +37,7 @@ export default function ReviewDetailsScreen() {
   });
 
   // Transform the review data
+  console.log({ rawReview });
   const review = transformReviewData(rawReview as any);
 
   if (isLoading) {
@@ -184,8 +185,8 @@ export default function ReviewDetailsScreen() {
                 >
                   {question.questionText}
                 </Text>
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-row items-center">
+                <View>
+                  <View className="flex-row items-center mb-3">
                     {/* Rating Display */}
                     <View className="flex-row mr-2">
                       {Array.from({ length: question.maxValue }).map(
@@ -195,10 +196,34 @@ export default function ReviewDetailsScreen() {
                               return (
                                 <View
                                   key={idx}
-                                  className={`${question.value === idx + 1 ? "bg-green-400" : "bg-gray-200"} justify-center items-center w-7 h-7 rounded-md mx-1`}
+                                  className={`${
+                                    question.value === idx + 1
+                                      ? `${
+                                          idx === 0
+                                            ? "bg-red-400"
+                                            : `${
+                                                idx === 1
+                                                  ? "bg-yellow-400"
+                                                  : `${
+                                                      idx === 2
+                                                        ? "bg-orange-400"
+                                                        : `${
+                                                            idx === 3
+                                                              ? "bg-blue-400"
+                                                              : `${
+                                                                  idx === 4
+                                                                    ? "bg-green-400"
+                                                                    : "bg-gray-200"
+                                                                }`
+                                                          }`
+                                                    }`
+                                              }`
+                                        }`
+                                      : "bg-gray-200"
+                                  } justify-center items-center w-8 h-9  rounded-md mx-1`}
                                 >
                                   <Text
-                                    className={`${question.value === idx + 1 ? "text-base-300" : "text-gray-600"}`}
+                                    className={`${question.value === idx + 1 ? `${idx === 1 || idx === 2 ? "text-black" : "text-base-300"}` : "text-gray-400"} font-bold`}
                                   >
                                     {idx + 1}
                                   </Text>
@@ -225,11 +250,13 @@ export default function ReviewDetailsScreen() {
                                     style={{
                                       width: 30,
                                       height: 30,
+                                      opacity:
+                                        question.value === idx + 1 ? 1 : 0.5,
                                       transform: [
                                         {
                                           scale:
                                             question.value === idx + 1
-                                              ? 1.2
+                                              ? 1.1
                                               : 0.9,
                                         },
                                       ],
@@ -270,13 +297,36 @@ export default function ReviewDetailsScreen() {
                     </Text>
                   </View>
                   {/* Tag Label */}
+                  {/* TAG  */}
                   {question.tagLabel && (
+                    <ScrollView
+                      horizontal
+                      showsHorizontalScrollIndicator={false}
+                    >
+                      {question.tagLabel && (
+                        <View
+                          key={index}
+                          className={`bg-primary py-1 px-2 mx-1 rounded-md inline justify-center items-center`}
+                        >
+                          <Text
+                            style={{
+                              fontSize: getResponsiveFontSize("md"),
+                            }}
+                            className="text-base-300 text-center w-full inline"
+                          >
+                            {question.tagLabel}
+                          </Text>
+                        </View>
+                      )}
+                    </ScrollView>
+                  )}
+                  {/* {question.tagLabel && (
                     <View className="bg-primary px-3 py-1 rounded-full">
                       <Text className="text-base-300 text-sm font-medium">
                         {question.tagLabel}
                       </Text>
                     </View>
-                  )}
+                  )} */}
                 </View>
               </View>
             ))}
