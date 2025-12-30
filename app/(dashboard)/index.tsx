@@ -55,10 +55,6 @@ export default function DashboardScreen() {
     };
   }, []);
 
-  useEffect(() => {
-    console.log({ stats });
-  }, [stats, isUpdate]);
-
   return (
     <SafeAreaView className="flex-1 bg-base-100 px-4 pt-2">
       {/* Header */}
