@@ -24,39 +24,41 @@ const FilterTab: React.FC<IFilterTabProps> = ({
 }) => {
   const { getResponsiveFontSize } = useDimension();
   return (
-    <View className="flex-row gap-2 mb-6">
-      {tabs.map((tab) => (
-        <TouchableOpacity
-          disabled={isLoading}
-          key={tab.value}
-          className={
-            tab.tabClassName ||
-            `flex-row items-center gap-2 p-2 rounded-lg min-w-[40px] justify-center ${tab.value === activeTab ? "bg-primary" : "bg-gray-200"}`
-          }
-          onPress={tab.onPress}
-        >
-          {tab.IconComponent ? (
-            <tab.IconComponent
-              name={tab.iconName}
-              size={tab.iconSize}
-              color={tab.iconColor}
-            />
-          ) : (
-            ""
-          )}
-          <Text
-            style={{
-              fontSize: getResponsiveFontSize("md"),
-            }}
+    <View className={`flex-row `}>
+      <View className="flex-row gap-2 mb-6 bg-gray-200 rounded-xl p-2">
+        {tabs.map((tab) => (
+          <TouchableOpacity
+            disabled={isLoading}
+            key={tab.value}
             className={
-              tab.textClassName ||
-              `text-base-300 text-center ${tab.value === activeTab ? "text-white" : "text-gray-400"}`
+              tab.tabClassName ||
+              `flex-row items-center gap-2 py-2 px-4 rounded-lg min-w-[40px] justify-center ${tab.value === activeTab ? "bg-primary" : "bg-gray-200"}`
             }
+            onPress={tab.onPress}
           >
-            {tab.label}
-          </Text>
-        </TouchableOpacity>
-      ))}
+            {tab.IconComponent ? (
+              <tab.IconComponent
+                name={tab.iconName}
+                size={tab.iconSize}
+                color={tab.iconColor}
+              />
+            ) : (
+              ""
+            )}
+            <Text
+              style={{
+                fontSize: getResponsiveFontSize("md"),
+              }}
+              className={
+                tab.textClassName ||
+                `text-base-300 text-center ${tab.value === activeTab ? "text-base-300" : "text-gray-400"}`
+              }
+            >
+              {tab.label}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </View>
     </View>
   );
 };

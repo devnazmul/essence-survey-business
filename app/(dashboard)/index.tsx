@@ -4,6 +4,7 @@ import FilterTab from "@/components/FilterTab";
 import Header from "@/components/Header";
 import HeaderButton from "@/components/HeaderButton";
 import ReviewCard from "@/components/ReviewCard";
+import ReviewTrendChart from "@/components/ReviewTrendChart";
 import ScreenTitle from "@/components/ScreenTitle";
 import StatCard from "@/components/StatCard";
 import { COLORS } from "@/constants";
@@ -145,7 +146,12 @@ export default function DashboardScreen() {
             isPercentage
             fullWidth
           />
+
+          <ReviewTrendChart />
         </View>
+
+        {/* Review Trends Chart */}
+        {/* <ReviewTrendChart /> */}
 
         {/* Recent Reviews Header */}
         <View className="flex-row justify-between items-center mb-4 mt-2">
