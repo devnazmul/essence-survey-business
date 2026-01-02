@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { useLoginMutation } from "@/hooks/useAuthMutation";
 import { useDimension } from "@/hooks/useDimension";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -174,6 +175,15 @@ export default function LoginScreen() {
             <Text className="text-primary font-bold">Sign Up</Text>
           </TouchableOpacity>
         </View>*/}
+      </View>
+
+      <View className="items-center mt-8">
+        <Text
+          style={{ fontSize: getResponsiveFontSize("xs") }}
+          className="text-gray-400"
+        >
+          Version: {Constants.expoConfig?.version ?? "1.0.0"}
+        </Text>
       </View>
     </KeyboardAvoidingView>
   );

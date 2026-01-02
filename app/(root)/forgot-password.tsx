@@ -41,7 +41,7 @@ export default function ForgotPasswordScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1  px-6">
+    <SafeAreaView className="flex-1 px-6">
       <Header
         leftComponent={
           <HeaderButton
@@ -55,7 +55,7 @@ export default function ForgotPasswordScreen() {
 
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        className="flex-1 justify-center"
+        className="flex-1 mb-5 justify-start"
       >
         <View className="items-center mb-10">
           <Image

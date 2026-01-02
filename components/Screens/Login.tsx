@@ -3,6 +3,7 @@ import Button from "@/components/ui/Button";
 import COLORS from "@/constants/colors";
 import { useDimension } from "@/hooks/useDimension";
 import { Feather } from "@expo/vector-icons";
+import Constants from "expo-constants";
 import React, { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -109,7 +110,6 @@ const Login: React.FC<ILoginProps> = () => {
           </View>
         </View>
 
-        {/* Footer */}
         <View className="flex-row justify-center mt-8">
           <Text
             style={{ fontSize: getResponsiveFontSize("md") }}
@@ -125,6 +125,15 @@ const Login: React.FC<ILoginProps> = () => {
               Sign Up
             </Text>
           </TouchableOpacity>
+        </View>
+
+        <View className="items-center mt-8 mb-4">
+          <Text
+            style={{ fontSize: getResponsiveFontSize("xs") }}
+            className="text-gray-400"
+          >
+            Version: {Constants.expoConfig?.version ?? "1.0.0"}
+          </Text>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

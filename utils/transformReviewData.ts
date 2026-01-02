@@ -105,7 +105,6 @@ export const transformReviewData = (
       // Extract question data if available
       const questionData = item.question;
       const tagData = item.tag;
-
       return {
         id: item.id,
         questionId: item.question_id,
