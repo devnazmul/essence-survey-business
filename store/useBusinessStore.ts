@@ -26,6 +26,10 @@ interface IBusinessStore {
   user: {
     email: string;
     name: string;
+    firstName?: string;
+    lastName?: string;
+    phone?: string;
+    address?: string;
   };
   stats: {
     avgRating: {

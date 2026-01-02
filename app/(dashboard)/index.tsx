@@ -3,6 +3,7 @@ import BottomNav from "@/components/BottomNav";
 import FilterTab from "@/components/FilterTab";
 import Header from "@/components/Header";
 import HeaderButton from "@/components/HeaderButton";
+import ProfileDropdown from "@/components/ProfileDropdown";
 import ReviewCard from "@/components/ReviewCard";
 import ReviewTrendChart from "@/components/ReviewTrendChart";
 import ScreenTitle from "@/components/ScreenTitle";
@@ -10,9 +11,9 @@ import StatCard from "@/components/StatCard";
 import { COLORS } from "@/constants";
 import { useDashboard } from "@/hooks/useDashboard";
 import { useDimension } from "@/hooks/useDimension";
-import { useAuthStore } from "@/store/useAuthStore";
+import { useNotifications } from "@/hooks/useNotifications";
 import { useBusinessStore } from "@/store/useBusinessStore";
-import { AntDesign, Feather } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
 import {
@@ -32,6 +33,7 @@ export default function DashboardScreen() {
   const { stats, reviews } = useBusinessStore();
   const [activeTab, setActiveTab] = useState<string>("last_30_days");
   const { isLoading, refetch } = useDashboard(activeTab);
+  const { unreadCount } = useNotifications();
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -39,11 +41,6 @@ export default function DashboardScreen() {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
-  };
-
-  const handleLogout = () => {
-    useAuthStore.getState().logout();
-    router.replace("/signin");
   };
 
   const [isUpdate, setIsUpdate] = useState<number>(0);
@@ -61,21 +58,27 @@ export default function DashboardScreen() {
       {/* Header */}
       <Header
         leftComponent={
-          <HeaderButton
-            IconComponent={Feather}
-            iconName="bell"
-            iconSize={20}
-            onPress={() => router.push("/notifications")}
-          />
+          <View className="relative">
+            <HeaderButton
+              IconComponent={Feather}
+              iconName="bell"
+              iconSize={20}
+              onPress={() => router.push("/notifications")}
+            />
+            {unreadCount > 0 && (
+              <View className="absolute top-0 right-0 w-4 h-4 bg-red-500 rounded-full justify-center items-center border border-white">
+                <Text
+                  className="text-white font-bold"
+                  style={{ fontSize: 10, lineHeight: 12 }}
+                >
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </Text>
+              </View>
+            )}
+          </View>
         }
         centerComponent={<Image source={IMAGES.logo} className={`w-16 h-16`} />}
-        rightComponent={
-          <HeaderButton
-            IconComponent={AntDesign}
-            iconName="logout"
-            onPress={handleLogout}
-          />
-        }
+        rightComponent={<ProfileDropdown />}
       />
 
       <ScreenTitle title="Dashboard" />

@@ -46,6 +46,14 @@ export const useNotifications = (perPage: number = 20, status?: string) => {
       });
     }) || [];
 
+  // Calculate counts from the fetched data
+  // Note: This is a client-side calculation based on loaded data.
+  // Ideally, the backend should provide 'unread_count' and 'total_count' in the meta.
+  const totalCount = notifications.length;
+  // This might be inaccurate if there are unread items in pages not yet fetched,
+  // but without backend support, it's the best we can do for now.
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
   return {
     notifications,
     isLoading: query.isLoading,
@@ -54,5 +62,7 @@ export const useNotifications = (perPage: number = 20, status?: string) => {
     fetchNextPage: query.fetchNextPage,
     refetch: query.refetch,
     isRefreshing: query.isFetching && !query.isFetchingNextPage,
+    totalCount,
+    unreadCount,
   };
 };

@@ -19,7 +19,7 @@ export const updateNotification = async (
   data: { status?: string; message?: string }
 ) => {
   const response = await axiosPrivate.patch(
-    `/v1.0/notification/${notificationId}`,
+    `/v1.0/notification/${notificationId}/status`,
     data
   );
   return response.data;

@@ -1,6 +1,7 @@
 import { COLORS } from "@/constants";
 import { useDimension } from "@/hooks/useDimension";
 import { useReviewTrends } from "@/hooks/useReviewTrends";
+import moment from "moment";
 import React, { useMemo, useState } from "react";
 import { ActivityIndicator, Dimensions, Text, View } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
@@ -28,11 +29,30 @@ const ReviewTrendChart = () => {
       return new Date(dateA).getTime() - new Date(dateB).getTime();
     });
 
-    return sortedDates.map((date) => ({
-      value: data.data.data[date]?.submissions_count || 0,
-      label: date.slice(0, 5),
-      dataPointText: "",
-    }));
+    return sortedDates.map((date) => {
+      console.log({ date });
+      if (period === "7d") {
+        return {
+          value: data.data.data[date]?.submissions_count || 0,
+          label: moment(date, "DD-MM-YYYY").format("DD MMM"),
+          dataPointText: "",
+        };
+      }
+      if (period === "30d") {
+        return {
+          value: data.data.data[date]?.submissions_count || 0,
+          label: moment(date, "DD-MM-YYYY").format("D"),
+          dataPointText: "",
+        };
+      }
+      if (period === "90d") {
+        return {
+          value: data.data.data[date]?.submissions_count || 0,
+          label: moment(date, "MM-YYYY").format("MMM"),
+          dataPointText: "",
+        };
+      }
+    });
   }, [data]);
 
   return (
@@ -72,29 +92,33 @@ const ReviewTrendChart = () => {
       />
 
       {isLoading ? (
-        <View className="h-48 justify-center items-center">
+        <View className="h-48 w-full justify-center items-center">
           <ActivityIndicator color={COLORS.primary} />
         </View>
       ) : (
-        <View className="items-center -ml-4">
+        <View className="items-center  w-full">
           <LineChart
             data={chartData}
             color1={COLORS.primary}
             thickness={3}
             startFillColor={COLORS.primary}
             endFillColor={COLORS["base-300"]}
-            startOpacity={0.2}
-            endOpacity={0.01}
+            startOpacity={0.5}
+            endOpacity={0}
             initialSpacing={20}
+            spacing={period === "7d" ? 63 : period === "30d" ? 13.5 : 195}
             yAxisThickness={0}
             xAxisThickness={0}
             hideRules
-            yAxisTextStyle={{ color: "transparent" }}
-            xAxisLabelTextStyle={{ color: "transparent" }}
+            yAxisTextStyle={{ color: "transparent", fontSize: 10 }}
+            xAxisLabelTextStyle={{
+              color: "transparent",
+              fontSize: period === "7d" ? 15 : period === "30d" ? 8 : 13,
+            }}
             areaChart
             curved
             hideDataPoints
-            width={screenWidth - 70}
+            width={screenWidth - 60}
             height={200}
             adjustToWidth
             isAnimated
@@ -104,7 +128,7 @@ const ReviewTrendChart = () => {
               pointerStripWidth: 2,
               strokeDashArray: [2, 5],
               pointerColor: COLORS.primary,
-              radius: 4,
+              radius: 5,
               pointerLabelWidth: 100,
               pointerLabelHeight: 120,
               activatePointersOnLongPress: false,
@@ -120,6 +144,8 @@ const ReviewTrendChart = () => {
                       borderRadius: 8,
                       justifyContent: "center",
                       alignItems: "center",
+                      borderColor: COLORS["gray-300"],
+                      borderWidth: 1,
                     }}
                   >
                     <Text

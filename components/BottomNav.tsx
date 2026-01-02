@@ -6,7 +6,7 @@ import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 interface BottomNavProps {
-  activeTab: "dashboard" | "reviews" | "analytics" | "settings";
+  activeTab: "dashboard" | "reviews" | "analytics" | "settings" | "profile";
 }
 
 const BottomNav = ({ activeTab }: BottomNavProps) => {
@@ -41,6 +41,13 @@ const BottomNav = ({ activeTab }: BottomNavProps) => {
       icon: "settings",
       IconComponent: Feather,
       route: "/(dashboard)/settings",
+    },
+    {
+      id: "profile",
+      label: "Profile",
+      icon: "user",
+      IconComponent: Feather,
+      route: "/(dashboard)/profile",
     },
   ];
 

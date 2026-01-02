@@ -2,16 +2,11 @@ import { updateNotification } from "@/api/notification";
 import IMAGES from "@/assets";
 import Header from "@/components/Header";
 import HeaderButton from "@/components/HeaderButton";
+import ProfileDropdown from "@/components/ProfileDropdown";
 import ScreenTitle from "@/components/ScreenTitle";
 import { COLORS } from "@/constants";
 import { useNotifications } from "@/hooks/useNotifications";
-import { useAuthStore } from "@/store/useAuthStore";
-import {
-  AntDesign,
-  Feather,
-  FontAwesome,
-  MaterialIcons,
-} from "@expo/vector-icons";
+import { Feather, FontAwesome, MaterialIcons } from "@expo/vector-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
@@ -37,6 +32,8 @@ export default function NotificationsScreen() {
     fetchNextPage,
     refetch,
     isRefreshing,
+    totalCount,
+    unreadCount,
   } = useNotifications(20, activeTab === "Unread" ? "unread" : "");
 
   const queryClient = useQueryClient();
@@ -115,10 +112,11 @@ export default function NotificationsScreen() {
           onPress={() => handleNotificationPress(notification)}
           className="relative flex-row items-center bg-base-300 p-4 rounded-xl mb-3 shadow-sm"
         >
-          {!notification.isRead && (
-            <View className="w-4 h-4 rounded-full bg-blue-500 absolute -left-2 bottom-1/2 -translate-y-1/2" />
-          )}
-          <View className={!notification.isRead ? "ml-2" : ""}>
+          <View
+            className={`w-4 h-4 rounded-full ${!notification.isRead ? "bg-blue-500" : "bg-transparent"} absolute -left-2 bottom-1/2 -translate-y-1/2`}
+          />
+
+          <View className={"ml-2"}>
             <NotificationIcon
               type={notification.type}
               originalType={notification.originalType}
@@ -142,10 +140,6 @@ export default function NotificationsScreen() {
     </View>
   );
 
-  const handleLogout = () => {
-    useAuthStore.getState().logout();
-    router.replace("/signin");
-  };
   return (
     <SafeAreaView className="flex-1 bg-base-100 px-4 pt-2">
       {/* Header */}
@@ -159,13 +153,7 @@ export default function NotificationsScreen() {
           />
         }
         centerComponent={<Image source={IMAGES.logo} className={`w-16 h-16`} />}
-        rightComponent={
-          <HeaderButton
-            IconComponent={AntDesign}
-            iconName="logout"
-            onPress={handleLogout}
-          />
-        }
+        rightComponent={<ProfileDropdown />}
       />
 
       <ScreenTitle title="Notifications" />
@@ -183,7 +171,7 @@ export default function NotificationsScreen() {
               activeTab === "All" ? "text-base-300" : "text-gray-500"
             }`}
           >
-            All
+            All {totalCount > 0 && `(${totalCount})`}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -197,7 +185,7 @@ export default function NotificationsScreen() {
               activeTab === "Unread" ? "text-base-300" : "text-gray-500"
             }`}
           >
-            Unread
+            Unread {unreadCount > 0 && `(${unreadCount})`}
           </Text>
         </TouchableOpacity>
       </View>

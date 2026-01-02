@@ -476,3 +476,4 @@ export const TimePickerInputField = ({
     </View>
   );
 };
+export default BasicInputField;

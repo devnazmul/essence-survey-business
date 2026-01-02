@@ -8,6 +8,7 @@ const _layout = () => {
       <Stack.Screen name="analytics" />
       <Stack.Screen name="settings" />
       <Stack.Screen name="notifications" />
+      <Stack.Screen name="profile" />
     </Stack>
   );
 };
