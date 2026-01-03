@@ -1,10 +1,12 @@
 import { COLORS } from "@/constants";
 import { useAuthStore } from "@/store/useAuthStore";
-import { useBusinessStore } from "@/store/useBusinessStore";
+import { formatRole } from "@/utils/formatRole";
+import getFullImageLink from "@/utils/getFullImageLink";
 import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
+  Image,
   Modal,
   Text,
   TouchableOpacity,
@@ -15,13 +17,18 @@ import {
 const ProfileDropdown = () => {
   const router = useRouter();
   const [visible, setVisible] = useState(false);
-  const { user } = useBusinessStore();
+  const { user } = useAuthStore();
   const logout = useAuthStore((state) => state.logout);
 
   const handleLogout = () => {
     setVisible(false);
     logout();
     router.replace("/signin");
+  };
+
+  const handleProfileNavigation = () => {
+    setVisible(false);
+    router.push("/(dashboard)/profile");
   };
 
   const getInitials = (name: string) => {
@@ -37,11 +44,12 @@ const ProfileDropdown = () => {
     <View className="relative z-50">
       <TouchableOpacity
         onPress={() => setVisible(true)}
-        className="w-10 h-10 rounded-full bg-primary justify-center items-center border-2 border-white shadow-sm"
+        className="w-12 h-12  rounded-xl bg-primary justify-center items-center border-2 border-white shadow-sm"
       >
-        <Text className="text-white font-bold text-sm">
-          {getInitials(user.name || "User")}
-        </Text>
+        <Image
+          source={{ uri: getFullImageLink(user?.image) }}
+          className="w-12 h-12  rounded-xl bg-primary justify-center items-center border-2 border-white shadow-sm"
+        />
       </TouchableOpacity>
 
       <Modal transparent visible={visible} animationType="fade">
@@ -49,7 +57,7 @@ const ProfileDropdown = () => {
           <View className="flex-1 bg-black/20">
             <TouchableWithoutFeedback>
               <View
-                className="absolute right-4 top-24 bg-white rounded-xl shadow-lg w-56 overflow-hidden"
+                className="absolute right-4 top-[110px] bg-white rounded-xl shadow-lg w-56 overflow-hidden"
                 style={{
                   shadowColor: "#000",
                   shadowOffset: { width: 0, height: 2 },
@@ -61,7 +69,9 @@ const ProfileDropdown = () => {
                 {/* Profile Header */}
                 <View className="p-4 border-b border-gray-100 bg-gray-50">
                   <Text className="font-bold text-gray-900" numberOfLines={1}>
-                    {user.name || "User"}
+                    {formatRole(
+                      `${user.first_Name} ${user.middle_Name || ""} ${user.last_Name}`
+                    ) || "User"}
                   </Text>
                   <Text className="text-xs text-gray-500" numberOfLines={1}>
                     {user.email}
@@ -72,7 +82,7 @@ const ProfileDropdown = () => {
                 <View className="p-2">
                   <TouchableOpacity
                     className="flex-row items-center p-3 rounded-lg active:bg-gray-100"
-                    onPress={() => setVisible(false)}
+                    onPress={handleProfileNavigation}
                   >
                     <Feather name="user" size={18} color="#4B5563" />
                     <Text className="ml-3 text-gray-700 font-medium">

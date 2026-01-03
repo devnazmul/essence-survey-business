@@ -2,16 +2,16 @@ import { COLORS } from "@/constants";
 import { useDimension } from "@/hooks/useDimension";
 import { useReviewTrends } from "@/hooks/useReviewTrends";
 import moment from "moment";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Dimensions, Text, View } from "react-native";
 import { LineChart } from "react-native-gifted-charts";
 import FilterTab from "./FilterTab";
 
-const ReviewTrendChart = () => {
+const ReviewTrendChart = ({ update }: { update: boolean }) => {
   const { getResponsiveFontSize } = useDimension();
   const screenWidth = Dimensions.get("window").width;
   const [period, setPeriod] = useState("30d");
-  const { data, isLoading } = useReviewTrends(period);
+  const { data, isLoading, refetch } = useReviewTrends(period);
 
   const tabs = [
     { label: "7 Days", value: "7d" },
@@ -19,33 +19,33 @@ const ReviewTrendChart = () => {
     { label: "90 Days", value: "90d" },
   ];
 
+  useEffect(() => {
+    refetch();
+  }, [update]);
+
   const chartData = useMemo(() => {
     if (!data?.data?.data) return [];
 
     const sortedDates = Object.keys(data.data.data).sort((a, b) => {
-      console.log({ a });
       const dateA = a.split("-").reverse().join("-"); // 02-12-2025 -> 2025-12-02
       const dateB = b.split("-").reverse().join("-");
       return new Date(dateA).getTime() - new Date(dateB).getTime();
     });
 
     return sortedDates.map((date) => {
-      console.log({ date });
       if (period === "7d") {
         return {
           value: data.data.data[date]?.submissions_count || 0,
           label: moment(date, "DD-MM-YYYY").format("DD MMM"),
           dataPointText: "",
         };
-      }
-      if (period === "30d") {
+      } else if (period === "30d") {
         return {
           value: data.data.data[date]?.submissions_count || 0,
           label: moment(date, "DD-MM-YYYY").format("D"),
           dataPointText: "",
         };
-      }
-      if (period === "90d") {
+      } else {
         return {
           value: data.data.data[date]?.submissions_count || 0,
           label: moment(date, "MM-YYYY").format("MMM"),
@@ -56,7 +56,7 @@ const ReviewTrendChart = () => {
   }, [data]);
 
   return (
-    <View className="bg-white rounded-2xl p-4 mb-2 shadow-sm">
+    <View className="bg-white rounded-2xl p-4 mb-2 shadow-sm w-full">
       <Text
         // style={{ fontSize: getResponsiveFontSize("lg") }}
         className="font-bold text-gray-900 mb-4"

@@ -14,10 +14,10 @@ interface IHeaderButtonProps {
 const HeaderButton: React.FC<IHeaderButtonProps> = ({
   IconComponent,
   iconName = "",
-  iconSize = 20,
+  iconSize = 24,
   iconColor = COLORS["base-300"],
   onPress = () => {},
-  buttonClassName = "flex-row items-center bg-primary w-10 h-10 rounded-lg flex justify-center items-center",
+  buttonClassName = "flex-row items-center bg-primary w-12 h-12 rounded-xl flex justify-center items-center",
 }) => {
   return (
     <TouchableOpacity className={buttonClassName} onPress={onPress}>

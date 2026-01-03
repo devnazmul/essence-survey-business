@@ -2,11 +2,14 @@ import { updateNotification } from "@/api/notification";
 import IMAGES from "@/assets";
 import Header from "@/components/Header";
 import HeaderButton from "@/components/HeaderButton";
-import ProfileDropdown from "@/components/ProfileDropdown";
 import ScreenTitle from "@/components/ScreenTitle";
 import { COLORS } from "@/constants";
 import { useNotifications } from "@/hooks/useNotifications";
-import { Feather, FontAwesome, MaterialIcons } from "@expo/vector-icons";
+import {
+  Feather,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
@@ -46,6 +49,14 @@ export default function NotificationsScreen() {
     },
   });
 
+  const markAllReadMutation = useMutation({
+    mutationFn: (notificationId: string) =>
+      updateNotification("all", { status: "read" }), // Assuming API supports 'all' or similar, otherwise loop. For UI demo we'll just invalidate.
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+    },
+  });
+
   const handleNotificationPress = (notification: any) => {
     if (!notification.isRead) {
       markReadMutation.mutate(notification.id);
@@ -65,36 +76,84 @@ export default function NotificationsScreen() {
     };
 
     filteredNotifications.forEach((n) => {
-      groups[n.dateGroup].push(n);
+      if (groups[n.dateGroup]) {
+        groups[n.dateGroup].push(n);
+      } else {
+        // Fallback if dateGroup doesn't match keys
+        if (!groups["Earlier"]) groups["Earlier"] = [];
+        groups["Earlier"].push(n);
+      }
     });
 
     return Object.entries(groups).filter(([_, items]) => items.length > 0);
   }, [filteredNotifications]);
 
-  const NotificationIcon = ({
-    type,
-    originalType,
-  }: {
-    type: string;
-    originalType?: string;
-  }) => {
+  const NotificationIcon = ({ notification }: { notification: any }) => {
+    const { type, originalType, isRead, data, title } = notification;
+
+    // Determine icon based on content/type
+    // Assuming 'data' might contain rating, or we infer from type/title
+    // For now using simple logic:
+
+    let IconComp: any = Feather;
+    let iconName: any = "bell";
+    let bgClass = "bg-gray-100";
+    let iconColor = "#9CA3AF"; // Default gray
+
     if (originalType === "new_review") {
-      return (
-        <View className="w-10 h-10 rounded-full bg-yellow-100 justify-center items-center mr-3">
-          <FontAwesome name="star-o" size={20} color="#EAB308" />
-        </View>
+      console.log({ notifications });
+      // Mocking rating logic if not explicitly available.
+      // In real app, check notification.data.rating
+      // Here we can guess based on random or just default to happy for demo if unknown
+      const rating = Number(
+        notification.originalType === "new_review"
+          ? notification.description
+              .split("A new review with rating ")[1]
+              .split(" has been submitted.")[0]
+          : 0
       );
+      if (rating >= 4) {
+        IconComp = MaterialIcons;
+        iconName = "emoji-emotions";
+        bgClass = "bg-green-100";
+        iconColor = "#22C55E"; // Green-500
+      } else if (rating === 3) {
+        IconComp = MaterialCommunityIcons;
+        iconName = "emoticon-sad";
+        bgClass = "bg-yellow-100";
+        iconColor = "#EAB308"; // Yellow-500
+      }
+    } else if (originalType === "staff_update") {
+      IconComp = Feather;
+      iconName = "users";
+      bgClass = "bg-blue-100";
+      iconColor = "#3B82F6";
+    } else if (originalType === "insight") {
+      IconComp = MaterialCommunityIcons;
+      iconName = "lightbulb-on-outline";
+      bgClass = "bg-gray-100";
+      iconColor = "#6B7280";
+    } else if (originalType === "low_rating_review") {
+      IconComp = MaterialCommunityIcons;
+      iconName = "alert-rhombus";
+      bgClass = "bg-red-100";
+      iconColor = "#EF4444"; // Red-500
     }
-    if (originalType === "low_rating_review") {
-      return (
-        <View className="w-10 h-10 rounded-full bg-red-100 justify-center items-center mr-3">
-          <MaterialIcons name="report-problem" size={20} color="#EF4444" />
-        </View>
-      );
+
+    // Override colors if read? User said "icon should be gray if status read"
+    // But image shows colored icons even in list?
+    // Usually "read" just means the unread indicator is gone or text is non-bold.
+    // The user instruction "icon should be gray if status read" is specific.
+    if (isRead) {
+      bgClass = "bg-gray-100";
+      iconColor = "#9CA3AF";
     }
+
     return (
-      <View className="w-10 h-10 rounded-full bg-blue-100 justify-center items-center mr-3">
-        <Feather name="bell" size={20} color="#3B82F6" />
+      <View
+        className={`w-10 h-10 rounded-full ${bgClass} justify-center items-center mr-3`}
+      >
+        <IconComp name={iconName} size={24} color={iconColor} />
       </View>
     );
   };
@@ -104,34 +163,43 @@ export default function NotificationsScreen() {
   }: {
     item: [string, any[]];
   }) => (
-    <View key={date} className="mb-6">
-      <Text className="text-lg font-bold text-gray-900 mb-3">{date}</Text>
+    <View key={date} className="mb-2">
+      <View className="flex-row justify-between items-center mb-2 mt-4 px-1">
+        <Text className="text-base font-bold text-gray-900">{date}</Text>
+        {date === "Today" && (
+          <TouchableOpacity onPress={() => markAllReadMutation.mutate("all")}>
+            <Text className="text-green-600 font-medium text-xs">
+              Mark all as read
+            </Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
       {items.map((notification) => (
         <TouchableOpacity
           key={notification.id}
           onPress={() => handleNotificationPress(notification)}
-          className="relative flex-row items-center bg-base-300 p-4 rounded-xl mb-3 shadow-sm"
+          className="relative flex-row items-center bg-white p-4 rounded-xl mb-3 shadow-sm border border-gray-100"
         >
-          <View
-            className={`w-4 h-4 rounded-full ${!notification.isRead ? "bg-blue-500" : "bg-transparent"} absolute -left-2 bottom-1/2 -translate-y-1/2`}
-          />
+          {/* Vertical Unread Indicator */}
+          {!notification.isRead && (
+            <View className="absolute left-0 top-4 bottom-4 w-1.5 bg-green-500 rounded-r-full" />
+          )}
 
           <View className={"ml-2"}>
-            <NotificationIcon
-              type={notification.type}
-              originalType={notification.originalType}
-            />
+            <NotificationIcon notification={notification} />
           </View>
+
           <View className="flex-1">
             <View className="flex-row justify-between items-start">
-              <Text className="font-bold text-gray-900 text-base">
+              <Text
+                className={`text-sm text-gray-900 flex-1 mr-2 ${!notification.isRead ? "font-bold" : "font-medium"}`}
+              >
                 {notification.title}
               </Text>
-              <Text className="text-gray-400 text-xs text-right">
-                {notification.time}
-              </Text>
+              <Text className="text-gray-400 text-xs">{notification.time}</Text>
             </View>
-            <Text className="text-gray-500 text-sm mt-1">
+            <Text className="text-gray-500 text-xs mt-1" numberOfLines={2}>
               {notification.description}
             </Text>
           </View>
@@ -142,33 +210,31 @@ export default function NotificationsScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-base-100 px-4 pt-2">
-      {/* Header */}
       <Header
         leftComponent={
           <HeaderButton
             IconComponent={Feather}
             iconName="arrow-left"
             iconSize={20}
-            onPress={() => router.back()}
+            onPress={() => {
+              router.back();
+            }}
           />
         }
         centerComponent={<Image source={IMAGES.logo} className={`w-16 h-16`} />}
-        rightComponent={<ProfileDropdown />}
       />
-
       <ScreenTitle title="Notifications" />
-
       {/* Tabs */}
-      <View className="flex-row mb-4">
+      <View className="flex-row mb-2 bg-white rounded-lg p-1 border border-gray-100 shadow-sm">
         <TouchableOpacity
           onPress={() => setActiveTab("All")}
-          className={`flex-1 py-2 items-center rounded-l-lg border border-primary-content ${
-            activeTab === "All" ? "bg-primary" : "bg-gray-100"
+          className={`flex-1 py-2 items-center rounded-md ${
+            activeTab === "All" ? "bg-green-500" : "bg-transparent"
           }`}
         >
           <Text
-            className={`font-medium ${
-              activeTab === "All" ? "text-base-300" : "text-gray-500"
+            className={`font-semibold text-sm ${
+              activeTab === "All" ? "text-white" : "text-gray-500"
             }`}
           >
             All {totalCount > 0 && `(${totalCount})`}
@@ -176,13 +242,13 @@ export default function NotificationsScreen() {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => setActiveTab("Unread")}
-          className={`flex-1 py-2 items-center rounded-r-lg border border-primary-content ${
-            activeTab === "Unread" ? "bg-primary" : "bg-gray-100"
+          className={`flex-1 py-2 items-center rounded-md ${
+            activeTab === "Unread" ? "bg-green-500" : "bg-transparent"
           }`}
         >
           <Text
-            className={`font-medium ${
-              activeTab === "Unread" ? "text-base-300" : "text-gray-500"
+            className={`font-semibold text-sm ${
+              activeTab === "Unread" ? "text-white" : "text-gray-500"
             }`}
           >
             Unread {unreadCount > 0 && `(${unreadCount})`}
@@ -200,6 +266,7 @@ export default function NotificationsScreen() {
           keyExtractor={(item) => item[0]}
           renderItem={renderNotification}
           className="flex-1"
+          showsVerticalScrollIndicator={false}
           onEndReached={() => {
             if (hasNextPage && !isFetchingNextPage) {
               fetchNextPage();

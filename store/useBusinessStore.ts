@@ -32,6 +32,11 @@ interface IBusinessStore {
     address?: string;
   };
   stats: {
+    sentimentScore: {
+      value: number;
+      max: number;
+      change: number;
+    };
     avgRating: {
       value: number;
       change: number;
@@ -67,6 +72,11 @@ export const useBusinessStore = create<IBusinessStore>((set, get) => ({
     name: "Feed Genius",
   },
   stats: {
+    sentimentScore: {
+      value: 0,
+      max: 0,
+      change: 0,
+    },
     avgRating: {
       value: 0,
       change: 0,
@@ -106,6 +116,11 @@ export const useBusinessStore = create<IBusinessStore>((set, get) => ({
   setDashboardData: (data) =>
     set({
       stats: {
+        sentimentScore: data?.stats?.sentimentScore || {
+          value: 0,
+          max: 0,
+          change: 0,
+        },
         avgRating: data?.stats?.avgRating || {
           value: 0,
           change: 0,

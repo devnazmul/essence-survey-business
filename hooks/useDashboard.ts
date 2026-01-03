@@ -33,6 +33,11 @@ export const useDashboard = (period?: string) => {
       console.log("ReviewData:", query.data.data.review_feed);
       const structuredData = {
         stats: {
+          sentimentScore: {
+            value: query.data.data?.metrics?.ai_sentiment_score?.value,
+            max: query.data.data?.metrics?.ai_sentiment_score?.max,
+            change: query.data.data?.metrics?.ai_sentiment_score?.change,
+          },
           avgRating: {
             value: query.data.data?.metrics?.avg_overall_rating?.value,
             change: query.data.data?.metrics?.avg_overall_rating?.change,
