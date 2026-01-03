@@ -8,6 +8,7 @@ interface InsightProgressProps {
   percentage: number;
   color?: string; // Optional color override
   backgroundColor?: string;
+  count?: number;
 }
 
 const InsightProgress = ({
@@ -15,6 +16,7 @@ const InsightProgress = ({
   percentage,
   color = COLORS.primary,
   backgroundColor = "#F2F2F2",
+  count,
 }: InsightProgressProps) => {
   const { getResponsiveFontSize } = useDimension();
 
@@ -28,11 +30,10 @@ const InsightProgress = ({
           {label}
         </Text>
         <Text
-          style={{ fontSize: getResponsiveFontSize("md") }} // Corrected font size prop
-          className="text-gray-500 font-medium"
-          style={{ color: color }}
+          style={{ fontSize: getResponsiveFontSize("sm"), color: color }}
+          className="text-gray-500 font-medium "
         >
-          {percentage}%
+          {count !== undefined ? `${count} (${percentage}%)` : `${percentage}%`}
         </Text>
       </View>
       <View

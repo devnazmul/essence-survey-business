@@ -1,4 +1,5 @@
 import { COLORS } from "@/constants";
+import { useAuthStore } from "@/store/useAuthStore";
 import { useBusinessStore } from "@/store/useBusinessStore";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
@@ -21,8 +22,11 @@ const MenuItem = ({ icon, label, IconComponent }: any) => (
   </TouchableOpacity>
 );
 
+import { useRouter } from "expo-router";
+
 const DrawerModal: React.FC<DrawerModalProps> = ({ visible, onClose }) => {
   const { user } = useBusinessStore();
+  const router = useRouter(); // Use Expo Router
   // State for expanded menu items
   const [expandedItems, setExpandedItems] = React.useState<
     Record<string, boolean>
@@ -130,10 +134,32 @@ const DrawerModal: React.FC<DrawerModalProps> = ({ visible, onClose }) => {
     },
   ];
 
-  // Fix specific icon for Leaflet if needed, relying on Feather 'grid' as placeholder or check imports
-  // Revisiting imports: Ionicons, MaterialCommunityIcons, Feather are imported.
-  // Correcting Leaflet icon to QR code if available or similar.
-  // MaterialCommunityIcons has 'qrcode'.
+  const handleNavigation = (label: string) => {
+    onClose();
+    switch (label) {
+      case "Dashboard":
+        router.push("/(dashboard)"); // Or just "/"
+        break;
+      case "Overall Review":
+        router.push("/reviews");
+        break;
+      case "Settings":
+        router.push("/settings");
+        break;
+      case "Visit Client Site":
+        // Linking.openURL(...) if strictly external, or maybe internal webview
+        break;
+      default:
+        console.log(`Navigation for ${label} not implemented`);
+        break;
+    }
+  };
+
+  const handleLogout = () => {
+    onClose();
+    useAuthStore.getState().logout();
+    router.replace("/signin");
+  };
 
   // Helper to render items
   const renderMenuItem = (item: any, isSubItem = false) => {
@@ -147,9 +173,7 @@ const DrawerModal: React.FC<DrawerModalProps> = ({ visible, onClose }) => {
             if (hasSubItems) {
               toggleExpand(item.label);
             } else {
-              // Handle navigation here (placeholder)
-              console.log(`Navigate to ${item.label}`);
-              onClose();
+              handleNavigation(item.label);
             }
           }}
           className={`flex-row items-center justify-between py-3 ${
@@ -230,7 +254,10 @@ const DrawerModal: React.FC<DrawerModalProps> = ({ visible, onClose }) => {
 
           {/* Logout Button */}
           <View className="mt-4 px-4 pb-8">
-            <TouchableOpacity className="flex-row items-center py-3">
+            <TouchableOpacity
+              onPress={handleLogout}
+              className="flex-row items-center py-3"
+            >
               <Feather
                 name="log-out"
                 size={20}

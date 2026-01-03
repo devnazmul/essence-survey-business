@@ -14,7 +14,7 @@ interface IHeaderButtonProps {
 const HeaderButton: React.FC<IHeaderButtonProps> = ({
   IconComponent,
   iconName = "",
-  iconSize = 24,
+  iconSize = 20,
   iconColor = COLORS["base-300"],
   onPress = () => {},
   buttonClassName = "flex-row items-center bg-primary w-12 h-12 rounded-xl flex justify-center items-center",

@@ -57,7 +57,7 @@ const ProfileDropdown = () => {
           <View className="flex-1 bg-black/20">
             <TouchableWithoutFeedback>
               <View
-                className="absolute right-4 top-[110px] bg-white rounded-xl shadow-lg w-56 overflow-hidden"
+                className="absolute left-4 top-[110px] bg-white rounded-xl shadow-lg w-56 overflow-hidden"
                 style={{
                   shadowColor: "#000",
                   shadowOffset: { width: 0, height: 2 },
@@ -70,11 +70,15 @@ const ProfileDropdown = () => {
                 <View className="p-4 border-b border-gray-100 bg-gray-50">
                   <Text className="font-bold text-gray-900" numberOfLines={1}>
                     {formatRole(
-                      `${user.first_Name} ${user.middle_Name || ""} ${user.last_Name}`
-                    ) || "User"}
+                      user
+                        ? `${user.first_Name || ""} ${user.middle_Name || ""} ${
+                            user.last_Name || ""
+                          }`
+                        : "User"
+                    )}
                   </Text>
                   <Text className="text-xs text-gray-500" numberOfLines={1}>
-                    {user.email}
+                    {user?.email}
                   </Text>
                 </View>
 

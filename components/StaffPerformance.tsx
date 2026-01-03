@@ -1,5 +1,6 @@
 import { COLORS } from "@/constants";
 import { useDimension } from "@/hooks/useDimension";
+import getFullImageLink from "@/utils/getFullImageLink";
 import { MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import { Image, Text, View } from "react-native";
@@ -7,7 +8,7 @@ import { Image, Text, View } from "react-native";
 interface StaffPerformanceProps {
   name: string;
   role: string;
-  location: string;
+  location?: string;
   rating: number;
   reviews: number;
   image?: string;
@@ -31,7 +32,7 @@ const StaffPerformance = ({
     >
       <Image
         source={{
-          uri: image || "https://randomuser.me/api/portraits/lego/1.jpg",
+          uri: getFullImageLink(image || ""),
         }}
         className="w-12 h-12 rounded-full mr-3"
       />
@@ -46,7 +47,7 @@ const StaffPerformance = ({
           style={{ fontSize: getResponsiveFontSize("sm") }}
           className="text-gray-500"
         >
-          {role} • {location}
+          {role} {location ? `• ${location}` : ""}
         </Text>
       </View>
       <View className="items-end">

@@ -1,0 +1,104 @@
+import { COLORS } from "@/constants";
+import { useBusinessStore } from "@/store/useBusinessStore";
+import { Feather } from "@expo/vector-icons";
+import React from "react";
+import { Image, ScrollView, Text, TextInput, View } from "react-native";
+
+export default function BusinessSettings() {
+  const settings = useBusinessStore((state) => state.settings);
+  const setSettings = useBusinessStore((state) => state.setSettings);
+
+  const logo = settings.Logo?.startsWith("http")
+    ? settings.Logo
+    : "https://ui-avatars.com/api/?name=The+Grill&background=random";
+
+  return (
+    <ScrollView className="flex-1 bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+      <View className="flex-row items-center mb-6">
+        <View className="bg-green-100 p-2 rounded-lg mr-3">
+          <Feather name="settings" size={20} color={COLORS.primary} />
+        </View>
+        <Text className="text-lg font-bold text-primary">
+          Business Settings
+        </Text>
+      </View>
+
+      {/* Logo Upload */}
+      <View className="items-center mb-6">
+        <View className="w-24 h-24 bg-white rounded-xl shadow-sm border border-gray-100 items-center justify-center mb-2 overflow-hidden relative">
+          <Image
+            source={{ uri: logo }}
+            className="w-full h-full"
+            resizeMode="cover"
+          />
+        </View>
+        <Text className="text-gray-900 font-bold mb-1">Logo</Text>
+        <Text className="text-gray-400 text-xs">(Ratio should be 1:1)</Text>
+      </View>
+
+      {/* Form Fields */}
+      <View className="space-y-4">
+        <View>
+          <Text className="text-gray-900 font-bold mb-2">Business Name</Text>
+          <TextInput
+            value={settings.Name}
+            onChangeText={(text) => setSettings({ Name: text })}
+            className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-white"
+          />
+        </View>
+
+        <View>
+          <Text className="text-gray-900 font-bold mb-2">Email</Text>
+          <TextInput
+            value={settings.EmailAddress}
+            onChangeText={(text) => setSettings({ EmailAddress: text })}
+            className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-white"
+          />
+        </View>
+
+        <View>
+          <Text className="text-gray-900 font-bold mb-2">Phone</Text>
+          <TextInput
+            value={settings.PhoneNumber}
+            onChangeText={(text) => setSettings({ PhoneNumber: text })}
+            className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-white"
+          />
+        </View>
+
+        <View>
+          <Text className="text-gray-900 font-bold mb-2">
+            Address <Text className="text-red-500">*</Text>
+          </Text>
+          <TextInput
+            value={settings.Address}
+            onChangeText={(text) => setSettings({ Address: text })}
+            className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-white"
+          />
+        </View>
+
+        <View>
+          <Text className="text-gray-900 font-bold mb-2">Post Code</Text>
+          <TextInput
+            value={settings.PostCode}
+            onChangeText={(text) => setSettings({ PostCode: text })}
+            className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-white"
+          />
+        </View>
+
+        <View>
+          <Text className="text-gray-900 font-bold mb-2">About Us</Text>
+          <TextInput
+            value={settings.About}
+            onChangeText={(text) => setSettings({ About: text })}
+            multiline
+            numberOfLines={4}
+            textAlignVertical="top"
+            className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-white h-32"
+          />
+        </View>
+      </View>
+
+      <View className="h-8" />
+    </ScrollView>
+  );
+}

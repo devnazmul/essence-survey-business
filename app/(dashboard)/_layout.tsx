@@ -5,7 +5,7 @@ const _layout = () => {
     <Stack initialRouteName="index" screenOptions={{ headerShown: false }}>
       <Stack.Screen name="index" />
       <Stack.Screen name="reviews" />
-      <Stack.Screen name="analytics" />
+      <Stack.Screen name="insights" />
       <Stack.Screen name="settings" />
       <Stack.Screen name="notifications" />
       <Stack.Screen name="profile" />

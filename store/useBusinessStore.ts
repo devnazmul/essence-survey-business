@@ -1,3 +1,5 @@
+import { IBusinessSettings, updateBusinessDetails } from "@/api/business";
+import { getSurveys, ISurvey } from "@/api/survey";
 import { create } from "zustand";
 
 export interface IReview {
@@ -30,6 +32,7 @@ interface IBusinessStore {
     lastName?: string;
     phone?: string;
     address?: string;
+    businessId?: number; // Added businessId
   };
   stats: {
     sentimentScore: {
@@ -58,18 +61,27 @@ interface IBusinessStore {
   };
   reviews: IReview[];
   notifications: INotification[];
+  settings: IBusinessSettings; // Settings object
+  surveys: ISurvey[]; // Surveys list
   isLoading: boolean;
   lastUpdated: string | null;
   login: (email: string) => void;
   getReviewById: (id: string) => IReview | undefined;
   setDashboardData: (data: any) => void;
   setLoading: (loading: boolean) => void;
+
+  // Settings Actions
+  setSettings: (settings: Partial<IBusinessSettings>) => void;
+  fetchSurveys: () => Promise<void>;
+  updateBusiness: () => Promise<boolean>;
+  initializeSettings: (businessData: any) => void;
 }
 
 export const useBusinessStore = create<IBusinessStore>((set, get) => ({
   user: {
     email: "",
     name: "Feed Genius",
+    businessId: 6, // Default or derived from login
   },
   stats: {
     sentimentScore: {
@@ -97,17 +109,9 @@ export const useBusinessStore = create<IBusinessStore>((set, get) => ({
     },
   },
   reviews: [],
-  notifications: [
-    // {
-    //   id: "4",
-    //   title: "New 4-star review",
-    //   description: "For 'Kitchen Remodeling Experts'",
-    //   time: "1d ago",
-    //   isRead: true,
-    //   type: "review",
-    //   dateGroup: "Yesterday",
-    // },
-  ],
+  notifications: [],
+  settings: {}, // Initial empty settings
+  surveys: [], // Initial empty surveys
   isLoading: false,
   lastUpdated: null,
   login: (email) => set((state) => ({ user: { ...state.user, email } })),
@@ -140,4 +144,46 @@ export const useBusinessStore = create<IBusinessStore>((set, get) => ({
       lastUpdated: new Date().toISOString(),
     }),
   setLoading: (loading) => set({ isLoading: loading }),
+
+  // Settings Implementation
+  setSettings: (newSettings) =>
+    set((state) => ({ settings: { ...state.settings, ...newSettings } })),
+
+  fetchSurveys: async () => {
+    const { user } = get();
+    if (!user.businessId) return;
+    try {
+      const surveys = await getSurveys(user.businessId);
+      set({ surveys });
+    } catch (error) {
+      console.error("Failed to fetch surveys", error);
+    }
+  },
+
+  updateBusiness: async () => {
+    const { user, settings } = get();
+    if (!user.businessId) return false;
+    set({ isLoading: true });
+    try {
+      const result = await updateBusinessDetails(user.businessId, settings);
+      set({ isLoading: false });
+      return result?.success || result?.status === 200; // Check success condition based on API
+    } catch (error) {
+      console.error("Failed to update settings", error);
+      set({ isLoading: false });
+      return false;
+    }
+  },
+
+  initializeSettings: (businessData) => {
+    if (businessData) {
+      set((state) => ({
+        settings: { ...businessData },
+        user: {
+          ...state.user,
+          businessId: businessData.id || state.user.businessId,
+        },
+      }));
+    }
+  },
 }));

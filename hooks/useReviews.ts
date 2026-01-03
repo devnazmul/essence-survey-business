@@ -2,14 +2,14 @@ import { getReviews } from "@/api/review";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
-export const useReviews = (limit: number = 20) => {
+export const useReviews = (limit: number = 20, filters: any = {}) => {
   const { user } = useAuthStore();
   const businessId = user?.business?.id || user?.business?.[0]?.id;
 
   const query = useInfiniteQuery({
-    queryKey: ["reviews", businessId],
+    queryKey: ["reviews", businessId, filters], // Add filters to queryKey
     queryFn: ({ pageParam = 1 }) =>
-      getReviews(businessId, pageParam as number, limit),
+      getReviews(businessId, pageParam as number, limit, filters),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       // Assuming the API returns a standard pagination object or we can check the length

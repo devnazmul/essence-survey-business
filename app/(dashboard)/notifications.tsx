@@ -1,7 +1,7 @@
 import { updateNotification } from "@/api/notification";
 import IMAGES from "@/assets";
+import BottomNav from "@/components/BottomNav";
 import Header from "@/components/Header";
-import HeaderButton from "@/components/HeaderButton";
 import ScreenTitle from "@/components/ScreenTitle";
 import { COLORS } from "@/constants";
 import { useNotifications } from "@/hooks/useNotifications";
@@ -211,16 +211,6 @@ export default function NotificationsScreen() {
   return (
     <SafeAreaView className="flex-1 bg-base-100 px-4 pt-2">
       <Header
-        leftComponent={
-          <HeaderButton
-            IconComponent={Feather}
-            iconName="arrow-left"
-            iconSize={20}
-            onPress={() => {
-              router.back();
-            }}
-          />
-        }
         centerComponent={<Image source={IMAGES.logo} className={`w-16 h-16`} />}
       />
       <ScreenTitle title="Notifications" />
@@ -296,6 +286,7 @@ export default function NotificationsScreen() {
           }
         />
       )}
+      <BottomNav activeTab="notifications" />
     </SafeAreaView>
   );
 }

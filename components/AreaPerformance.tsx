@@ -10,6 +10,7 @@ interface AreaPerformanceProps {
   icon?: any;
   color?: string;
   iconBg?: string;
+  reviewCount?: number;
 }
 
 const AreaPerformance = ({
@@ -18,6 +19,7 @@ const AreaPerformance = ({
   icon,
   color = COLORS.primary,
   iconBg = "#E0F2FE",
+  reviewCount,
 }: AreaPerformanceProps) => {
   const { getResponsiveFontSize } = useDimension();
 
@@ -50,12 +52,17 @@ const AreaPerformance = ({
             </Text>
           </View>
         </View>
-        <View className="h-2 bg-gray-100 rounded-full overflow-hidden">
+        <View className="h-3 bg-gray-100 rounded-full overflow-hidden">
           <View
             className="h-full rounded-full"
             style={{ width: `${widthPercentage}%`, backgroundColor: color }}
           />
         </View>
+        {reviewCount !== undefined && (
+          <Text className="text-gray-400 text-xs mt-1">
+            {reviewCount} reviews
+          </Text>
+        )}
       </View>
     </View>
   );
