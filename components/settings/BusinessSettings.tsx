@@ -1,16 +1,95 @@
+import { uploadBusinessLogo } from "@/api/business";
 import { COLORS } from "@/constants";
 import { useBusinessStore } from "@/store/useBusinessStore";
+import getFullImageLink from "@/utils/getFullImageLink";
 import { Feather } from "@expo/vector-icons";
-import React from "react";
-import { Image, ScrollView, Text, TextInput, View } from "react-native";
+import { Image } from "expo-image";
+import * as ImagePicker from "expo-image-picker";
+import React, { useState } from "react";
+import {
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 export default function BusinessSettings() {
   const settings = useBusinessStore((state) => state.settings);
   const setSettings = useBusinessStore((state) => state.setSettings);
+  const businessId = useBusinessStore((state) => state.user.businessId);
+  const fetchBusinessSettings = useBusinessStore(
+    (state) => state.fetchBusinessSettings
+  );
+  const [isPickingImage, setIsPickingImage] = useState(false);
+  const [isUploadingLogo, setIsUploadingLogo] = useState(false);
 
-  const logo = settings.Logo?.startsWith("http")
-    ? settings.Logo
+  console.log("BusinessSettings - Current settings:", settings);
+
+  const logo = settings.Logo
+    ? getFullImageLink(settings.Logo)
     : "https://ui-avatars.com/api/?name=The+Grill&background=random";
+
+  const pickImage = async () => {
+    try {
+      setIsPickingImage(true);
+
+      // Request permission
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (permissionResult.granted === false) {
+        Alert.alert(
+          "Permission Required",
+          "Please allow access to your photo library to upload a logo."
+        );
+        setIsPickingImage(false);
+        return;
+      }
+
+      // Launch image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ["images"],
+        allowsEditing: true,
+        aspect: [1, 1], // Square aspect ratio
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        const selectedImage = result.assets[0];
+
+        // Upload to server
+        if (!businessId) {
+          Alert.alert("Error", "Business ID not found. Please try again.");
+          setIsPickingImage(false);
+          return;
+        }
+
+        setIsUploadingLogo(true);
+
+        try {
+          await uploadBusinessLogo(businessId, selectedImage.uri);
+
+          // Refetch business settings to get the updated logo URL
+          await fetchBusinessSettings();
+
+          Alert.alert("Success", "Logo updated successfully!");
+        } catch (uploadError) {
+          console.error("Error uploading logo:", uploadError);
+          Alert.alert("Error", "Failed to upload logo. Please try again.");
+        } finally {
+          setIsUploadingLogo(false);
+        }
+      }
+    } catch (error) {
+      console.error("Error picking image:", error);
+      Alert.alert("Error", "Failed to pick image. Please try again.");
+    } finally {
+      setIsPickingImage(false);
+    }
+  };
 
   return (
     <ScrollView className="flex-1 bg-white rounded-xl p-4 shadow-sm border border-gray-100">
@@ -25,15 +104,31 @@ export default function BusinessSettings() {
 
       {/* Logo Upload */}
       <View className="items-center mb-6">
-        <View className="w-24 h-24 bg-white rounded-xl shadow-sm border border-gray-100 items-center justify-center mb-2 overflow-hidden relative">
+        <TouchableOpacity
+          onPress={pickImage}
+          disabled={isPickingImage || isUploadingLogo}
+          className="w-24 h-24 bg-white rounded-xl shadow-sm border border-gray-100 items-center justify-center mb-2 overflow-hidden relative"
+        >
           <Image
             source={{ uri: logo }}
             className="w-full h-full"
             resizeMode="cover"
           />
-        </View>
+          {/* Upload overlay */}
+          <View className="absolute inset-0 bg-black/40 items-center justify-center">
+            <View className="bg-white rounded-full p-2">
+              {isUploadingLogo ? (
+                <ActivityIndicator size="small" color={COLORS.primary} />
+              ) : (
+                <Feather name="camera" size={20} color={COLORS.primary} />
+              )}
+            </View>
+          </View>
+        </TouchableOpacity>
         <Text className="text-gray-900 font-bold mb-1">Logo</Text>
-        <Text className="text-gray-400 text-xs">(Ratio should be 1:1)</Text>
+        <Text className="text-gray-400 text-xs">
+          {isUploadingLogo ? "Uploading..." : "(Ratio should be 1:1)"}
+        </Text>
       </View>
 
       {/* Form Fields */}

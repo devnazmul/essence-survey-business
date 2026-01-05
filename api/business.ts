@@ -59,6 +59,43 @@ export interface IBusinessSettings {
   registered_user_survey_id?: number | null;
 }
 
+export const getBusinessSettings = async (businessId: number | string) => {
+  // Using POST with _method=PATCH as per API hint/convention often seen in some frameworks
+  const response = await axiosPrivate.get(`/v1.0/business/${businessId}`);
+  return response.data;
+};
+
+export const uploadBusinessLogo = async (
+  businessId: number | string,
+  imageUri: string
+) => {
+  const formData = new FormData();
+
+  // Extract file name and type from URI
+  const filename = imageUri.split("/").pop() || "logo.jpg";
+  const match = /\.(\w+)$/.exec(filename);
+  const type = match ? `image/${match[1]}` : "image/jpeg";
+
+  // Append the image file to FormData
+  formData.append("logo", {
+    uri: imageUri,
+    name: filename,
+    type: type,
+  } as any);
+
+  const response = await axiosPrivate.post(
+    `/v1.0/business/upload-image/${businessId}`,
+    formData,
+    {
+      params: { _method: "PATCH" },
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    }
+  );
+  return response.data;
+};
+
 export const updateBusinessDetails = async (
   businessId: number | string,
   data: IBusinessSettings

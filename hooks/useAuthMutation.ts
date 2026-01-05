@@ -11,6 +11,9 @@ export const useLoginMutation = () => {
   const { setAuth } = useAuthStore();
 
   const setDashboardData = useBusinessStore((state) => state.setDashboardData);
+  const initializeSettings = useBusinessStore(
+    (state) => state.initializeSettings
+  );
 
   return useCustomMutation({
     mutationFn: login,
@@ -23,8 +26,16 @@ export const useLoginMutation = () => {
           // 1. Set Auth FIRST so subsequent private API calls have the token
           setAuth(user, token);
 
-          // 2. Fetch dashboard data (now axiosPrivate will have the token)
-          const businessId = user.business.id || user.business[0]?.id;
+          // 2. Initialize business settings with user data (sets businessId and settings)
+          const businessData = {
+            ...user.business,
+            id: user.business_id || user.business.id,
+          };
+          initializeSettings(businessData);
+
+          // 3. Fetch dashboard data (now axiosPrivate will have the token)
+          const businessId =
+            user.business_id || user.business.id || user.business[0]?.id;
           if (!businessId) {
             throw new Error("No business ID found");
           }

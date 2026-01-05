@@ -1,4 +1,8 @@
-import { IBusinessSettings, updateBusinessDetails } from "@/api/business";
+import {
+  getBusinessSettings,
+  IBusinessSettings,
+  updateBusinessDetails,
+} from "@/api/business";
 import { getSurveys, ISurvey } from "@/api/survey";
 import { create } from "zustand";
 
@@ -64,6 +68,7 @@ interface IBusinessStore {
   settings: IBusinessSettings; // Settings object
   surveys: ISurvey[]; // Surveys list
   isLoading: boolean;
+  isFetchingSettings: boolean; // Separate state for fetching settings
   lastUpdated: string | null;
   login: (email: string) => void;
   getReviewById: (id: string) => IReview | undefined;
@@ -73,6 +78,7 @@ interface IBusinessStore {
   // Settings Actions
   setSettings: (settings: Partial<IBusinessSettings>) => void;
   fetchSurveys: () => Promise<void>;
+  fetchBusinessSettings: () => Promise<void>;
   updateBusiness: () => Promise<boolean>;
   initializeSettings: (businessData: any) => void;
 }
@@ -81,7 +87,7 @@ export const useBusinessStore = create<IBusinessStore>((set, get) => ({
   user: {
     email: "",
     name: "Feed Genius",
-    businessId: 6, // Default or derived from login
+    businessId: undefined, // Will be set from login response
   },
   stats: {
     sentimentScore: {
@@ -113,6 +119,7 @@ export const useBusinessStore = create<IBusinessStore>((set, get) => ({
   settings: {}, // Initial empty settings
   surveys: [], // Initial empty surveys
   isLoading: false,
+  isFetchingSettings: false,
   lastUpdated: null,
   login: (email) => set((state) => ({ user: { ...state.user, email } })),
   getReviewById: (id) =>
@@ -160,6 +167,27 @@ export const useBusinessStore = create<IBusinessStore>((set, get) => ({
     }
   },
 
+  fetchBusinessSettings: async () => {
+    const { user } = get();
+    console.log("fetchBusinessSettings called, user:", user);
+    if (!user.businessId) {
+      console.log("No businessId, skipping fetch");
+      return;
+    }
+    console.log("Fetching settings for businessId:", user.businessId);
+    set({ isFetchingSettings: true });
+    try {
+      const response = await getBusinessSettings(user.businessId);
+      console.log("Settings response:", response);
+      const businessData = response?.data || response;
+      console.log("Setting business data:", businessData);
+      set({ settings: businessData, isFetchingSettings: false });
+    } catch (error) {
+      console.error("Failed to fetch business settings", error);
+      set({ isFetchingSettings: false });
+    }
+  },
+
   updateBusiness: async () => {
     const { user, settings } = get();
     if (!user.businessId) return false;
@@ -176,6 +204,7 @@ export const useBusinessStore = create<IBusinessStore>((set, get) => ({
   },
 
   initializeSettings: (businessData) => {
+    console.log("initializeSettings called with:", businessData);
     if (businessData) {
       set((state) => ({
         settings: { ...businessData },
@@ -184,6 +213,7 @@ export const useBusinessStore = create<IBusinessStore>((set, get) => ({
           businessId: businessData.id || state.user.businessId,
         },
       }));
+      console.log("Settings initialized, businessId:", businessData.id);
     }
   },
 }));

@@ -4,11 +4,12 @@ import HeaderButton from "@/components/HeaderButton";
 import BusinessSettings from "@/components/settings/BusinessSettings";
 import GeneralSettings from "@/components/settings/GeneralSettings";
 import MapSettings from "@/components/settings/MapSettings";
+import SettingsSkeleton from "@/components/settings/SettingsSkeleton";
 import { useDimension } from "@/hooks/useDimension";
 import { useBusinessStore } from "@/store/useBusinessStore";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -23,9 +24,21 @@ export default function SettingsScreen() {
   const { getResponsiveFontSize } = useDimension();
   const [activeTab, setActiveTab] = useState("Business");
   const updateBusiness = useBusinessStore((state) => state.updateBusiness);
+  const fetchBusinessSettings = useBusinessStore(
+    (state) => state.fetchBusinessSettings
+  );
   const isLoading = useBusinessStore((state) => state.isLoading);
+  const isFetchingSettings = useBusinessStore(
+    (state) => state.isFetchingSettings
+  );
 
   const tabs = ["Business", "General Settings", "Map Settings"];
+
+  // Fetch business settings when component mounts
+  useEffect(() => {
+    console.log("Settings screen mounted, fetching settings...");
+    fetchBusinessSettings();
+  }, []); // Empty dependency array to run only once on mount
 
   const handleSave = async () => {
     const success = await updateBusiness();
@@ -37,6 +50,11 @@ export default function SettingsScreen() {
   };
 
   const renderContent = () => {
+    // Show skeleton while fetching settings
+    if (isFetchingSettings) {
+      return <SettingsSkeleton />;
+    }
+
     switch (activeTab) {
       case "Business":
         return <BusinessSettings />;
