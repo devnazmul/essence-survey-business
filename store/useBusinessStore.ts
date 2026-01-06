@@ -4,7 +4,9 @@ import {
   updateBusinessDetails,
 } from "@/api/business";
 import { getSurveys, ISurvey } from "@/api/survey";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 export interface IReview {
   id: string;
@@ -83,137 +85,155 @@ interface IBusinessStore {
   initializeSettings: (businessData: any) => void;
 }
 
-export const useBusinessStore = create<IBusinessStore>((set, get) => ({
-  user: {
-    email: "",
-    name: "Feed Genius",
-    businessId: undefined, // Will be set from login response
-  },
-  stats: {
-    sentimentScore: {
-      value: 0,
-      max: 0,
-      change: 0,
-    },
-    avgRating: {
-      value: 0,
-      change: 0,
-      percentage: 0,
-      total: 0,
-    },
-    totalReviews: {
-      value: 0,
-      change: 0,
-      percentage: 0,
-      total: 0,
-    },
-    staffLinkedReviews: {
-      value: 0,
-      change: 0,
-      percentage: 0,
-      total: 0,
-    },
-  },
-  reviews: [],
-  notifications: [],
-  settings: {}, // Initial empty settings
-  surveys: [], // Initial empty surveys
-  isLoading: false,
-  isFetchingSettings: false,
-  lastUpdated: null,
-  login: (email) => set((state) => ({ user: { ...state.user, email } })),
-  getReviewById: (id) =>
-    get().reviews.find((r) => r.id.toString() === id.toString()),
-  setDashboardData: (data) =>
-    set({
+export const useBusinessStore = create<IBusinessStore>()(
+  persist(
+    (set, get) => ({
+      user: {
+        email: "",
+        name: "Feed Genius",
+        businessId: undefined, // Will be set from login response
+      },
       stats: {
-        sentimentScore: data?.stats?.sentimentScore || {
+        sentimentScore: {
           value: 0,
           max: 0,
           change: 0,
         },
-        avgRating: data?.stats?.avgRating || {
+        avgRating: {
           value: 0,
           change: 0,
+          percentage: 0,
+          total: 0,
         },
-        totalReviews: data?.stats?.totalReviews || {
+        totalReviews: {
           value: 0,
           change: 0,
+          percentage: 0,
+          total: 0,
         },
-        staffLinkedReviews: data?.stats?.staffLinkedReviews || {
+        staffLinkedReviews: {
           value: 0,
           change: 0,
           percentage: 0,
           total: 0,
         },
       },
-      reviews: data?.reviews || [],
-      lastUpdated: new Date().toISOString(),
+      reviews: [],
+      notifications: [],
+      settings: {}, // Initial empty settings
+      surveys: [], // Initial empty surveys
+      isLoading: false,
+      isFetchingSettings: false,
+      lastUpdated: null,
+      login: (email) => set((state) => ({ user: { ...state.user, email } })),
+      getReviewById: (id) =>
+        get().reviews.find((r) => r.id.toString() === id.toString()),
+      setDashboardData: (data) =>
+        set({
+          stats: {
+            sentimentScore: data?.stats?.sentimentScore || {
+              value: 0,
+              max: 0,
+              change: 0,
+            },
+            avgRating: data?.stats?.avgRating || {
+              value: 0,
+              change: 0,
+            },
+            totalReviews: data?.stats?.totalReviews || {
+              value: 0,
+              change: 0,
+            },
+            staffLinkedReviews: data?.stats?.staffLinkedReviews || {
+              value: 0,
+              change: 0,
+              percentage: 0,
+              total: 0,
+            },
+          },
+          reviews: data?.reviews || [],
+          lastUpdated: new Date().toISOString(),
+        }),
+      setLoading: (loading) => set({ isLoading: loading }),
+
+      // Settings Implementation
+      setSettings: (newSettings) =>
+        set((state) => ({ settings: { ...state.settings, ...newSettings } })),
+
+      fetchSurveys: async () => {
+        const { user } = get();
+        if (!user.businessId) return;
+        try {
+          const surveys = await getSurveys(user.businessId);
+          set({ surveys });
+        } catch (error) {
+          console.error("Failed to fetch surveys", error);
+        }
+      },
+
+      fetchBusinessSettings: async () => {
+        const { user } = get();
+        console.log("fetchBusinessSettings called, user:", user);
+        if (!user.businessId) {
+          console.log("No businessId, skipping fetch");
+          return;
+        }
+        console.log("Fetching settings for businessId:", user.businessId);
+        set({ isFetchingSettings: true });
+        try {
+          const response = await getBusinessSettings(user.businessId);
+          console.log("Settings response:", response);
+          const businessData = response?.data || response;
+          console.log("Setting business data:", businessData);
+          set({ settings: businessData, isFetchingSettings: false });
+        } catch (error) {
+          console.error("Failed to fetch business settings", error);
+          set({ isFetchingSettings: false });
+        }
+      },
+
+      updateBusiness: async () => {
+        const { user, settings } = get();
+        if (!user.businessId) return false;
+        set({ isLoading: true });
+        try {
+          const result = await updateBusinessDetails(user.businessId, settings);
+          set({ isLoading: false });
+          console.log("Update result:", result);
+
+          return result?.status; // Check success condition based on API
+        } catch (error) {
+          console.error("Failed to update settings", error);
+          set({ isLoading: false });
+          return false;
+        }
+      },
+
+      initializeSettings: (businessData) => {
+        console.log("initializeSettings called with:", businessData);
+        if (businessData) {
+          set((state) => ({
+            settings: { ...businessData },
+            user: {
+              ...state.user,
+              businessId: businessData.id || state.user.businessId,
+            },
+          }));
+          console.log("Settings initialized, businessId:", businessData.id);
+        }
+      },
     }),
-  setLoading: (loading) => set({ isLoading: loading }),
-
-  // Settings Implementation
-  setSettings: (newSettings) =>
-    set((state) => ({ settings: { ...state.settings, ...newSettings } })),
-
-  fetchSurveys: async () => {
-    const { user } = get();
-    if (!user.businessId) return;
-    try {
-      const surveys = await getSurveys(user.businessId);
-      set({ surveys });
-    } catch (error) {
-      console.error("Failed to fetch surveys", error);
+    {
+      name: "business-storage",
+      storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({
+        user: state.user,
+        settings: state.settings,
+        stats: state.stats,
+        reviews: state.reviews,
+        notifications: state.notifications,
+        surveys: state.surveys,
+      }),
     }
-  },
-
-  fetchBusinessSettings: async () => {
-    const { user } = get();
-    console.log("fetchBusinessSettings called, user:", user);
-    if (!user.businessId) {
-      console.log("No businessId, skipping fetch");
-      return;
-    }
-    console.log("Fetching settings for businessId:", user.businessId);
-    set({ isFetchingSettings: true });
-    try {
-      const response = await getBusinessSettings(user.businessId);
-      console.log("Settings response:", response);
-      const businessData = response?.data || response;
-      console.log("Setting business data:", businessData);
-      set({ settings: businessData, isFetchingSettings: false });
-    } catch (error) {
-      console.error("Failed to fetch business settings", error);
-      set({ isFetchingSettings: false });
-    }
-  },
-
-  updateBusiness: async () => {
-    const { user, settings } = get();
-    if (!user.businessId) return false;
-    set({ isLoading: true });
-    try {
-      const result = await updateBusinessDetails(user.businessId, settings);
-      set({ isLoading: false });
-      return result?.success || result?.status === 200; // Check success condition based on API
-    } catch (error) {
-      console.error("Failed to update settings", error);
-      set({ isLoading: false });
-      return false;
-    }
-  },
-
-  initializeSettings: (businessData) => {
-    console.log("initializeSettings called with:", businessData);
-    if (businessData) {
-      set((state) => ({
-        settings: { ...businessData },
-        user: {
-          ...state.user,
-          businessId: businessData.id || state.user.businessId,
-        },
-      }));
-      console.log("Settings initialized, businessId:", businessData.id);
-    }
-  },
-}));
+  )
+);

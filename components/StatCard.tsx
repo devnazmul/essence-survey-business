@@ -107,7 +107,7 @@ const StatCard = ({
                   style={{ fontSize: getResponsiveFontSize("md") }}
                   className="text-red-600 text-lg font-medium mt-1"
                 >
-                  -{change}%
+                  {change}%
                 </Text>
               )}
             </>

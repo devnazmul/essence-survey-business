@@ -1,6 +1,8 @@
 import IMAGES from "@/assets";
 import Header from "@/components/Header";
 import HeaderButton from "@/components/HeaderButton";
+import { ErrorModal } from "@/components/modals/ErrorModal";
+import { SuccessModal } from "@/components/modals/SuccessModal";
 import BusinessSettings from "@/components/settings/BusinessSettings";
 import GeneralSettings from "@/components/settings/GeneralSettings";
 import MapSettings from "@/components/settings/MapSettings";
@@ -8,8 +10,8 @@ import SettingsSkeleton from "@/components/settings/SettingsSkeleton";
 import { useDimension } from "@/hooks/useDimension";
 import { useBusinessStore } from "@/store/useBusinessStore";
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
@@ -24,6 +26,7 @@ export default function SettingsScreen() {
   const { getResponsiveFontSize } = useDimension();
   const [activeTab, setActiveTab] = useState("Business");
   const updateBusiness = useBusinessStore((state) => state.updateBusiness);
+  const settings = useBusinessStore((state) => state.settings); // Need settings for validation
   const fetchBusinessSettings = useBusinessStore(
     (state) => state.fetchBusinessSettings
   );
@@ -31,20 +34,84 @@ export default function SettingsScreen() {
   const isFetchingSettings = useBusinessStore(
     (state) => state.isFetchingSettings
   );
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [errorTitle, setErrorTitle] = useState("Validation Error");
 
   const tabs = ["Business", "General Settings", "Map Settings"];
 
   // Fetch business settings when component mounts
-  useEffect(() => {
-    console.log("Settings screen mounted, fetching settings...");
-    fetchBusinessSettings();
-  }, []); // Empty dependency array to run only once on mount
+  useFocusEffect(
+    useCallback(() => {
+      fetchBusinessSettings();
+    }, [])
+  ); // Empty dependency array to run only once on mount
+
+  const validateSettings = () => {
+    // Validate Business Settings
+    if (!settings.Name?.trim()) {
+      setErrorTitle("Business Settings");
+      setErrorMessage("Business Name is required.");
+      return false;
+    }
+    if (!settings.EmailAddress?.trim()) {
+      setErrorTitle("Business Settings");
+      setErrorMessage("Email Address is required.");
+      return false;
+    }
+    // Basic email regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(settings.EmailAddress)) {
+      setErrorTitle("Business Settings");
+      setErrorMessage("Please enter a valid email address.");
+      return false;
+    }
+    if (!settings.PhoneNumber?.trim()) {
+      setErrorTitle("Business Settings");
+      setErrorMessage("Phone Number is required.");
+      return false;
+    }
+    if (!settings.Address?.trim()) {
+      setErrorTitle("Business Settings");
+      setErrorMessage("Address is required.");
+      return false;
+    }
+
+    // Validate General Settings
+    if (settings.is_guest_user_survey && !settings.guest_survey_id) {
+      setErrorTitle("General Settings");
+      setErrorMessage("Please select a Guest Survey.");
+      return false;
+    }
+    if (
+      settings.is_registered_user_survey &&
+      !settings.registered_user_survey_id
+    ) {
+      setErrorTitle("General Settings");
+      setErrorMessage("Please select a User Survey.");
+      return false;
+    }
+
+    return true;
+  };
 
   const handleSave = async () => {
-    const success = await updateBusiness();
-    if (success) {
-      Alert.alert("Success", "Settings updated successfully!");
-    } else {
+    if (!validateSettings()) {
+      setShowErrorModal(true);
+      return;
+    }
+
+    try {
+      const success = await updateBusiness();
+      console.log({ success });
+      if (success) {
+        setShowSuccessModal(true);
+      } else {
+        Alert.alert("Error", "Failed to update settings. Please try again.");
+      }
+    } catch (error) {
+      console.log({ error });
       Alert.alert("Error", "Failed to update settings. Please try again.");
     }
   };
@@ -68,61 +135,80 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-base-100 px-4 pt-2">
-      {/* Header */}
-      <Header
-        leftComponent={
-          <HeaderButton
-            IconComponent={Feather}
-            iconName="arrow-left"
-            iconSize={20}
-            onPress={() => router.back()}
-          />
-        }
-        centerComponent={<Image source={IMAGES.logo} className={`w-16 h-16`} />}
-        rightComponent={<View className="w-10" />} // Empty view for balance
-      />
+    <>
+      <SafeAreaView className="flex-1 bg-base-100 px-4 pt-2">
+        {/* Header */}
+        <Header
+          leftComponent={
+            <HeaderButton
+              IconComponent={Feather}
+              iconName="arrow-left"
+              iconSize={20}
+              onPress={() => router.back()}
+            />
+          }
+          centerComponent={
+            <Image source={IMAGES.logo} className={`w-16 h-16`} />
+          }
+          rightComponent={<View className="w-10" />} // Empty view for balance
+        />
 
-      {/* <ScreenTitle title="Settings" /> */}
+        {/* <ScreenTitle title="Settings" /> */}
 
-      {/* Tabs */}
-      <View className="flex-row border-b border-gray-200 mb-4">
-        {tabs.map((tab) => (
-          <TouchableOpacity
-            key={tab}
-            onPress={() => setActiveTab(tab)}
-            className={`mr-6 py-2 border-b-2 ${
-              activeTab === tab ? "border-primary" : "border-transparent"
-            }`}
-          >
-            <Text
-              className={`font-bold text-sm ${
-                activeTab === tab ? "text-primary" : "text-gray-500"
+        {/* Tabs */}
+        <View className="flex-row border-b border-gray-200 mb-4">
+          {tabs.map((tab) => (
+            <TouchableOpacity
+              key={tab}
+              onPress={() => setActiveTab(tab)}
+              className={`mr-6 py-2 border-b-2 ${
+                activeTab === tab ? "border-primary" : "border-transparent"
               }`}
             >
-              {tab}
-            </Text>
+              <Text
+                className={`font-bold text-sm ${
+                  activeTab === tab ? "text-primary" : "text-gray-500"
+                }`}
+              >
+                {tab}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Content */}
+        <View className="flex-1">{renderContent()}</View>
+
+        {/* Save Changes Button - Fixed at bottom */}
+        <View className="py-4 bg-base-100 border-t border-gray-100">
+          <TouchableOpacity
+            onPress={handleSave}
+            disabled={isLoading}
+            className={`w-full py-3 rounded-xl items-center shadow-sm ${isLoading ? "bg-green-300" : "bg-green-500"}`}
+          >
+            {isLoading ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-white font-bold text-base">
+                Save Changes
+              </Text>
+            )}
           </TouchableOpacity>
-        ))}
-      </View>
+        </View>
+      </SafeAreaView>
 
-      {/* Content */}
-      <View className="flex-1">{renderContent()}</View>
+      <SuccessModal
+        visible={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        message="Settings updated successfully!"
+      />
 
-      {/* Save Changes Button - Fixed at bottom */}
-      <View className="py-4 bg-base-100 border-t border-gray-100">
-        <TouchableOpacity
-          onPress={handleSave}
-          disabled={isLoading}
-          className={`w-full py-3 rounded-xl items-center shadow-sm ${isLoading ? "bg-green-300" : "bg-green-500"}`}
-        >
-          {isLoading ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text className="text-white font-bold text-base">Save Changes</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-    </SafeAreaView>
+      <ErrorModal
+        visible={showErrorModal}
+        onClose={() => setShowErrorModal(false)}
+        title={errorTitle}
+        message={errorMessage}
+      />
+    </>
   );
 }

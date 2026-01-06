@@ -7,6 +7,8 @@ export interface ISurvey {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+  show_in_guest_user?: boolean;
+  show_in_user?: boolean;
 }
 
 export const getSurveys = async (businessId: number | string) => {

@@ -1,3 +1,4 @@
+import { CustomToast } from "@/components/CustomToast";
 import { useAuthStore } from "@/store/useAuthStore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -37,10 +38,13 @@ function AuthController() {
   return <Slot />;
 }
 
+// ... existing imports
+
 export default function Root() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthController />
+      <CustomToast />
       <StatusBar style="dark" />
     </QueryClientProvider>
   );

@@ -57,6 +57,13 @@ export interface IBusinessSettings {
   review_labels?: string[];
   guest_survey_id?: number | null;
   registered_user_survey_id?: number | null;
+  threshold_labels?: {
+    min: number;
+    max: number;
+    status: string;
+    color: string;
+    label: string;
+  }[];
 }
 
 export const getBusinessSettings = async (businessId: number | string) => {

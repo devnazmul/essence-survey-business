@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/store/useAuthStore";
+import { toastEmitter } from "@/utils/toastEmitter";
 import axios, { AxiosError, AxiosResponse } from "axios";
 
 const axiosPublic = axios.create({
@@ -44,6 +45,10 @@ axiosPrivate.interceptors.response.use(
   async (error) => {
     // Optional: Handle 401 Unauthorized (e.g., logout)
     if (error.response?.status === 401) {
+      toastEmitter.show({
+        type: "error",
+        message: "Logged out due to expired token.",
+      });
       useAuthStore.getState().logout();
     }
     return Promise.reject(error);
