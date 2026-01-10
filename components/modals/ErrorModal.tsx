@@ -58,7 +58,9 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
           </Animated.View>
 
           {/* Text Content */}
-          <Text className="text-gray-900 font-bold text-2xl mt-4">{title}</Text>
+          <Text className="text-gray-900 font-bold text-2xl w-40 mt-4 text-center">
+            {title}
+          </Text>
           <Text className="text-gray-500 text-center mt-3 text-base leading-6">
             {message}
           </Text>

@@ -113,7 +113,6 @@ export const useLoginMutation = () => {
           // 4. Navigate to dashboard
           router.replace("/(dashboard)");
         } catch (error) {
-          console.log("Error fetching dashboard data:", error);
           // Still navigate if we have the token
           router.replace("/(dashboard)");
         }
@@ -142,7 +141,6 @@ export const useForgotPasswordMutation = () => {
       );
     },
     onError: (error: any) => {
-      console.log("Forgot password error:", error);
       Alert.alert(
         "Error",
         "Could not send reset link. Please check your email and try again."

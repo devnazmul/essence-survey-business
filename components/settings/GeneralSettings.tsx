@@ -15,20 +15,6 @@ import {
   View,
 } from "react-native";
 
-const DEFAULT_THRESHOLDS = [
-  { min: 80, max: 100, status: "Excellent", color: "#22c55e", label: "Green" },
-  { min: 60, max: 79, status: "Good", color: "#eab308", label: "Yellow" },
-  {
-    min: 40,
-    max: 59,
-    status: "Needs Attention",
-    color: "#f97316",
-    label: "Orange",
-  },
-  { min: 20, max: 39, status: "Critical", color: "#d97706", label: "Amber" },
-  { min: 0, max: 19, status: "Very Bad", color: "#ef4444", label: "Red" },
-];
-
 const ThresholdRow = React.memo(
   ({
     item,
@@ -39,6 +25,7 @@ const ThresholdRow = React.memo(
     onColorChange,
     onDelete,
     setScrollEnabled,
+    isOverlapping,
   }: {
     item: any;
     index: number;
@@ -48,17 +35,34 @@ const ThresholdRow = React.memo(
     onColorChange: () => void;
     onDelete: () => void;
     setScrollEnabled: (enabled: boolean) => void;
+    isOverlapping?: boolean;
   }) => {
+    // Helper to extract hex from bg-class for the slider
+    const getHexFromClass = (bgClass: string) => {
+      const colorMap: { [key: string]: string } = {
+        "bg-green-500": "#22c55e",
+        "bg-yellow-500": "#eab308",
+        "bg-orange-500": "#f97316",
+        "bg-amber-500": "#d97706",
+        "bg-red-500": "#ef4444",
+        "bg-blue-500": "#3b82f6",
+        "bg-purple-500": "#a855f7",
+      };
+      return colorMap[bgClass] || "#3b82f6";
+    };
+
+    const hexColor = getHexFromClass(item.color);
+
     return (
       <View
-        className={`flex-row py-4 border-b border-gray-50 items-center ${isEditing ? "bg-gray-50/30" : ""}`}
+        className={`flex-row py-4 border-b border-gray-50 items-center ${isOverlapping ? "bg-red-50" : isEditing ? "bg-gray-50/30" : ""}`}
       >
         {/* Score Range Column */}
         <View className="flex-[1.5] pl-2 pr-4">
           {isEditing ? (
             <View className="items-center">
               <MultiSlider
-                values={[item.min, item.max]}
+                values={item.score_range}
                 sliderLength={120}
                 onValuesChangeStart={() => setScrollEnabled(false)}
                 onValuesChangeFinish={(values) => {
@@ -71,14 +75,15 @@ const ThresholdRow = React.memo(
                 step={1}
                 allowOverlap={false}
                 snapped
-                selectedStyle={{ backgroundColor: item.color }}
+                selectedStyle={{ backgroundColor: hexColor }}
                 markerStyle={{
                   height: 16,
                   width: 16,
                   borderRadius: 8,
-                  backgroundColor: "black",
+                  backgroundColor: "white",
                   borderWidth: 2,
-                  borderColor: item.color,
+                  marginTop: 4,
+                  borderColor: hexColor,
                 }}
                 pressedMarkerStyle={{
                   height: 20,
@@ -89,17 +94,19 @@ const ThresholdRow = React.memo(
               />
               <View className="flex-row justify-between w-full mt-1">
                 <Text className="text-[10px] text-gray-500 font-bold">
-                  {item.min}
+                  {item.score_range ? item.score_range[0] : 0}
                 </Text>
                 <Text className="text-[10px] text-gray-500 font-bold">
-                  {item.max}
+                  {item.score_range ? item.score_range[1] : 0}
                 </Text>
               </View>
             </View>
           ) : (
             <View className="bg-gray-100 px-2 py-1 rounded self-start">
               <Text className="text-gray-600 text-[10px] font-bold">
-                {item.min} - {item.max}
+                {item.score_range
+                  ? `${item.score_range[0]} - ${item.score_range[1]}`
+                  : "0 - 0"}
               </Text>
             </View>
           )}
@@ -127,11 +134,10 @@ const ThresholdRow = React.memo(
               onPress={onColorChange}
               className="flex-row items-center bg-green-50 border border-green-200 rounded px-2 py-1"
             >
-              <View
-                className="w-2 h-2 rounded-full mr-1.5"
-                style={{ backgroundColor: item.color }}
-              />
-              <Text className="text-[10px] text-gray-600">{item.label}</Text>
+              <View className={`w-2 h-2 rounded-full mr-1.5 ${item.color}`} />
+              <Text className="text-[10px] text-gray-600">
+                {item.color ? item.color.replace("bg-", "") : ""}
+              </Text>
               <Feather
                 name="x-circle"
                 size={10}
@@ -141,11 +147,10 @@ const ThresholdRow = React.memo(
             </TouchableOpacity>
           ) : (
             <>
-              <View
-                className="w-3 h-3 rounded-full mr-2"
-                style={{ backgroundColor: item.color }}
-              />
-              <Text className="text-gray-600 text-xs">{item.label}</Text>
+              <View className={`w-3 h-3 rounded-full mr-2 ${item.color}`} />
+              <Text className="text-gray-600 text-xs">
+                {item.color ? item.color.replace("bg-", "") : ""}
+              </Text>
             </>
           )}
         </View>
@@ -175,15 +180,16 @@ export default function GeneralSettings() {
 
   const [isEditingThresholds, setIsEditingThresholds] = useState(false);
   const [localThresholds, setLocalThresholds] = useState(
-    settings.threshold_labels || DEFAULT_THRESHOLDS
+    settings.default_color_threshold || []
   );
+  console.log({ settings });
   const [scrollEnabled, setScrollEnabled] = useState(true);
 
   useEffect(() => {
-    if (settings.threshold_labels) {
-      setLocalThresholds(settings.threshold_labels);
+    if (settings.default_color_threshold) {
+      setLocalThresholds(settings.default_color_threshold);
     }
-  }, [settings.threshold_labels]);
+  }, [settings.default_color_threshold]);
 
   const [thresholdRatingInput, setThresholdRatingInput] = useState(
     settings.threshold_rating?.toString() || ""
@@ -197,7 +203,7 @@ export default function GeneralSettings() {
   const handleAddRow = () => {
     setLocalThresholds([
       ...localThresholds,
-      { min: 0, max: 10, status: "New", color: "#3b82f6", label: "Blue" },
+      { score_range: [0, 10], status: "New", color: "bg-blue-500" },
     ]);
   };
 
@@ -209,19 +215,51 @@ export default function GeneralSettings() {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
+  const getOverlappingIndices = useCallback((thresholds: any[]) => {
+    const overlapping = new Set<number>();
+    for (let i = 0; i < thresholds.length; i++) {
+      for (let j = i + 1; j < thresholds.length; j++) {
+        const r1 = thresholds[i].score_range;
+        const r2 = thresholds[j].score_range;
+        if (r1 && r2) {
+          if (Math.max(r1[0], r2[0]) <= Math.min(r1[1], r2[1])) {
+            overlapping.add(i);
+            overlapping.add(j);
+          }
+        }
+      }
+    }
+    return Array.from(overlapping);
+  }, []);
+
+  const overlappingIndices = React.useMemo(() => {
+    if (!isEditingThresholds) return [];
+    return getOverlappingIndices(localThresholds);
+  }, [localThresholds, isEditingThresholds, getOverlappingIndices]);
+
   const handleSaveThresholds = async () => {
-    // Validate Thresholds
-    const isValid = localThresholds.every(
+    // Validate Statuses
+    const isStatusValid = localThresholds.every(
       (item: any) => item.status && item.status.trim() !== ""
     );
 
-    if (!isValid) {
+    if (!isStatusValid) {
       setErrorMessage("Please ensure all threshold statuses have a name.");
       setShowErrorModal(true);
       return;
     }
 
-    setSettings({ threshold_labels: localThresholds });
+    // Validate Overlaps
+    const overlaps = getOverlappingIndices(localThresholds);
+    if (overlaps.length > 0) {
+      setErrorMessage(
+        "Threshold ranges cannot overlap. Please adjust the highlighted rows."
+      );
+      setShowErrorModal(true);
+      return;
+    }
+
+    setSettings({ default_color_threshold: localThresholds });
     setIsEditingThresholds(false);
     const updateBusiness = useBusinessStore.getState().updateBusiness;
     await updateBusiness();
@@ -416,7 +454,7 @@ export default function GeneralSettings() {
           {!isEditingThresholds ? (
             <TouchableOpacity
               onPress={() => setIsEditingThresholds(true)}
-              className="bg-green-100 px-3 py-1 rounded-lg"
+              className="bg-green-100 px-4 py-2 rounded-lg"
             >
               <Text className="text-green-700 text-xs font-bold">Edit</Text>
             </TouchableOpacity>
@@ -427,26 +465,43 @@ export default function GeneralSettings() {
                 className="bg-green-50 border border-green-200 px-3 py-1 rounded-lg flex-row items-center"
               >
                 <Feather name="plus" size={14} color="#15803d" />
-                <Text className="text-green-700 text-xs font-bold ml-1">
+                <Text
+                  style={{
+                    lineHeight: 20,
+                  }}
+                  className="text-green-700 w-14 text-xs font-bold ml-1"
+                >
                   Add Row
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  setLocalThresholds(
-                    settings.threshold_labels || DEFAULT_THRESHOLDS
-                  );
+                  setLocalThresholds(settings.default_color_threshold || []);
                   setIsEditingThresholds(false);
                 }}
                 className="bg-gray-100 px-3 py-1 rounded-lg"
               >
-                <Text className="text-gray-700 text-xs font-bold">Cancel</Text>
+                <Text
+                  style={{
+                    lineHeight: 20,
+                  }}
+                  className="text-gray-700 text-xs font-bold"
+                >
+                  Cancel
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={handleSaveThresholds}
                 className="bg-green-500 px-3 py-1 rounded-lg"
               >
-                <Text className="text-white text-xs font-bold">Save</Text>
+                <Text
+                  style={{
+                    lineHeight: 20,
+                  }}
+                  className="text-white text-xs font-bold"
+                >
+                  Save
+                </Text>
               </TouchableOpacity>
             </>
           )}
@@ -476,14 +531,14 @@ export default function GeneralSettings() {
               item={item}
               index={index}
               isEditing={isEditingThresholds}
+              isOverlapping={overlappingIndices.includes(index)}
               setScrollEnabled={setScrollEnabled}
               onValuesChange={(values) => {
                 setLocalThresholds((prev) => {
                   const newState = [...prev];
                   newState[index] = {
                     ...newState[index],
-                    min: values[0],
-                    max: values[1],
+                    score_range: [values[0], values[1]],
                   };
                   return newState;
                 });
@@ -497,24 +552,23 @@ export default function GeneralSettings() {
               }}
               onColorChange={() => {
                 const colors = [
-                  { c: "#22c55e", l: "Green" },
-                  { c: "#eab308", l: "Yellow" },
-                  { c: "#f97316", l: "Orange" },
-                  { c: "#d97706", l: "Amber" },
-                  { c: "#ef4444", l: "Red" },
-                  { c: "#3b82f6", l: "Blue" },
-                  { c: "#a855f7", l: "Purple" },
+                  "bg-green-500",
+                  "bg-yellow-500",
+                  "bg-orange-500",
+                  "bg-amber-500",
+                  "bg-red-500",
+                  "bg-blue-500",
+                  "bg-purple-500",
                 ];
                 setLocalThresholds((prev) => {
                   const newState = [...prev];
                   const currentIndex = colors.findIndex(
-                    (c) => c.c === newState[index].color
+                    (c) => c === newState[index].color
                   );
                   const next = colors[(currentIndex + 1) % colors.length];
                   newState[index] = {
                     ...newState[index],
-                    color: next.c,
-                    label: next.l,
+                    color: next,
                   };
                   return newState;
                 });

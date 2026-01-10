@@ -3,6 +3,7 @@ import {
   IBusinessSettings,
   updateBusinessDetails,
 } from "@/api/business";
+import { getProfile } from "@/api/profile";
 import { getSurveys, ISurvey } from "@/api/survey";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { create } from "zustand";
@@ -37,8 +38,13 @@ interface IBusinessStore {
     firstName?: string;
     lastName?: string;
     phone?: string;
-    address?: string;
-    businessId?: number; // Added businessId
+    address?: string; // local standard
+    Address?: string; // API standard
+    businessId?: number;
+    first_Name?: string;
+    last_Name?: string;
+    middle_Name?: string;
+    image?: string;
   };
   stats: {
     sentimentScore: {
@@ -64,6 +70,29 @@ interface IBusinessStore {
       percentage?: number;
       total?: number;
     };
+    aiSentiment: {
+      value: string;
+      change?: number;
+      subTitle?: string;
+    };
+    topTopic: {
+      value: string;
+      count?: number;
+      subTitle?: string;
+    };
+    flagged: {
+      value: number;
+      change?: number;
+    };
+    csatScore: {
+      value: number;
+      change?: number;
+    };
+    repeatIssue: {
+      value: string;
+      subTitle?: string;
+    };
+    ratingBreakdown?: any;
   };
   reviews: IReview[];
   notifications: INotification[];
@@ -74,8 +103,9 @@ interface IBusinessStore {
   lastUpdated: string | null;
   login: (email: string) => void;
   getReviewById: (id: string) => IReview | undefined;
-  setDashboardData: (data: any) => void;
   setLoading: (loading: boolean) => void;
+  updateUser: (userData: any) => void;
+  fetchUser: () => Promise<void>;
 
   // Settings Actions
   setSettings: (settings: Partial<IBusinessSettings>) => void;
@@ -83,6 +113,7 @@ interface IBusinessStore {
   fetchBusinessSettings: () => Promise<void>;
   updateBusiness: () => Promise<boolean>;
   initializeSettings: (businessData: any) => void;
+  setDashboardData: (data: any) => void;
 }
 
 export const useBusinessStore = create<IBusinessStore>()(
@@ -117,6 +148,27 @@ export const useBusinessStore = create<IBusinessStore>()(
           percentage: 0,
           total: 0,
         },
+        aiSentiment: {
+          value: "Neutral",
+          change: 0,
+        },
+        topTopic: {
+          value: "N/A",
+          count: 0,
+        },
+        flagged: {
+          value: 0,
+          change: 0,
+        },
+        csatScore: {
+          value: 0,
+          change: 0,
+        },
+        repeatIssue: {
+          value: "N/A",
+          subTitle: "Recurring problems",
+        },
+        ratingBreakdown: {},
       },
       reviews: [],
       notifications: [],
@@ -128,7 +180,7 @@ export const useBusinessStore = create<IBusinessStore>()(
       login: (email) => set((state) => ({ user: { ...state.user, email } })),
       getReviewById: (id) =>
         get().reviews.find((r) => r.id.toString() === id.toString()),
-      setDashboardData: (data) =>
+      setDashboardData: (data: any) =>
         set({
           stats: {
             sentimentScore: data?.stats?.sentimentScore || {
@@ -150,11 +202,51 @@ export const useBusinessStore = create<IBusinessStore>()(
               percentage: 0,
               total: 0,
             },
+            aiSentiment: data?.stats?.aiSentiment || {
+              value: "Neutral",
+              change: 0,
+              subTitle: "",
+            },
+            topTopic: data?.stats?.topTopic || {
+              value: "N/A",
+              count: 0,
+              subTitle: "",
+            },
+            flagged: data?.stats?.flagged || {
+              value: 0,
+              change: 0,
+            },
+            csatScore: data?.stats?.csatScore || {
+              value: 0,
+              change: 0,
+            },
+            repeatIssue: data?.stats?.repeatIssue || {
+              value: "N/A",
+              subTitle: "Recurring problems",
+            },
+            ratingBreakdown: data?.stats?.ratingBreakdown || {},
           },
           reviews: data?.reviews || [],
           lastUpdated: new Date().toISOString(),
         }),
       setLoading: (loading) => set({ isLoading: loading }),
+      updateUser: (userData) =>
+        set((state) => ({ user: { ...state.user, ...userData } })),
+
+      fetchUser: async () => {
+        const { user } = get();
+        if (!user.businessId) return;
+        try {
+          // We are using businessId as ownerId based on common pattern in this app
+          // If 'user.id' exists separately, we should use that, but usually they are linked in the response
+          const userData = await getProfile(user.businessId);
+          if (userData) {
+            set((state) => ({ user: { ...state.user, ...userData } }));
+          }
+        } catch (error) {
+          console.error("Failed to fetch user profile", error);
+        }
+      },
 
       // Settings Implementation
       setSettings: (newSettings) =>
@@ -173,18 +265,13 @@ export const useBusinessStore = create<IBusinessStore>()(
 
       fetchBusinessSettings: async () => {
         const { user } = get();
-        console.log("fetchBusinessSettings called, user:", user);
         if (!user.businessId) {
-          console.log("No businessId, skipping fetch");
           return;
         }
-        console.log("Fetching settings for businessId:", user.businessId);
         set({ isFetchingSettings: true });
         try {
           const response = await getBusinessSettings(user.businessId);
-          console.log("Settings response:", response);
           const businessData = response?.data || response;
-          console.log("Setting business data:", businessData);
           set({ settings: businessData, isFetchingSettings: false });
         } catch (error) {
           console.error("Failed to fetch business settings", error);
@@ -199,18 +286,15 @@ export const useBusinessStore = create<IBusinessStore>()(
         try {
           const result = await updateBusinessDetails(user.businessId, settings);
           set({ isLoading: false });
-          console.log("Update result:", result);
 
-          return result?.status; // Check success condition based on API
-        } catch (error) {
-          console.error("Failed to update settings", error);
+          return !!result?.status; // Return boolean
+        } catch (err) {
           set({ isLoading: false });
           return false;
         }
       },
 
       initializeSettings: (businessData) => {
-        console.log("initializeSettings called with:", businessData);
         if (businessData) {
           set((state) => ({
             settings: { ...businessData },
@@ -219,7 +303,6 @@ export const useBusinessStore = create<IBusinessStore>()(
               businessId: businessData.id || state.user.businessId,
             },
           }));
-          console.log("Settings initialized, businessId:", businessData.id);
         }
       },
     }),

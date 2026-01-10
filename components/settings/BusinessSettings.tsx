@@ -30,8 +30,6 @@ export default function BusinessSettings() {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
-  console.log("BusinessSettings - Current settings:", settings);
-
   const logo = settings.Logo
     ? getFullImageLink(settings.Logo)
     : "https://ui-avatars.com/api/?name=The+Grill&background=random";
@@ -175,9 +173,6 @@ export default function BusinessSettings() {
                 required
                 value={settings.Address}
                 onPress={(data, details = null) => {
-                  console.log("Selected Data:", data);
-                  console.log("Selected Details:", details);
-
                   let zipCode = "";
                   if (details?.address_components) {
                     zipCode =

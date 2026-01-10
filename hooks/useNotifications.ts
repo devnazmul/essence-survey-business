@@ -23,7 +23,7 @@ export const useNotifications = (perPage: number = 20, status?: string) => {
         // Handle dates - if created_at is missing, use ID as fallback for sorting
         // but we need a date for grouping.
         const date = item.created_at || new Date().toISOString();
-        const mDate = moment(date);
+        const mDate = moment(new Date(date));
 
         let dateGroup: "Today" | "Yesterday" | "Earlier" = "Earlier";
         if (mDate.isSame(moment(), "day")) {

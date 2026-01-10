@@ -64,6 +64,11 @@ export interface IBusinessSettings {
     color: string;
     label: string;
   }[];
+  default_color_threshold?: {
+    score_range: number[];
+    status: string;
+    color: string;
+  }[];
 }
 
 export const getBusinessSettings = async (businessId: number | string) => {

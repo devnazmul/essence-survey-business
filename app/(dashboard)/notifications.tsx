@@ -101,7 +101,6 @@ export default function NotificationsScreen() {
     let iconColor = "#9CA3AF"; // Default gray
 
     if (originalType === "new_review") {
-      console.log({ notifications });
       // Mocking rating logic if not explicitly available.
       // In real app, check notification.data.rating
       // Here we can guess based on random or just default to happy for demo if unknown

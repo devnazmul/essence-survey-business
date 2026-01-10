@@ -92,11 +92,11 @@ export const useDimension = (): {
       case "2xl":
         return HP("2%");
       case "3xl":
-        return HP("3%");
+        return HP("2.5%");
       case "4xl":
-        return HP("4%");
+        return HP("3%");
       case "5xl":
-        return HP("5%");
+        return HP("4%");
       case "6xl":
         return HP("6%");
       default:

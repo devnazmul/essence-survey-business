@@ -2,7 +2,7 @@ import { COLORS } from "@/constants";
 import { useAuthStore } from "@/store/useAuthStore";
 import { formatRole } from "@/utils/formatRole";
 import getFullImageLink from "@/utils/getFullImageLink";
-import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
+import { AntDesign, Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -94,7 +94,7 @@ const ProfileDropdown = () => {
                     </Text>
                   </TouchableOpacity>
 
-                  <TouchableOpacity
+                  {/* <TouchableOpacity
                     className="flex-row items-center p-3 rounded-lg active:bg-gray-100"
                     onPress={() => setVisible(false)}
                   >
@@ -106,7 +106,7 @@ const ProfileDropdown = () => {
                     <Text className="ml-3 text-gray-700 font-medium">
                       Change Branch
                     </Text>
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
 
                   <View className="h-[1px] bg-gray-100 my-1" />
 

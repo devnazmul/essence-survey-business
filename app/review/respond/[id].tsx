@@ -44,8 +44,6 @@ export default function RespondReviewScreen() {
   });
 
   // Transform the review data
-  console.log({ rawReview });
-
   const review = transformReviewData(rawReview as any);
 
   // Submit response mutation

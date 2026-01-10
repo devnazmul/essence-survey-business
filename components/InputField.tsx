@@ -90,14 +90,13 @@ export const BasicInputField = ({
           onBlur={onBlur}
           editable={!disable}
           style={{
-            height: getResponsiveHeight(size),
             fontSize: getResponsiveFontSize("md"),
           }}
           keyboardType={keyboardType}
           secureTextEntry={!isVisibleContent && secureTextEntry}
-          className={`border-2 ${
-            isError ? "border-red-500 focus:border-red-500" : "border-gray-300"
-          } focus:border-primary px-4 rounded-[10px] text-black placeholder:text-gray-400`}
+          className={`border ${
+            isError ? "border-red-500 focus:border-red-500" : "border-gray-200"
+          } focus:border-primary px-4 py-3 rounded-lg text-gray-700 bg-white placeholder:text-gray-400`}
           placeholder={placeholder}
           value={value}
           onChangeText={(e) => {

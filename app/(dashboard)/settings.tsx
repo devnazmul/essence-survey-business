@@ -104,14 +104,12 @@ export default function SettingsScreen() {
 
     try {
       const success = await updateBusiness();
-      console.log({ success });
       if (success) {
         setShowSuccessModal(true);
       } else {
         Alert.alert("Error", "Failed to update settings. Please try again.");
       }
     } catch (error) {
-      console.log({ error });
       Alert.alert("Error", "Failed to update settings. Please try again.");
     }
   };

@@ -3,7 +3,6 @@ import { useBusinessStore } from "@/store/useBusinessStore";
 import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { ScrollView, Switch, Text, TextInput, View } from "react-native";
-import MapView, { Marker } from "react-native-maps";
 
 export default function MapSettings() {
   const settings = useBusinessStore((state) => state.settings);
@@ -87,7 +86,7 @@ export default function MapSettings() {
       </View>
 
       {/* Our Location */}
-      <View className="bg-white rounded-xl p-4 mb-4 shadow-sm border border-gray-100">
+      {/* <View className="bg-white rounded-xl p-4 mb-4 shadow-sm border border-gray-100">
         <View className="flex-row items-center mb-6">
           <View className="bg-green-100 p-2 rounded-lg mr-3">
             <Feather name="map-pin" size={20} color={COLORS.primary} />
@@ -114,21 +113,8 @@ export default function MapSettings() {
               description={settings.Address}
             />
           </MapView>
-          <View className="absolute bg-white/90 p-3 rounded-lg shadow-sm border border-gray-200">
-            <Text className="font-bold text-gray-800">
-              {settings.latitude ? Number(settings.latitude).toFixed(4) : "0.0"}
-              °N,{" "}
-              {settings.longitude
-                ? Number(settings.longitude).toFixed(4)
-                : "0.0"}
-              °W
-            </Text>
-            <Text className="text-xs text-gray-500">
-              {settings.Address || "Location Details"}
-            </Text>
-          </View>
         </View>
-      </View>
+      </View> */}
       <View className="h-8" />
     </ScrollView>
   );

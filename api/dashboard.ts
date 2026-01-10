@@ -19,3 +19,13 @@ export const getReviewTrends = async (
 
   return response.data;
 };
+
+export const getDashboardOverview = async (
+  businessId: string | number,
+  period: string = "all_time"
+) => {
+  const url = `/v1.0/dashboard/overview?period=${period}&is_overall=1&businessId=${businessId}`;
+  const response = await axiosPrivate.get(url);
+
+  return response.data;
+};

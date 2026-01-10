@@ -5,9 +5,8 @@ import ReviewCard from "@/components/ReviewCard";
 import ScreenTitle from "@/components/ScreenTitle";
 import { COLORS } from "@/constants";
 import { useReviews } from "@/hooks/useReviews";
-import { useAuthStore } from "@/store/useAuthStore";
 import { Feather } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
@@ -24,7 +23,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ReviewsScreen() {
-  const router = useRouter();
+  const params = useLocalSearchParams();
   const [search, setSearch] = React.useState("");
   const [activeFilters, setActiveFilters] = React.useState<any>({});
   const [isFilterVisible, setIsFilterVisible] = React.useState(false);
@@ -35,6 +34,20 @@ export default function ReviewsScreen() {
     end_date: "",
   });
 
+  const paramsString = JSON.stringify(params);
+  const lastParamsRef = React.useRef("");
+
+  React.useEffect(() => {
+    if (
+      Object.keys(params).length > 0 &&
+      paramsString !== lastParamsRef.current
+    ) {
+      setActiveFilters({ ...params });
+      lastParamsRef.current = paramsString;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paramsString]);
+
   const {
     reviews,
     isLoading,
@@ -44,11 +57,6 @@ export default function ReviewsScreen() {
     refetch,
     isRefreshing,
   } = useReviews(20, { search, ...activeFilters });
-
-  const handleLogout = () => {
-    useAuthStore.getState().logout();
-    router.replace("/signin");
-  };
 
   const applyFilters = () => {
     setActiveFilters(tempFilters);
@@ -114,40 +122,56 @@ export default function ReviewsScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Active Filter Chips */}
-      {(activeFilters.status ||
-        activeFilters.sort_by ||
-        activeFilters.start_date) && (
+      {Object.keys(activeFilters).some(
+        (key) => activeFilters[key] !== "" && activeFilters[key] !== undefined
+      ) && (
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          className="mb-4 flex-row max-h-10"
+          className="mb-4 flex-row max-h-12"
+          contentContainerStyle={{ alignItems: "center" }}
         >
-          {activeFilters.status && (
-            <TouchableOpacity
-              onPress={() => setActiveFilters({ ...activeFilters, status: "" })}
-              className="rounded-full flex-row items-center space-x-1 bg-base-300 pl-5 pr-3 mr-2 border border-primary"
-            >
-              <Text className="text-primary font-medium mr-1">
-                Status: {activeFilters.status}
-              </Text>
-              <Feather name="x" size={14} color={COLORS.primary} />
-            </TouchableOpacity>
-          )}
-          {activeFilters.sort_by && (
-            <TouchableOpacity
-              onPress={() =>
-                setActiveFilters({ ...activeFilters, sort_by: "" })
-              }
-              className="rounded-full flex-row items-center space-x-1 bg-base-300 pl-5 pr-3 mr-2 border border-primary"
-            >
-              <Text className="text-primary font-medium mr-1">
-                Sort: {activeFilters.sort_by}
-              </Text>
-              <Feather name="x" size={14} color={COLORS.primary} />
-            </TouchableOpacity>
-          )}
-          {/* Add more chips as needed */}
+          {Object.keys(activeFilters).map((key) => {
+            const value = activeFilters[key];
+            if (value === "" || value === undefined) return null;
+
+            // Map keys to human readable labels
+            let label = key;
+            if (key === "meets_threshold")
+              label = value.toString() === "1" ? "Positive" : "Action Required";
+            if (key === "sentiment_score")
+              label = `Sentiment: ${value.toString().replace("_", " ")}`;
+            if (key === "topics") label = `Topic: ${value}`;
+            if (key === "is_repeat_issue") label = "Repeat Issue";
+            if (key === "is_overall")
+              label = value.toString() === "1" ? "Overall View" : "Survey View";
+            if (key === "status") label = `Status: ${value}`;
+            if (key === "sort_by")
+              label = `Sort: ${value.toString().replace("_", " ")}`;
+            if (key === "has_staff") label = "Staff Related";
+            if (key === "period")
+              label = value
+                .toString()
+                .replace(/_/g, " ")
+                .replace(/\b\w/g, (l: string) => l.toUpperCase());
+
+            return (
+              <TouchableOpacity
+                key={key}
+                onPress={() => {
+                  const newFilters = { ...activeFilters };
+                  delete newFilters[key];
+                  setActiveFilters(newFilters);
+                }}
+                className="rounded-full flex-row items-center bg-base-300 px-4 py-2 mr-2 border border-primary h-9"
+              >
+                <Text className="text-primary font-medium mr-1 text-xs">
+                  {label}
+                </Text>
+                <Feather name="x" size={12} color={COLORS.primary} />
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
       )}
 
@@ -204,7 +228,7 @@ export default function ReviewsScreen() {
               {/* Status Filter */}
               <Text className="font-semibold text-gray-700 mb-3">Status</Text>
               <View className="flex-row flex-wrap gap-2 mb-6">
-                {["pending", "published", "archived"].map((status) => (
+                {["draft", "published", "archived"].map((status) => (
                   <TouchableOpacity
                     key={status}
                     onPress={() =>

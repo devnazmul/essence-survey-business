@@ -1,5 +1,5 @@
 import { useAuthStore } from "@/store/useAuthStore";
-import axiosPublic from "@/utils/axiosInstance";
+import axiosPublic, { axiosPrivate } from "@/utils/axiosInstance";
 
 export const login = async (data: any) => {
   // LOGIN CUSTOMER
@@ -15,5 +15,14 @@ export const login = async (data: any) => {
 
 export const forgotPassword = async (email: string) => {
   const response = await axiosPublic.post(`/v1.0/forgot-password`, { email });
+  return response.data;
+};
+
+export const changePassword = async (data: {
+  user_id: number;
+  current_password: string;
+  new_password: string;
+}) => {
+  const response = await axiosPrivate.patch("/v1.0/auth/change-password", data);
   return response.data;
 };

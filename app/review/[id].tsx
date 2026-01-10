@@ -37,7 +37,6 @@ export default function ReviewDetailsScreen() {
   });
 
   // Transform the review data
-  console.log({ rawReview });
   const review = transformReviewData(rawReview as any);
 
   if (isLoading) {
