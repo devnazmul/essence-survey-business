@@ -97,7 +97,7 @@ export default function BusinessSettings() {
   return (
     <>
       <ScrollView
-        className="flex-1 bg-white rounded-xl p-4 shadow-sm border border-gray-100"
+        className="flex-1 bg-base-300 rounded-xl p-4 shadow-sm border border-gray-100"
         keyboardShouldPersistTaps="handled"
         nestedScrollEnabled={true}
       >
@@ -117,12 +117,12 @@ export default function BusinessSettings() {
           <TouchableOpacity
             onPress={pickImage}
             disabled={isPickingImage || isUploadingLogo}
-            className="w-24 h-24 bg-white rounded-xl shadow-sm border border-gray-100 items-center justify-center mb-2 overflow-hidden relative"
+            className="w-24 h-24 bg-base-300 rounded-xl shadow-sm border border-gray-100 items-center justify-center mb-2 overflow-hidden relative"
           >
             <Image source={{ uri: logo }} className="w-24 h-24" />
             {/* Upload overlay */}
             <View className="absolute inset-0 bg-black/10 items-center justify-center">
-              <View className="bg-white opacity-50 rounded-full p-2">
+              <View className="bg-base-300 opacity-50 rounded-full p-2">
                 {isUploadingLogo ? (
                   <ActivityIndicator size="small" color={COLORS.primary} />
                 ) : (
@@ -144,7 +144,7 @@ export default function BusinessSettings() {
             <TextInput
               value={settings.Name}
               onChangeText={(text) => setSettings({ Name: text })}
-              className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-white"
+              className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-base-300"
             />
           </View>
 
@@ -153,7 +153,7 @@ export default function BusinessSettings() {
             <TextInput
               value={settings.EmailAddress}
               onChangeText={(text) => setSettings({ EmailAddress: text })}
-              className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-white"
+              className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-base-300"
             />
           </View>
 
@@ -162,7 +162,7 @@ export default function BusinessSettings() {
             <TextInput
               value={settings.PhoneNumber}
               onChangeText={(text) => setSettings({ PhoneNumber: text })}
-              className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-white"
+              className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-base-300"
             />
           </View>
 
@@ -199,7 +199,7 @@ export default function BusinessSettings() {
             <TextInput
               value={settings.PostCode}
               onChangeText={(text) => setSettings({ PostCode: text })}
-              className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-white"
+              className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-base-300"
             />
           </View>
 
@@ -211,7 +211,7 @@ export default function BusinessSettings() {
               multiline
               numberOfLines={4}
               textAlignVertical="top"
-              className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-white h-32"
+              className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-base-300 h-32"
             />
           </View>
         </View>

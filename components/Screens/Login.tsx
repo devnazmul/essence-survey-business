@@ -30,7 +30,7 @@ const Login: React.FC<ILoginProps> = () => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      className="flex-1 bg-white"
+      className="flex-1 bg-base-300"
     >
       <ScrollView
         contentContainerStyle={{

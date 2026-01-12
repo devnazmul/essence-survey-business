@@ -28,7 +28,7 @@ export default function MapSettings() {
         shadowRadius: 3.84,
         elevation: 5,
       }}
-      className="flex-row justify-between items-center bg-white border border-primary rounded-xl p-4 mb-3 flex-1 mx-1"
+      className="flex-row justify-between items-center bg-base-300 border border-primary rounded-xl p-4 mb-3 flex-1 mx-1"
     >
       <Text className="font-medium text-gray-900 text-sm flex-1 mr-2">
         {label}
@@ -47,7 +47,7 @@ export default function MapSettings() {
   return (
     <ScrollView className="flex-1">
       {/* Basic Maps Settings */}
-      <View className="bg-white rounded-xl p-4 mb-4 shadow-sm border border-gray-100">
+      <View className="bg-base-300 rounded-xl p-4 mb-4 shadow-sm border border-gray-100">
         <View className="flex-row items-center mb-6">
           <View className="bg-green-100 p-2 rounded-lg mr-3">
             <Feather name="settings" size={20} color={COLORS.primary} />
@@ -79,14 +79,14 @@ export default function MapSettings() {
                 setSettings({ review_distance_limit: Number(text) })
               }
               keyboardType="numeric"
-              className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-white"
+              className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-base-300"
             />
           </View>
         )}
       </View>
 
       {/* Our Location */}
-      {/* <View className="bg-white rounded-xl p-4 mb-4 shadow-sm border border-gray-100">
+      {/* <View className="bg-base-300 rounded-xl p-4 mb-4 shadow-sm border border-gray-100">
         <View className="flex-row items-center mb-6">
           <View className="bg-green-100 p-2 rounded-lg mr-3">
             <Feather name="map-pin" size={20} color={COLORS.primary} />

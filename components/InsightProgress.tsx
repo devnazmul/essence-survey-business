@@ -36,10 +36,7 @@ const InsightProgress = ({
           {count !== undefined ? `${count} (${percentage}%)` : `${percentage}%`}
         </Text>
       </View>
-      <View
-        className="h-3 rounded-full overflow-hidden"
-        style={{ backgroundColor: backgroundColor }}
-      >
+      <View className="h-2 bg-gray-100 rounded-full overflow-hidden">
         <View
           className="h-full rounded-full"
           style={{ width: `${percentage}%`, backgroundColor: color }}

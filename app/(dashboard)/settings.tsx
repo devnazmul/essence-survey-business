@@ -1,4 +1,4 @@
-import IMAGES from "@/assets";
+import { IMAGES } from "@/assets";
 import Header from "@/components/Header";
 import HeaderButton from "@/components/HeaderButton";
 import { ErrorModal } from "@/components/modals/ErrorModal";
@@ -7,7 +7,7 @@ import BusinessSettings from "@/components/settings/BusinessSettings";
 import GeneralSettings from "@/components/settings/GeneralSettings";
 import MapSettings from "@/components/settings/MapSettings";
 import SettingsSkeleton from "@/components/settings/SettingsSkeleton";
-import { useDimension } from "@/hooks/useDimension";
+import { COLORS } from "@/constants";
 import { useBusinessStore } from "@/store/useBusinessStore";
 import { Feather } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
@@ -23,7 +23,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SettingsScreen() {
-  const { getResponsiveFontSize } = useDimension();
   const [activeTab, setActiveTab] = useState("Business");
   const updateBusiness = useBusinessStore((state) => state.updateBusiness);
   const settings = useBusinessStore((state) => state.settings); // Need settings for validation
@@ -39,14 +38,18 @@ export default function SettingsScreen() {
   const [errorMessage, setErrorMessage] = useState("");
   const [errorTitle, setErrorTitle] = useState("Validation Error");
 
-  const tabs = ["Business", "General Settings", "Map Settings"];
+  const tabs = [
+    { name: "Business", icon: "briefcase" },
+    { name: "General Settings", icon: "settings" },
+    { name: "Map Settings", icon: "map-pin" },
+  ];
 
   // Fetch business settings when component mounts
   useFocusEffect(
     useCallback(() => {
       fetchBusinessSettings();
-    }, [])
-  ); // Empty dependency array to run only once on mount
+    }, [fetchBusinessSettings])
+  ); // Dependency included to satisfy lint
 
   const validateSettings = () => {
     // Validate Business Settings
@@ -109,7 +112,7 @@ export default function SettingsScreen() {
       } else {
         Alert.alert("Error", "Failed to update settings. Please try again.");
       }
-    } catch (error) {
+    } catch {
       Alert.alert("Error", "Failed to update settings. Please try again.");
     }
   };
@@ -154,21 +157,27 @@ export default function SettingsScreen() {
         {/* <ScreenTitle title="Settings" /> */}
 
         {/* Tabs */}
-        <View className="flex-row border-b border-gray-200 mb-4">
+        <View className="flex-row mb-6 bg-white p-1 rounded-2xl shadow-sm border border-gray-100/50">
           {tabs.map((tab) => (
             <TouchableOpacity
-              key={tab}
-              onPress={() => setActiveTab(tab)}
-              className={`mr-6 py-2 border-b-2 ${
-                activeTab === tab ? "border-primary" : "border-transparent"
+              key={tab.name}
+              onPress={() => setActiveTab(tab.name)}
+              className={`flex-1 flex-row items-center justify-center py-3 rounded-xl ${
+                activeTab === tab.name ? "bg-green-50" : "bg-transparent"
               }`}
             >
+              <Feather
+                name={tab.icon as any}
+                size={16}
+                color={activeTab === tab.name ? COLORS.primary : "#9ca3af"}
+                className="mr-2"
+              />
               <Text
-                className={`font-bold text-sm ${
-                  activeTab === tab ? "text-primary" : "text-gray-500"
+                className={`font-bold text-xs ${
+                  activeTab === tab.name ? "text-primary" : "text-gray-400"
                 }`}
               >
-                {tab}
+                {tab.name.split(" ")[0]}
               </Text>
             </TouchableOpacity>
           ))}

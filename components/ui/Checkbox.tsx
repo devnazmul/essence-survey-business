@@ -24,7 +24,7 @@ export const Checkbox: React.FC<CheckboxProps> = ({
     >
       <View
         className={`w-5 h-5 rounded border-2 items-center justify-center ${
-          checked ? "bg-primary border-primary" : "border-gray-400 bg-white"
+          checked ? "bg-primary border-primary" : "border-gray-400 bg-base-300"
         }`}
       >
         {checked && <Ionicons name="checkmark" size={16} color="white" />}

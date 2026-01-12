@@ -10,12 +10,12 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
+import { FlashList } from "@shopify/flash-list";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
 import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  FlatList,
   Image,
   RefreshControl,
   Text,
@@ -178,7 +178,7 @@ export default function NotificationsScreen() {
         <TouchableOpacity
           key={notification.id}
           onPress={() => handleNotificationPress(notification)}
-          className="relative flex-row items-center bg-white p-4 rounded-xl mb-3 shadow-sm border border-gray-100"
+          className="relative flex-row items-center bg-base-300 p-4 rounded-xl mb-3 shadow-sm border border-gray-100"
         >
           {/* Vertical Unread Indicator */}
           {!notification.isRead && (
@@ -214,7 +214,7 @@ export default function NotificationsScreen() {
       />
       <ScreenTitle title="Notifications" />
       {/* Tabs */}
-      <View className="flex-row mb-2 bg-white rounded-lg p-1 border border-gray-100 shadow-sm">
+      <View className="flex-row mb-2 bg-base-300 rounded-lg p-1 border border-gray-100 shadow-sm">
         <TouchableOpacity
           onPress={() => setActiveTab("All")}
           className={`flex-1 py-2 items-center rounded-md ${
@@ -250,10 +250,11 @@ export default function NotificationsScreen() {
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : (
-        <FlatList
+        <FlashList
           data={groupedNotifications}
           keyExtractor={(item) => item[0]}
           renderItem={renderNotification}
+          estimatedItemSize={150}
           className="flex-1"
           showsVerticalScrollIndicator={false}
           onEndReached={() => {

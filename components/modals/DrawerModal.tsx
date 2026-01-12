@@ -220,7 +220,7 @@ const DrawerModal: React.FC<DrawerModalProps> = ({ visible, onClose }) => {
       visible={visible}
       onRequestClose={onClose}
     >
-      <SafeAreaView className="flex-1 bg-white">
+      <SafeAreaView className="flex-1 bg-base-300">
         {/* Header */}
         <View className="flex-row justify-between items-center px-4 py-3 border-b border-gray-100">
           <View className="flex-row items-center flex-1">
@@ -246,7 +246,7 @@ const DrawerModal: React.FC<DrawerModalProps> = ({ visible, onClose }) => {
         </View>
 
         <ScrollView
-          className="flex-1 bg-white"
+          className="flex-1 bg-base-300"
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingVertical: 10 }}
         >

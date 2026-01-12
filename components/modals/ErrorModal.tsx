@@ -44,7 +44,7 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
         <Animated.View
           entering={ZoomIn.duration(400)}
           exiting={FadeOut}
-          className="bg-white w-full rounded-3xl p-8 items-center shadow-2xl border border-red-100"
+          className="bg-base-300 w-full rounded-3xl p-8 items-center shadow-2xl border border-red-100"
         >
           {/* Illustration Container */}
           <Animated.View entering={BounceIn.delay(200)}>

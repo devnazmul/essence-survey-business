@@ -2,9 +2,10 @@ import { useDimension } from "@/hooks/useDimension";
 import { formatRole } from "@/utils/formatRole";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import React from "react";
+import { Text, TouchableOpacity, View } from "react-native";
 
-const ReviewCard = ({ review }: any) => {
+const ReviewCard = React.memo(({ review }: any) => {
   const { getResponsiveFontSize } = useDimension();
   const router = useRouter();
   return (
@@ -29,16 +30,19 @@ const ReviewCard = ({ review }: any) => {
               {review.date}
             </Text>
           </View>
-          <View className="flex-row">
+          <View className="flex-row items-center">
             {[1, 2, 3, 4, 5].map((star) => (
               <FontAwesome
                 key={star}
-                name={star <= review.rating ? "star" : "star"}
-                size={18}
-                color={star <= review.rating ? "#FFD700" : "#E5E7EB"}
+                name="star"
+                size={16}
+                color={star <= review.rating ? "#FFD166" : "#E5E7EB"}
                 style={{ marginRight: 2 }}
               />
             ))}
+            <Text className="ml-2 text-gray-400 font-bold text-xs">
+              {review.rating.toFixed(1)}
+            </Text>
           </View>
         </View>
         {!!review.comment && (
@@ -56,25 +60,25 @@ const ReviewCard = ({ review }: any) => {
         )}
       </TouchableOpacity>
 
-      {/* TAG  */}
+      {/* TAGS  */}
       {review.tags?.length > 0 && (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View className="flex-row flex-wrap gap-2 mt-2">
           {review.tags.map((tag: string, index: number) => (
             <View
               key={index}
-              className={`bg-primary py-1 px-2 mx-1 rounded-md inline justify-center items-center`}
+              className="bg-green-50 border border-green-100 py-1 px-3 rounded-full"
             >
               <Text
                 style={{
-                  fontSize: getResponsiveFontSize("md"),
+                  fontSize: getResponsiveFontSize("xs") || 10,
                 }}
-                className="text-base-300 text-center w-full inline"
+                className="text-green-700 font-bold text-center"
               >
                 {tag}
               </Text>
             </View>
           ))}
-        </ScrollView>
+        </View>
       )}
 
       <TouchableOpacity onPress={() => router.push(`/review/${review.id}`)}>
@@ -106,6 +110,8 @@ const ReviewCard = ({ review }: any) => {
       </TouchableOpacity>
     </View>
   );
-};
+});
+
+ReviewCard.displayName = "ReviewCard";
 
 export default ReviewCard;

@@ -1,6 +1,6 @@
 import { COLORS } from "@/constants";
 import { useDimension } from "@/hooks/useDimension";
-import getFullImageLink from "@/utils/getFullImageLink";
+import { getFullImageLink } from "@/utils/getFullImageLink";
 import { MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import { Image, Text, View } from "react-native";
@@ -30,12 +30,19 @@ const StaffPerformance = ({
     <View
       className={`flex-row items-center py-3 ${!isFirst ? "border-t border-gray-100" : ""}`}
     >
-      <Image
-        source={{
-          uri: getFullImageLink(image || ""),
-        }}
-        className="w-12 h-12 rounded-full mr-3"
-      />
+      <View className="relative">
+        <Image
+          source={{
+            uri: getFullImageLink(image || ""),
+          }}
+          className="w-12 h-12 rounded-full mr-3 border-2 border-green-50"
+        />
+        {isFirst && (
+          <View className="absolute -top-1 -right-1 bg-yellow-400 rounded-full p-0.5 border border-white">
+            <MaterialIcons name="stars" size={12} color="white" />
+          </View>
+        )}
+      </View>
       <View className="flex-1">
         <Text
           style={{ fontSize: getResponsiveFontSize("md") }}
@@ -73,5 +80,7 @@ const StaffPerformance = ({
     </View>
   );
 };
+
+StaffPerformance.displayName = "StaffPerformance";
 
 export default StaffPerformance;

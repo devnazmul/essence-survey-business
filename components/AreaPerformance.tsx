@@ -52,7 +52,7 @@ const AreaPerformance = ({
             </Text>
           </View>
         </View>
-        <View className="h-3 bg-gray-100 rounded-full overflow-hidden">
+        <View className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
           <View
             className="h-full rounded-full"
             style={{ width: `${widthPercentage}%`, backgroundColor: color }}

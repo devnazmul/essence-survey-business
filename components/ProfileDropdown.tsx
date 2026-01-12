@@ -57,7 +57,7 @@ const ProfileDropdown = () => {
           <View className="flex-1 bg-black/20">
             <TouchableWithoutFeedback>
               <View
-                className="absolute left-4 top-[110px] bg-white rounded-xl shadow-lg w-56 overflow-hidden"
+                className="absolute left-4 top-[110px] bg-base-300 rounded-xl shadow-lg w-56 overflow-hidden"
                 style={{
                   shadowColor: "#000",
                   shadowOffset: { width: 0, height: 2 },

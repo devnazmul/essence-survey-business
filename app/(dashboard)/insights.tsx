@@ -8,6 +8,7 @@ import StaffPerformance from "@/components/StaffPerformance";
 import { COLORS } from "@/constants";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useDimension } from "@/hooks/useDimension";
+import { getFullImageLink } from "@/utils/getFullImageLink";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import React from "react";
 import {
@@ -22,6 +23,19 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+const PERIODS = [
+  { label: "Last 30 Days", value: "last_30_days" },
+  { label: "Last 7 Days", value: "last_7_days" },
+  { label: "This Month", value: "this_month" },
+  { label: "Last Month", value: "last_month" },
+];
+
+const COLORS_LIST = [
+  { text: COLORS["blue-500"], bg: COLORS["blue-100"] },
+  { text: COLORS["green-500"], bg: COLORS["green-100"] },
+  { text: COLORS["orange-500"], bg: COLORS["orange-100"] },
+];
+
 export default function AnalyticsScreen() {
   const { getResponsiveFontSize } = useDimension();
   const [refreshing, setRefreshing] = React.useState(false);
@@ -29,49 +43,22 @@ export default function AnalyticsScreen() {
   const [showFilter, setShowFilter] = React.useState(false);
   const { data, isLoading, refetch } = useAnalytics(period);
 
-  const periods = [
-    { label: "Last 30 Days", value: "last_30_days" },
-    { label: "Last 7 Days", value: "last_7_days" },
-    { label: "This Month", value: "this_month" },
-    { label: "Last Month", value: "last_month" },
-  ];
-
-  const handlePeriodSelect = (value: string) => {
+  const handlePeriodSelect = React.useCallback((value: string) => {
     setPeriod(value);
     setShowFilter(false);
-  };
+  }, []);
 
-  const onRefresh = async () => {
+  const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
-  };
+  }, [refetch]);
 
-  const getImageUrl = (imagePath: string) => {
+  const getImageUrl = React.useCallback((imagePath: string) => {
     if (!imagePath)
       return "https://ui-avatars.com/api/?name=User&background=random";
-    if (imagePath.startsWith("http")) return imagePath;
-    // Assuming existing helper or base URL logic needed, but for now simple concatenation if relative
-    // If there's a specific helper like getFullImageLink used elsewhere, ideally reuse it.
-    // Based on previous contexts, `getFullImageLink` might exist in store or utils, but not imported here.
-    // I'll stick to a safe fallback or just use the path if relative.
-    return `https://smartcollegeportal.com/review-system/api${imagePath}`; // Example base URL assumption or adjustment needed
-  };
-
-  const COLORS_LIST = [
-    {
-      text: COLORS["blue-500"],
-      bg: COLORS["blue-100"],
-    },
-    {
-      text: COLORS["green-500"],
-      bg: COLORS["green-100"],
-    },
-    {
-      text: COLORS["orange-500"],
-      bg: COLORS["orange-100"],
-    },
-  ];
+    return getFullImageLink(imagePath);
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-base-100 px-4 pt-2">
@@ -84,10 +71,10 @@ export default function AnalyticsScreen() {
         <ScreenTitle title="Insights Overview" />
         <TouchableOpacity
           onPress={() => setShowFilter(true)}
-          className="flex-row items-center bg-white rounded-full px-3 py-1.5 border border-gray-100 shadow-sm"
+          className="flex-row items-center bg-base-300 rounded-full px-3 py-1.5 border border-gray-100 shadow-sm"
         >
-          <Text className="text-gray-600 font-medium text-xs mr-2">
-            {periods.find((p) => p.value === period)?.label}
+          <Text className="text-gray-600 font-bold text-xs mr-2">
+            {PERIODS.find((p) => p.value === period)?.label}
           </Text>
           <Feather name="calendar" size={14} color="gray" />
         </TouchableOpacity>
@@ -106,7 +93,7 @@ export default function AnalyticsScreen() {
         >
           {/* Top Issues */}
           {data?.top_issues?.length > 0 && (
-            <View className="bg-white rounded-2xl p-5 mb-4 shadow-sm">
+            <View className="bg-base-300 rounded-2xl p-5 mb-4 shadow-sm">
               <View className="flex-row justify-between items-center mb-4">
                 <Text
                   style={{ fontSize: getResponsiveFontSize("lg") }}
@@ -146,7 +133,7 @@ export default function AnalyticsScreen() {
           {/* Performance by Branch */}
           {data?.performance_by_branch &&
             data?.performance_by_branch?.length > 0 && (
-              <View className="bg-white rounded-2xl p-5 mb-4 shadow-sm">
+              <View className="bg-base-300 rounded-2xl p-5 mb-4 shadow-sm">
                 <Text
                   style={{ fontSize: getResponsiveFontSize("lg") }}
                   className="font-bold text-gray-900 mb-4"
@@ -172,7 +159,7 @@ export default function AnalyticsScreen() {
 
           {/* Performance by Area */}
           {data?.performance_by_area?.length > 0 && (
-            <View className="bg-white rounded-2xl p-5 mb-4 shadow-sm">
+            <View className="bg-base-300 rounded-2xl p-5 mb-4 shadow-sm">
               <Text
                 style={{ fontSize: getResponsiveFontSize("lg") }}
                 className="font-bold text-gray-900 mb-4"
@@ -201,7 +188,7 @@ export default function AnalyticsScreen() {
 
           {/* Top Performing Staff */}
           {data?.top_performing_staff?.length > 0 && (
-            <View className="bg-white rounded-2xl p-5 mb-4 shadow-sm">
+            <View className="bg-base-300 rounded-2xl p-5 mb-4 shadow-sm">
               <Text
                 style={{ fontSize: getResponsiveFontSize("lg") }}
                 className="font-bold text-gray-900 mb-4"
@@ -241,7 +228,10 @@ export default function AnalyticsScreen() {
           onPress={() => setShowFilter(false)}
           className="flex-1 justify-end bg-black/50"
         >
-          <View className="bg-white rounded-t-3xl p-6">
+          <View className="bg-base-300 rounded-t-3xl p-6">
+            <View className="items-center mb-2">
+              <View className="w-12 h-1.5 bg-gray-200 rounded-full" />
+            </View>
             <View className="flex-row justify-between items-center mb-6">
               <Text className="text-xl font-bold text-gray-900">
                 Select Period
@@ -251,18 +241,18 @@ export default function AnalyticsScreen() {
               </TouchableOpacity>
             </View>
             <View className="gap-y-3">
-              {periods.map((p) => (
+              {PERIODS.map((p) => (
                 <TouchableOpacity
                   key={p.value}
                   onPress={() => handlePeriodSelect(p.value)}
                   className={`flex-row justify-between items-center p-4 rounded-xl border ${
                     period === p.value
-                      ? "border-primary bg-blue-50"
-                      : "border-gray-100 bg-white"
+                      ? "border-primary bg-green-50"
+                      : "border-gray-50 bg-white"
                   }`}
                 >
                   <Text
-                    className={`font-medium ${
+                    className={`font-bold ${
                       period === p.value ? "text-primary" : "text-gray-700"
                     }`}
                   >

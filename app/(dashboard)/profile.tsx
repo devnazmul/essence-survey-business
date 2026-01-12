@@ -244,7 +244,7 @@ export default function ProfileScreen() {
           <TouchableOpacity
             onPress={pickImage}
             disabled={isPickingImage || isUploadingImage}
-            className="w-32 h-32 bg-white rounded-full shadow-sm border border-gray-100 items-center justify-center mb-2 overflow-hidden relative"
+            className="w-32 h-32 bg-base-300 rounded-full shadow-sm border border-gray-100 items-center justify-center mb-2 overflow-hidden relative"
           >
             <Image
               source={{ uri: getFullImageLink(user.image) }}
@@ -358,7 +358,7 @@ export default function ProfileScreen() {
 
           <TouchableOpacity
             onPress={handleChangePassword}
-            className="w-full bg-white border-2 border-green-500 py-4 rounded-lg items-center shadow-sm active:bg-gray-50"
+            className="w-full bg-base-300 border-2 border-green-500 py-4 rounded-lg items-center shadow-sm active:bg-gray-50"
           >
             <Text className="text-green-500 font-bold text-base">
               Change Password

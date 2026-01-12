@@ -6,11 +6,11 @@ import ScreenTitle from "@/components/ScreenTitle";
 import { COLORS } from "@/constants";
 import { useReviews } from "@/hooks/useReviews";
 import { Feather } from "@expo/vector-icons";
+import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
 import {
   ActivityIndicator,
-  FlatList,
   Image,
   Modal,
   RefreshControl,
@@ -102,7 +102,7 @@ export default function ReviewsScreen() {
 
       {/* Search and Filter Bar */}
       <View className="flex-row items-center mb-4 space-x-2">
-        <View className="flex-1 flex-row items-center bg-white border border-gray-200 rounded-xl px-3 h-12">
+        <View className="flex-1 flex-row items-center bg-base-300 border border-gray-200 rounded-xl px-3 h-12">
           <Feather name="search" size={20} color="gray" />
           <TextInput
             placeholder="Search by customer name or keyword"
@@ -180,10 +180,11 @@ export default function ReviewsScreen() {
           <ActivityIndicator size="large" color={COLORS.primary} />
         </View>
       ) : (
-        <FlatList
+        <FlashList
           data={reviews}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => <ReviewCard review={item} />}
+          estimatedItemSize={200}
           onEndReached={() => {
             if (hasNextPage && !isFetchingNextPage) {
               fetchNextPage();
@@ -216,7 +217,7 @@ export default function ReviewsScreen() {
         onRequestClose={() => setIsFilterVisible(false)}
       >
         <View className="flex-1 justify-end bg-black/50">
-          <View className="bg-white rounded-t-3xl p-6 h-[80%]">
+          <View className="bg-base-300 rounded-t-3xl p-6 h-[80%]">
             <View className="flex-row justify-between items-center mb-6">
               <Text className="text-xl font-bold text-gray-900">Filters</Text>
               <TouchableOpacity onPress={() => setIsFilterVisible(false)}>
@@ -237,7 +238,7 @@ export default function ReviewsScreen() {
                         status: tempFilters.status === status ? "" : status,
                       })
                     }
-                    className={`px-4 py-2 rounded-full border ${tempFilters.status === status ? "bg-blue-50 border-blue-500" : "bg-white border-gray-200"}`}
+                    className={`px-4 py-2 rounded-full border ${tempFilters.status === status ? "bg-blue-50 border-blue-500" : "bg-base-300 border-gray-200"}`}
                   >
                     <Text
                       className={`${tempFilters.status === status ? "text-blue-600 font-bold" : "text-gray-600"}`}
@@ -266,7 +267,7 @@ export default function ReviewsScreen() {
                           tempFilters.sort_by === sort.value ? "" : sort.value,
                       })
                     }
-                    className={`px-4 py-2 rounded-full border ${tempFilters.sort_by === sort.value ? "bg-blue-50 border-blue-500" : "bg-white border-gray-200"}`}
+                    className={`px-4 py-2 rounded-full border ${tempFilters.sort_by === sort.value ? "bg-blue-50 border-blue-500" : "bg-base-300 border-gray-200"}`}
                   >
                     <Text
                       className={`${tempFilters.sort_by === sort.value ? "text-blue-600 font-bold" : "text-gray-600"}`}

@@ -88,7 +88,7 @@ const AutoComplete: React.FC<AutoCompleteProps> = ({
             paddingHorizontal: 16, // px-4
             paddingVertical: 12, // py-3
             width: "100%",
-            backgroundColor: "#ffffff", // bg-white
+            backgroundColor: "#ffffff", // bg-base-300
             color: "#374151", // text-gray-700
             fontSize: 14,
           },

@@ -33,7 +33,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function DashboardScreen() {
   const { getResponsiveFontSize } = useDimension();
   const router = useRouter();
-  const { stats, reviews } = useBusinessStore();
+  const stats = useBusinessStore((state) => state.stats);
+  const reviews = useBusinessStore((state) => state.reviews);
   const [activeTab, setActiveTab] = useState<string>("last_30_days");
   const { isLoading, refetch } = useDashboard(activeTab);
 

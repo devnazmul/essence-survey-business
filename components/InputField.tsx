@@ -96,7 +96,7 @@ export const BasicInputField = ({
           secureTextEntry={!isVisibleContent && secureTextEntry}
           className={`border ${
             isError ? "border-red-500 focus:border-red-500" : "border-gray-200"
-          } focus:border-primary px-4 py-3 rounded-lg text-gray-700 bg-white placeholder:text-gray-400`}
+          } focus:border-primary px-4 py-3 rounded-lg text-gray-700 bg-base-300 placeholder:text-gray-400`}
           placeholder={placeholder}
           value={value}
           onChangeText={(e) => {

@@ -56,7 +56,7 @@ const ReviewTrendChart = ({ update }: { update: boolean }) => {
   }, [data]);
 
   return (
-    <View className="bg-white rounded-2xl p-4 mb-2 shadow-sm w-full">
+    <View className="bg-base-300 rounded-2xl p-4 mb-2 shadow-sm w-full">
       <Text
         // style={{ fontSize: getResponsiveFontSize("lg") }}
         className="font-bold text-gray-900 mb-4"

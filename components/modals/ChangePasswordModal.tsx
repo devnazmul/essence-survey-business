@@ -106,7 +106,7 @@ export function ChangePasswordModal({
       onRequestClose={onClose}
     >
       <View className="flex-1 bg-black/50 justify-center items-center px-4">
-        <View className="bg-white rounded-2xl p-6 w-full max-w-md">
+        <View className="bg-base-300 rounded-2xl p-6 w-full max-w-md">
           {/* Title */}
           <Text className="text-2xl font-bold text-green-600 mb-6">
             Change Password
@@ -228,7 +228,7 @@ export function ChangePasswordModal({
             <TouchableOpacity
               onPress={handleCancel}
               disabled={isLoading}
-              className="flex-1 bg-white border-2 border-green-500 py-3 rounded-lg items-center"
+              className="flex-1 bg-base-300 border-2 border-green-500 py-3 rounded-lg items-center"
             >
               <Text className="text-green-500 font-semibold text-base">
                 Cancel

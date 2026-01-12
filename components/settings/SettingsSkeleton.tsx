@@ -3,7 +3,7 @@ import { View } from "react-native";
 
 export default function SettingsSkeleton() {
   return (
-    <View className="flex-1 bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+    <View className="flex-1 bg-base-300 rounded-xl p-4 shadow-sm border border-gray-100">
       {/* Header Skeleton */}
       <View className="flex-row items-center mb-6 gap-2">
         <View className="bg-gray-200 p-2 rounded-lg mr-3 w-10 h-10 animate-pulse" />
