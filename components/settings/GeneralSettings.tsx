@@ -53,7 +53,9 @@ const ThresholdRow = React.memo(function ThresholdRow({
 
   return (
     <View
-      className={`flex-row py-4 border-b border-gray-50 items-center ${isOverlapping ? "bg-red-50" : isEditing ? "bg-gray-50/30" : ""}`}
+      className={`flex-row py-4 border-b border-gray-50 items-center ${
+        isOverlapping ? "bg-red-50" : isEditing ? "bg-gray-50/30" : ""
+      }`}
     >
       {/* Score Range Column */}
       <View className="flex-[1.5] pl-2 pr-4">
@@ -655,17 +657,19 @@ const ToggleRow = ({
       shadowRadius: 3.84,
       elevation: 3,
     }}
-    className={`flex-1 mx-1.5 mb-4 p-4 rounded-2xl border ${value ? "border-green-400 bg-white" : "border-gray-100 bg-gray-50/50"} min-h-[110px] justify-between transition-all`}
+    className={`flex-1 mx-1.5 mb-4 p-4 rounded-2xl border ${
+      value ? "border-green-400 bg-base-300" : "border-red-400 bg-base-300"
+    } min-h-[110px] justify-between transition-all`}
   >
     <View className="flex-row justify-between items-start">
       <View
-        className={`${value ? "bg-green-50" : "bg-gray-100"} p-2 rounded-xl`}
+        className={`${value ? "bg-green-50" : "bg-red-100"} p-2 rounded-xl`}
       >
         {icon && (
           <Feather
             name={icon as any}
             size={18}
-            color={value ? COLORS["green-500"] : "#9ca3af"}
+            color={value ? COLORS["green-500"] : COLORS["red-500"]}
           />
         )}
       </View>
@@ -680,7 +684,9 @@ const ToggleRow = ({
 
     <View className="mt-2">
       <Text
-        className={`text-xs font-bold ${value ? "text-gray-900" : "text-gray-500"}`}
+        className={`text-xs font-bold ${
+          value ? "text-gray-900" : "text-gray-500"
+        }`}
       >
         {label}
       </Text>
@@ -801,10 +807,14 @@ const SurveySelector = ({
                     onSelect(item.id);
                     setModalVisible(false);
                   }}
-                  className={`p-4 border-b border-gray-100 flex-row justify-between items-center ${selectedId === item.id ? "bg-blue-50" : ""}`}
+                  className={`p-4 border-b border-gray-100 flex-row justify-between items-center ${
+                    selectedId === item.id ? "bg-blue-50" : ""
+                  }`}
                 >
                   <Text
-                    className={`font-medium ${selectedId === item.id ? "text-primary" : "text-gray-700"}`}
+                    className={`font-medium ${
+                      selectedId === item.id ? "text-primary" : "text-gray-700"
+                    }`}
                   >
                     {item.name}
                   </Text>

@@ -90,7 +90,7 @@ const StatCard = React.memo(
         />
         {/* TITLE */}
         {isLoading ? (
-          <View className="h-4 w-24 mb-1 bg-gray-200 rounded" />
+          <View className="h-4 w-24 mb-1 bg-gray-800/5 rounded" />
         ) : (
           <View className="flex-row items-center justify-between mb-2">
             <TouchableOpacity onPress={onTitleClick}>
@@ -169,7 +169,7 @@ const StatCard = React.memo(
         {/* VALUE */}
         <View className={`flex flex-row items-center`}>
           {isLoading ? (
-            <View className="h-10 mb-1 w-14 bg-gray-200 rounded" />
+            <View className="h-10 mb-1 w-14 bg-gray-800/5  rounded" />
           ) : (
             <>
               {/* RIGHT ICON  */}
@@ -264,7 +264,7 @@ const StatCard = React.memo(
                 /{" "}
               </Text>
               {isLoading ? (
-                <View className="h-5 mb-1 w-10 bg-gray-200 rounded" />
+                <View className="h-5 mb-1 w-10 bg-gray-800/5  rounded" />
               ) : (
                 <Text
                   style={{ fontSize: getResponsiveFontSize("md") }}
@@ -278,36 +278,56 @@ const StatCard = React.memo(
         </View>
         {/* PERCENTAGE */}
         {percentage !== undefined && (
-          <View className={`bg-base-300 rounded-full px-2 py-1`}>
-            <Text
-              style={{ fontSize: getResponsiveFontSize("md") }}
-              className="text-green-700 font-bold mt-1"
-            >
-              {percentage}%
-            </Text>
-          </View>
+          <>
+            {isLoading ? (
+              <View className="h-5 mb-1 w-10 bg-gray-800/5  rounded" />
+            ) : (
+              <View className={`bg-base-300 rounded-full px-2 py-1`}>
+                <Text
+                  style={{ fontSize: getResponsiveFontSize("md") }}
+                  className="text-green-700 font-bold mt-1"
+                >
+                  {percentage}%
+                </Text>
+              </View>
+            )}
+          </>
         )}
         {/* CHANGE */}
         {!isPercentage && change !== undefined && (
-          <View className={`flex flex-row items-center mt-2`}>
-            <View className={`bg-base-300 rounded-full px-5 py-1 w-auto`}>
-              <Text
-                style={{ fontSize: getResponsiveFontSize("md") }}
-                className={`${change >= 0 ? "text-green-700" : "text-red-700"} font-bold `}
-              >
-                {change >= 0 ? `+${change}%` : `${change}%`}
-              </Text>
-            </View>
-          </View>
+          <>
+            {isLoading ? (
+              <View className="h-5 mb-1 w-10 bg-gray-800/5  rounded" />
+            ) : (
+              <View className={`flex flex-row items-center mt-2`}>
+                <View className={`bg-base-300 rounded-full px-5 py-1 w-auto`}>
+                  <Text
+                    style={{ fontSize: getResponsiveFontSize("md") }}
+                    className={`${
+                      change >= 0 ? "text-green-700" : "text-red-700"
+                    } font-bold `}
+                  >
+                    {change >= 0 ? `+${change}%` : `${change}%`}
+                  </Text>
+                </View>
+              </View>
+            )}
+          </>
         )}
         {/* SUBTITLE */}
         {!showProgress && subTitle && (
-          <Text
-            style={{ fontSize: getResponsiveFontSize("sm") }}
-            className={`text-gray-600 font-semibold mb-2 opacity-80 mt-1`}
-          >
-            {subTitle}
-          </Text>
+          <>
+            {isLoading ? (
+              <View className="h-5 mb-1 w-10 bg-gray-800/5  rounded" />
+            ) : (
+              <Text
+                style={{ fontSize: getResponsiveFontSize("sm") }}
+                className={`text-gray-600 font-semibold mb-2 opacity-80 mt-1`}
+              >
+                {subTitle}
+              </Text>
+            )}
+          </>
         )}
       </View>
     );

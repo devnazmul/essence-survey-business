@@ -8,7 +8,7 @@ import { LineChart } from "react-native-gifted-charts";
 import FilterTab from "./FilterTab";
 
 const ReviewTrendChart = ({ update }: { update: boolean }) => {
-  const { getResponsiveFontSize } = useDimension();
+  const { getResponsiveFontSize, WP } = useDimension();
   const screenWidth = Dimensions.get("window").width;
   const [period, setPeriod] = useState("30d");
   const { data, isLoading, refetch } = useReviewTrends(period);
@@ -105,15 +105,26 @@ const ReviewTrendChart = ({ update }: { update: boolean }) => {
             endFillColor={COLORS["base-300"]}
             startOpacity={0.5}
             endOpacity={0}
-            initialSpacing={20}
-            spacing={period === "7d" ? 63 : period === "30d" ? 13.5 : 195}
+            initialSpacing={WP("2.5%")}
+            spacing={
+              period === "7d"
+                ? WP("12.7%")
+                : period === "30d"
+                ? WP("2.7%")
+                : WP("36.7%")
+            }
             yAxisThickness={0}
             xAxisThickness={0}
             hideRules
             yAxisTextStyle={{ color: "transparent", fontSize: 10 }}
             xAxisLabelTextStyle={{
               color: "transparent",
-              fontSize: period === "7d" ? 15 : period === "30d" ? 8 : 13,
+              fontSize:
+                period === "7d"
+                  ? getResponsiveFontSize("xxs")
+                  : period === "30d"
+                  ? getResponsiveFontSize("xxs")
+                  : getResponsiveFontSize("xs"),
             }}
             areaChart
             curved

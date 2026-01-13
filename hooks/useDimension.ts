@@ -5,6 +5,8 @@ import {
 
 interface IDimension {
   size:
+    | "xxxs"
+    | "xxs"
     | "xs"
     | "sm"
     | "md"
@@ -79,6 +81,10 @@ export const useDimension = (): {
   };
   const getResponsiveFontSize = (size: IDimension["size"]) => {
     switch (size) {
+      case "xxxs":
+        return HP("0.5%");
+      case "xxs":
+        return HP("0.8%");
       case "xs":
         return HP("1%");
       case "sm":
