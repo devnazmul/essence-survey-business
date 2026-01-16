@@ -3,4 +3,6 @@ export const QUERY_KEYS = {
   QUESTIONS: "questions",
   TAGS: "tags",
   SUBMIT_RATING: "submit_rating",
+  ALL_BRANCHES: "all_branches",
+  USERS: "users",
 };

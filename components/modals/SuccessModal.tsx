@@ -1,4 +1,5 @@
 import IMAGES from "@/assets";
+import { useDimension } from "@/hooks/useDimension";
 import React from "react";
 import { Image, Modal, Text, TouchableOpacity, View } from "react-native";
 import Animated, {
@@ -23,6 +24,8 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
   message = "Your operation was completed successfully.",
   buttonText = "Continue",
 }) => {
+  const { getResponsiveFontSize } = useDimension();
+
   return (
     <Modal
       transparent
@@ -55,8 +58,16 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
           </Animated.View>
 
           {/* Text Content */}
-          <Text className="text-gray-900 font-bold text-2xl mt-6">{title}</Text>
-          <Text className="text-gray-500 text-center mt-3 text-base leading-6">
+          <Text
+            className="text-gray-900 font-bold mt-6"
+            style={{ fontSize: getResponsiveFontSize("2xl") }}
+          >
+            {title}
+          </Text>
+          <Text
+            className="text-gray-500 text-center mt-3 leading-6"
+            style={{ fontSize: getResponsiveFontSize("md") }}
+          >
             {message}
           </Text>
 
@@ -66,7 +77,10 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
             onPress={onClose}
             className="bg-primary w-full py-4 rounded-xl mt-8 shadow-lg shadow-primary/30"
           >
-            <Text className="text-base-300 text-center font-bold text-lg">
+            <Text
+              className="text-base-300 text-center font-bold"
+              style={{ fontSize: getResponsiveFontSize("lg") }}
+            >
               {buttonText}
             </Text>
           </TouchableOpacity>

@@ -29,6 +29,13 @@ const NAV_ITEMS = [
     route: "/(dashboard)/insights",
   },
   {
+    id: "branches",
+    label: "Branches",
+    icon: "storefront",
+    IconComponent: MaterialIcons,
+    route: "/(dashboard)/branches",
+  },
+  {
     id: "notifications",
     label: "Notifications",
     icon: "notifications-none",

@@ -132,11 +132,6 @@ export const updateBusinessDetailsStandard = async (
   return response.data;
 };
 
-export const getAllBranches = async (params: any = {}) => {
-  const response = await axiosPrivate.get("/v1.0/branches", { params });
-  return response.data;
-};
-
 export const changeDefaultBranch = async (data: {
   default_branch_id: number | string;
 }) => {

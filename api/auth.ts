@@ -26,3 +26,13 @@ export const changePassword = async (data: {
   const response = await axiosPrivate.patch("/v1.0/auth/change-password", data);
   return response.data;
 };
+
+export const checkUserEmail = async (data: {
+  email: string;
+  ignore_user_id?: number | string;
+}) => {
+  const response = await axiosPrivate.get(`/v1.0/auth/check-email`, {
+    params: data,
+  });
+  return response.data;
+};

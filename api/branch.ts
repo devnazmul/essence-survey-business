@@ -1,0 +1,116 @@
+import { axiosPrivate } from "@/utils/axiosInstance";
+
+// ========================
+//                        GET APIS
+// ========================
+
+export const getAllBranches = async (params: any = {}) => {
+  const response = await axiosPrivate.get("/v1.0/branches", { params });
+  return response.data;
+};
+
+export const getBranchDashboard = async (id: number | string) => {
+  const response = await axiosPrivate.get(`/v1.0/branch-dashboard/${id}`);
+  return response.data;
+};
+
+export const getBranchMetrics = async (
+  branchId: number | string,
+  params: any = {}
+) => {
+  const response = await axiosPrivate.get(
+    `/v1.0/branches/${branchId}/metrics`,
+    { params }
+  );
+  return response.data;
+};
+
+export const getBranchInsights = async (
+  branchId: number | string,
+  params: any = {}
+) => {
+  const response = await axiosPrivate.get(
+    `/v1.0/branches/${branchId}/ai-insights`,
+    { params }
+  );
+  return response.data;
+};
+
+export const getBranchRecommendations = async (
+  branchId: number | string,
+  params: any = {}
+) => {
+  const response = await axiosPrivate.get(
+    `/v1.0/branches/${branchId}/recommendations`,
+    { params }
+  );
+  return response.data;
+};
+
+export const getBranchRecentReviews = async (
+  branchId: number | string,
+  params: any = {}
+) => {
+  const response = await axiosPrivate.get(
+    `/v1.0/branches/${branchId}/recent-reviews`,
+    { params }
+  );
+  return response.data;
+};
+
+export const getBranchStaffPerformance = async (
+  branchId: number | string,
+  params: any = {}
+) => {
+  const response = await axiosPrivate.get(
+    `/v1.0/branches/${branchId}/staff-performance`,
+    { params }
+  );
+  return response.data;
+};
+
+export const getBranchComparison = async (params: any = {}) => {
+  const response = await axiosPrivate.get("/v1.0/reports/branch-comparison", {
+    params,
+  });
+  return response.data;
+};
+
+export const getSingleBranch = async (id: number | string) => {
+  const response = await axiosPrivate.get(`/v1.0/branches/${id}`);
+  return response.data;
+};
+
+// =========================
+//                        POST APIS
+// ==========================
+
+export const createBranch = async (data: any) => {
+  const response = await axiosPrivate.post("/v1.0/branches", data);
+  return response.data;
+};
+
+// ==========================
+//                        PUT APIS
+// ==========================
+
+export const updateBranch = async (id: number | string, data: any) => {
+  const response = await axiosPrivate.patch(`/v1.0/branches/${id}`, data);
+  return response.data;
+};
+
+export const toggleBranch = async (id: number | string) => {
+  const response = await axiosPrivate.patch(
+    `/v1.0/branches/toggle-status/${id}`
+  );
+  return response.data;
+};
+
+// =============================
+//                        DELETE APIS
+// ==============================
+
+export const deleteBranch = async (id: number | string) => {
+  const response = await axiosPrivate.delete(`/v1.0/branches/${id}`);
+  return response.data;
+};

@@ -1,4 +1,5 @@
 import { COLORS } from "@/constants";
+import { useDimension } from "@/hooks/useDimension";
 import { Feather } from "@expo/vector-icons";
 import React from "react";
 import { Modal, Text, TouchableOpacity, View } from "react-native";
@@ -24,6 +25,8 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
   message = "Something went wrong.",
   buttonText = "Close",
 }) => {
+  const { getResponsiveFontSize } = useDimension();
+
   return (
     <Modal
       transparent
@@ -58,10 +61,16 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
           </Animated.View>
 
           {/* Text Content */}
-          <Text className="text-gray-900 font-bold text-2xl w-40 mt-4 text-center">
+          <Text
+            className="text-gray-900 font-bold w-40 mt-4 text-center"
+            style={{ fontSize: getResponsiveFontSize("2xl") }}
+          >
             {title}
           </Text>
-          <Text className="text-gray-500 text-center mt-3 text-base leading-6">
+          <Text
+            className="text-gray-500 text-center mt-3 leading-6"
+            style={{ fontSize: getResponsiveFontSize("md") }}
+          >
             {message}
           </Text>
 
@@ -71,7 +80,10 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
             onPress={onClose}
             className="bg-red-500 w-full py-4 rounded-xl mt-8 shadow-lg shadow-red-500/30"
           >
-            <Text className="text-white text-center font-bold text-lg">
+            <Text
+              className="text-white text-center font-bold"
+              style={{ fontSize: getResponsiveFontSize("lg") }}
+            >
               {buttonText}
             </Text>
           </TouchableOpacity>
