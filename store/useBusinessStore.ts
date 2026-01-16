@@ -114,6 +114,7 @@ interface IBusinessStore {
   updateBusiness: () => Promise<boolean>;
   initializeSettings: (businessData: any) => void;
   setDashboardData: (data: any) => void;
+  clearStore: () => void;
 }
 
 export const useBusinessStore = create<IBusinessStore>()(
@@ -300,10 +301,44 @@ export const useBusinessStore = create<IBusinessStore>()(
             settings: { ...businessData },
             user: {
               ...state.user,
-              businessId: businessData.id || state.user.businessId,
+              businessId:
+                businessData.id ||
+                businessData.business_id ||
+                state.user.businessId,
             },
           }));
         }
+      },
+      clearStore: () => {
+        set({
+          stats: {
+            sentimentScore: { value: 0, max: 0, change: 0 },
+            avgRating: { value: 0, change: 0, percentage: 0, total: 0 },
+            totalReviews: { value: 0, change: 0, percentage: 0, total: 0 },
+            staffLinkedReviews: {
+              value: 0,
+              change: 0,
+              percentage: 0,
+              total: 0,
+            },
+            aiSentiment: { value: "Neutral", change: 0 },
+            topTopic: { value: "N/A", count: 0 },
+            flagged: { value: 0, change: 0 },
+            csatScore: { value: 0, change: 0 },
+            repeatIssue: { value: "N/A", subTitle: "Recurring problems" },
+            ratingBreakdown: {},
+          },
+          reviews: [],
+          notifications: [],
+          settings: {},
+          surveys: [],
+          lastUpdated: null,
+          user: {
+            email: "",
+            name: "Feed Genius",
+            businessId: undefined,
+          },
+        });
       },
     }),
     {

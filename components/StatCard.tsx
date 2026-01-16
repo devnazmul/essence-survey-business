@@ -28,6 +28,7 @@ const StatCard = React.memo(
     max = 100,
     description,
     breakdown = [],
+    bottomRightSection,
   }: {
     onTitleClick?: () => void;
     isLoading?: boolean;
@@ -50,6 +51,7 @@ const StatCard = React.memo(
     max?: number;
     description?: string;
     breakdown?: any[];
+    bottomRightSection?: any;
   }) => {
     const { getResponsiveFontSize } = useDimension();
     const [showTooltip, setShowTooltip] = useState(false);
@@ -61,7 +63,7 @@ const StatCard = React.memo(
           overflow: showTooltip ? "visible" : "hidden",
           zIndex: showTooltip ? 100 : 1,
         }}
-        className={`p-4 rounded-3xl shadow-sm mb-4 relative ${
+        className={`relative p-4 rounded-3xl shadow-sm mb-4 ${
           fullWidth ? "w-full" : "w-[48%]"
         }`}
       >
@@ -77,6 +79,7 @@ const StatCard = React.memo(
             backgroundColor: "rgba(255, 255, 255, 0.37)",
           }}
         />
+
         <View
           style={{
             position: "absolute",
@@ -88,6 +91,7 @@ const StatCard = React.memo(
             backgroundColor: "rgba(255, 255, 255, 0.26)",
           }}
         />
+
         {/* TITLE */}
         {isLoading ? (
           <View className="h-4 w-24 mb-1 bg-gray-800/5 rounded" />
@@ -166,6 +170,7 @@ const StatCard = React.memo(
             </Pressable>
           </Animated.View>
         )}
+
         {/* VALUE */}
         <View className={`flex flex-row items-center`}>
           {isLoading ? (
@@ -181,6 +186,7 @@ const StatCard = React.memo(
                   className="mr-2"
                 />
               )}
+
               {/* VALUE */}
               {showProgress ? (
                 <View className="flex flex-row items-center justify-between flex-1">
@@ -192,6 +198,7 @@ const StatCard = React.memo(
                       strokeWidth={13}
                       color={iconColor || "#10b981"}
                       isPercent={isPercentage}
+                      valueFontSize={valueFontSize}
                     />
                     {subTitle && (
                       <Text
@@ -242,6 +249,7 @@ const StatCard = React.memo(
                   {value}
                 </Text>
               )}
+
               {/* LEFT ICON  */}
               {Icon && iconPosition === "left" && (
                 <Icon
@@ -253,6 +261,7 @@ const StatCard = React.memo(
               )}
             </>
           )}
+
           {/* PERCENTAGE */}
           {isPercentage && !showProgress && (
             <View className="flex flex-row items-center mb-1 text-gray-400">
@@ -276,6 +285,7 @@ const StatCard = React.memo(
             </View>
           )}
         </View>
+
         {/* PERCENTAGE */}
         {percentage !== undefined && (
           <>
@@ -293,6 +303,7 @@ const StatCard = React.memo(
             )}
           </>
         )}
+
         {/* CHANGE */}
         {!isPercentage && change !== undefined && (
           <>
@@ -329,6 +340,16 @@ const StatCard = React.memo(
             )}
           </>
         )}
+
+        <View className="absolute bottom-[5px] right-[14px]">
+          <Text
+            style={{
+              fontSize: getResponsiveFontSize("xs"),
+            }}
+          >
+            {bottomRightSection || 0} Reviews
+          </Text>
+        </View>
       </View>
     );
   }

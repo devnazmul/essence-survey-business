@@ -1,6 +1,7 @@
 import { getReviews } from "@/api/review";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import moment from "moment";
 
 export const useReviews = (limit: number = 20, filters: any = {}) => {
   const { user } = useAuthStore();
@@ -22,26 +23,28 @@ export const useReviews = (limit: number = 20, filters: any = {}) => {
     },
     enabled: !!businessId,
   });
+  console.log(query.data?.pages);
 
   const reviews =
     query.data?.pages.flatMap((page) => {
-      return (page?.data?.review_feed || []).map(
+      console.log("ppp:", page?.data[0]);
+      return (page?.data || []).map(
         ({
           id,
-          author,
+          guest_user,
           comment,
           is_ai_flagged,
           is_voice,
           sentiment,
           staff_name,
           tags,
-          time_ago,
+          created_at,
           calculated_rating,
           responded_at,
         }: any) => ({
           id,
-          customerName: author,
-          date: time_ago,
+          customerName: guest_user?.full_name,
+          date: moment(created_at, "DD-MM-YYYY HH:mm:ss").fromNow(),
           rating: calculated_rating,
           comment,
           tags,

@@ -192,7 +192,9 @@ export default function NotificationsScreen() {
           <View className="flex-1">
             <View className="flex-row justify-between items-start">
               <Text
-                className={`text-sm text-gray-900 flex-1 mr-2 ${!notification.isRead ? "font-bold" : "font-medium"}`}
+                className={`text-sm text-gray-900 flex-1 mr-2 ${
+                  !notification.isRead ? "font-bold" : "font-medium"
+                }`}
               >
                 {notification.title}
               </Text>
@@ -214,33 +216,33 @@ export default function NotificationsScreen() {
       />
       <ScreenTitle title="Notifications" />
       {/* Tabs */}
-      <View className="flex-row mb-2 bg-base-300 rounded-lg p-1 border border-gray-100 shadow-sm">
+      <View className="flex-row mb-2 bg-base-300 rounded-lg p-1 border border-black/10 shadow-sm">
         <TouchableOpacity
           onPress={() => setActiveTab("All")}
           className={`flex-1 py-2 items-center rounded-md ${
-            activeTab === "All" ? "bg-green-500" : "bg-transparent"
+            activeTab === "All" ? "bg-primary/20" : "bg-transparent"
           }`}
         >
           <Text
             className={`font-semibold text-sm ${
-              activeTab === "All" ? "text-white" : "text-gray-500"
+              activeTab === "All" ? "text-primary" : "text-gray-500"
             }`}
           >
-            All {totalCount > 0 && `(${totalCount})`}
+            All {`(${totalCount || 0})`}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => setActiveTab("Unread")}
           className={`flex-1 py-2 items-center rounded-md ${
-            activeTab === "Unread" ? "bg-green-500" : "bg-transparent"
+            activeTab === "Unread" ? "bg-primary/20" : "bg-transparent"
           }`}
         >
           <Text
             className={`font-semibold text-sm ${
-              activeTab === "Unread" ? "text-white" : "text-gray-500"
+              activeTab === "Unread" ? "text-primary" : "text-gray-500"
             }`}
           >
-            Unread {unreadCount > 0 && `(${unreadCount})`}
+            Unread {`(${unreadCount || 0})`}
           </Text>
         </TouchableOpacity>
       </View>
@@ -254,7 +256,6 @@ export default function NotificationsScreen() {
           data={groupedNotifications}
           keyExtractor={(item) => item[0]}
           renderItem={renderNotification}
-          estimatedItemSize={150}
           className="flex-1"
           showsVerticalScrollIndicator={false}
           onEndReached={() => {

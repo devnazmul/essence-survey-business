@@ -4,10 +4,10 @@ import { useReviewTrends } from "@/hooks/useReviewTrends";
 import moment from "moment";
 import React, { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Dimensions, Text, View } from "react-native";
-import { LineChart } from "react-native-gifted-charts";
+import { CurveType, LineChart } from "react-native-gifted-charts";
 import FilterTab from "./FilterTab";
 
-const ReviewTrendChart = ({ update }: { update: boolean }) => {
+const ReviewTrendChart = () => {
   const { getResponsiveFontSize, WP } = useDimension();
   const screenWidth = Dimensions.get("window").width;
   const [period, setPeriod] = useState("30d");
@@ -21,7 +21,7 @@ const ReviewTrendChart = ({ update }: { update: boolean }) => {
 
   useEffect(() => {
     refetch();
-  }, [update]);
+  }, [period, refetch]);
 
   const chartData = useMemo(() => {
     if (!data?.data?.data) return [];
@@ -37,23 +37,23 @@ const ReviewTrendChart = ({ update }: { update: boolean }) => {
         return {
           value: data.data.data[date]?.submissions_count || 0,
           label: moment(date, "DD-MM-YYYY").format("DD MMM"),
-          dataPointText: "",
+          dataPointText: date,
         };
       } else if (period === "30d") {
         return {
           value: data.data.data[date]?.submissions_count || 0,
           label: moment(date, "DD-MM-YYYY").format("D"),
-          dataPointText: "",
+          dataPointText: date,
         };
       } else {
         return {
           value: data.data.data[date]?.submissions_count || 0,
           label: moment(date, "MM-YYYY").format("MMM"),
-          dataPointText: "",
+          dataPointText: date,
         };
       }
     });
-  }, [data]);
+  }, [data.data.data, period]);
 
   return (
     <View className="bg-base-300 rounded-2xl p-4 mb-2 shadow-sm w-full">
@@ -92,7 +92,7 @@ const ReviewTrendChart = ({ update }: { update: boolean }) => {
       />
 
       {isLoading ? (
-        <View className="h-48 w-full justify-center items-center">
+        <View className="h-32 w-full justify-center items-center">
           <ActivityIndicator color={COLORS.primary} />
         </View>
       ) : (
@@ -100,7 +100,7 @@ const ReviewTrendChart = ({ update }: { update: boolean }) => {
           <LineChart
             data={chartData}
             color1={COLORS.primary}
-            thickness={3}
+            thickness={2}
             startFillColor={COLORS.primary}
             endFillColor={COLORS["base-300"]}
             startOpacity={0.5}
@@ -128,6 +128,7 @@ const ReviewTrendChart = ({ update }: { update: boolean }) => {
             }}
             areaChart
             curved
+            curveType={CurveType.QUADRATIC}
             hideDataPoints
             width={screenWidth - 60}
             height={200}
@@ -166,7 +167,7 @@ const ReviewTrendChart = ({ update }: { update: boolean }) => {
                         marginBottom: 2,
                       }}
                     >
-                      {item.label}
+                      {item.dataPointText}
                     </Text>
                     <Text
                       style={{

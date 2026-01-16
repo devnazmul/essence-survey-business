@@ -1,8 +1,13 @@
 import { COLORS } from "@/constants";
+import {
+  useBranchesQuery,
+  useChangeDefaultBranchMutation,
+} from "@/hooks/useBusiness";
 import { useAuthStore } from "@/store/useAuthStore";
+import { useBusinessStore } from "@/store/useBusinessStore";
 import { formatRole } from "@/utils/formatRole";
 import getFullImageLink from "@/utils/getFullImageLink";
-import { AntDesign, Feather } from "@expo/vector-icons";
+import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -13,15 +18,23 @@ import {
   TouchableWithoutFeedback,
   View,
 } from "react-native";
+import BranchSelectionModal from "./modals/BranchSelectionModal";
 
 const ProfileDropdown = () => {
   const router = useRouter();
   const [visible, setVisible] = useState(false);
+  const [showBranchModal, setShowBranchModal] = useState(false);
+
   const { user } = useAuthStore();
   const logout = useAuthStore((state) => state.logout);
 
+  const { data: branchesData, isLoading: isBranchesLoading } =
+    useBranchesQuery();
+  const branchMutation = useChangeDefaultBranchMutation();
+
   const handleLogout = () => {
     setVisible(false);
+    useBusinessStore.getState().clearStore();
     logout();
     router.replace("/signin");
   };
@@ -29,6 +42,16 @@ const ProfileDropdown = () => {
   const handleProfileNavigation = () => {
     setVisible(false);
     router.push("/(dashboard)/profile");
+  };
+
+  const handleBranchSelect = async (branchId: number | string) => {
+    try {
+      await branchMutation.mutateAsync({ default_branch_id: branchId });
+      setShowBranchModal(false);
+      setVisible(false);
+    } catch (error) {
+      console.error("Failed to switch branch:", error);
+    }
   };
 
   const getInitials = (name: string) => {
@@ -39,6 +62,10 @@ const ProfileDropdown = () => {
       .toUpperCase()
       .slice(0, 2);
   };
+
+  const branches = branchesData?.data || [];
+  const currentBranchId = user?.business?.id || user?.business?.[0]?.id;
+  const isBusinessOwner = user?.role?.name === "business_owner";
 
   return (
     <View className="relative z-50">
@@ -94,19 +121,25 @@ const ProfileDropdown = () => {
                     </Text>
                   </TouchableOpacity>
 
-                  {/* <TouchableOpacity
-                    className="flex-row items-center p-3 rounded-lg active:bg-gray-100"
-                    onPress={() => setVisible(false)}
-                  >
-                    <MaterialIcons
-                      name="storefront"
-                      size={18}
-                      color="#4B5563"
-                    />
-                    <Text className="ml-3 text-gray-700 font-medium">
-                      Change Branch
-                    </Text>
-                  </TouchableOpacity> */}
+                  {isBusinessOwner && (
+                    <TouchableOpacity
+                      className="flex-row items-center p-3 rounded-lg active:bg-gray-100"
+                      onPress={() => {
+                        setVisible(false);
+                        setShowBranchModal(true);
+                      }}
+                    >
+                      <MaterialIcons
+                        name="storefront"
+                        size={18}
+                        color="#4B5563"
+                      />
+                      <Text className="ml-3 text-gray-700 font-medium">
+                        {branches.find((b: any) => b.id === currentBranchId)
+                          ?.name || "All Branch"}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
 
                   <View className="h-[1px] bg-gray-100 my-1" />
 
@@ -123,6 +156,16 @@ const ProfileDropdown = () => {
           </View>
         </TouchableWithoutFeedback>
       </Modal>
+
+      <BranchSelectionModal
+        visible={showBranchModal}
+        onClose={() => setShowBranchModal(false)}
+        branches={branches}
+        currentBranchId={currentBranchId}
+        onSelect={handleBranchSelect}
+        isLoading={isBranchesLoading}
+        isUpdating={branchMutation.isPending}
+      />
     </View>
   );
 };

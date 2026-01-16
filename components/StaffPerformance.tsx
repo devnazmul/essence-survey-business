@@ -28,7 +28,9 @@ const StaffPerformance = ({
 
   return (
     <View
-      className={`flex-row items-center py-3 ${!isFirst ? "border-t border-gray-100" : ""}`}
+      className={`flex-row items-center py-3 ${
+        !isFirst ? "border-t border-gray-100" : ""
+      }`}
     >
       <View className="relative">
         <Image
@@ -38,7 +40,7 @@ const StaffPerformance = ({
           className="w-12 h-12 rounded-full mr-3 border-2 border-green-50"
         />
         {isFirst && (
-          <View className="absolute -top-1 -right-1 bg-yellow-400 rounded-full p-0.5 border border-white">
+          <View className="absolute -top-1 -right-1 justify-center items-center bg-orange-400 rounded-full w-5 h-5 border border-white">
             <MaterialIcons name="stars" size={12} color="white" />
           </View>
         )}

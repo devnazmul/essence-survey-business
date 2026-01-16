@@ -30,21 +30,19 @@ export const getReviews = async (
   try {
     const params: any = {
       page,
-      limit,
+      per_page: limit,
       ...filters,
     };
 
+    // Mapping search to search_key just in case, though we will try to use search_key directly in UI
     if (filters.search) {
       params.search_key = filters.search;
       delete params.search;
     }
 
-    const response = await axiosPrivate.get(
-      `/v1.0/reviews/overall-dashboard/${businessId}`,
-      {
-        params,
-      }
-    );
+    const response = await axiosPrivate.get(`/v1.0/reviews`, {
+      params,
+    });
     return response.data;
   } catch (error) {
     apiErrorHandler(error);

@@ -19,6 +19,7 @@ export const IMAGES = {
   comingSoon: require("./coming-soon.png"),
   success: require("./success.png"),
   logoV3: require("./logoV3.png"),
+  placeholderUser: require("./images/placeholder_user.png"),
 };
 
 export default IMAGES;

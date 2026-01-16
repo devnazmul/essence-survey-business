@@ -24,15 +24,17 @@ const FilterTab: React.FC<IFilterTabProps> = ({
 }) => {
   const { getResponsiveFontSize } = useDimension();
   return (
-    <View className={`flex-row `}>
-      <View className="flex-row gap-2 mb-6 bg-gray-200 rounded-xl p-2">
+    <View className={`flex-row`}>
+      <View className="flex-row gap-2 mb-6 border border-black/10 bg-base-300 rounded-xl p-2">
         {tabs.map((tab) => (
           <TouchableOpacity
             disabled={isLoading}
             key={tab.value}
             className={
               tab.tabClassName ||
-              `flex-row items-center gap-2 py-2 px-4 rounded-lg min-w-[40px] justify-center ${tab.value === activeTab ? "bg-primary" : "bg-gray-200"}`
+              `flex-row items-center gap-2 py-2 px-2 rounded-lg min-w-[40px] justify-center ${
+                tab.value === activeTab ? "bg-primary/20" : "bg-base-300"
+              }`
             }
             onPress={tab.onPress}
           >
@@ -51,7 +53,9 @@ const FilterTab: React.FC<IFilterTabProps> = ({
               }}
               className={
                 tab.textClassName ||
-                `text-base-300 text-center ${tab.value === activeTab ? "text-base-300" : "text-gray-400"}`
+                `text-base-300 text-center ${
+                  tab.value === activeTab ? "text-primary" : "text-gray-300"
+                }`
               }
             >
               {tab.label}

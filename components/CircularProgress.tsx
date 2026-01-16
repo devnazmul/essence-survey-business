@@ -16,6 +16,7 @@ interface CircularProgressProps {
   strokeWidth?: number;
   color?: string;
   isPercent?: boolean;
+  valueFontSize?: any;
 }
 
 const CircularProgress: React.FC<CircularProgressProps> = ({
@@ -25,6 +26,7 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
   strokeWidth = 8,
   color = "#10b981",
   isPercent = true,
+  valueFontSize,
 }) => {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -73,7 +75,12 @@ const CircularProgress: React.FC<CircularProgressProps> = ({
       </Svg>
       <View className="items-center justify-center">
         <Text
-          className={`font-bold text-slate-800 ${isPercent ? "text-lg" : "text-2xl"}`}
+          style={{
+            fontSize: valueFontSize,
+          }}
+          className={`font-bold text-slate-800 ${
+            isPercent ? "text-lg" : "text-2xl"
+          }`}
         >
           {value}
           {isPercent ? "%" : ""}
