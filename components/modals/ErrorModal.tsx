@@ -62,7 +62,7 @@ export const ErrorModal: React.FC<ErrorModalProps> = ({
 
           {/* Text Content */}
           <Text
-            className="text-gray-900 font-bold w-40 mt-4 text-center"
+            className="text-gray-900 font-bold mt-4 text-center w-full"
             style={{ fontSize: getResponsiveFontSize("2xl") }}
           >
             {title}

@@ -33,7 +33,7 @@ const FilterTab: React.FC<IFilterTabProps> = ({
             className={
               tab.tabClassName ||
               `flex-row items-center gap-2 py-2 px-2 rounded-lg min-w-[40px] justify-center ${
-                tab.value === activeTab ? "bg-primary/20" : "bg-base-300"
+                tab.value === activeTab ? "bg-primary/10" : "bg-base-300"
               }`
             }
             onPress={tab.onPress}
@@ -49,12 +49,12 @@ const FilterTab: React.FC<IFilterTabProps> = ({
             )}
             <Text
               style={{
-                fontSize: getResponsiveFontSize("md"),
+                fontSize: getResponsiveFontSize("xs"),
               }}
               className={
                 tab.textClassName ||
                 `text-base-300 text-center ${
-                  tab.value === activeTab ? "text-primary" : "text-gray-300"
+                  tab.value === activeTab ? "text-primary" : "text-gray-400"
                 }`
               }
             >

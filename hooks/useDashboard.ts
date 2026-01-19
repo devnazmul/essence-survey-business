@@ -9,7 +9,9 @@ import React, { useEffect } from "react";
 
 export const useDashboardMetrics = (period?: string) => {
   const { user } = useAuthStore();
-  const setDashboardData = useBusinessStore((state) => state.setDashboardData);
+  const setDashboardStats = useBusinessStore(
+    (state) => state.setDashboardStats,
+  );
   const setLoading = useBusinessStore((state) => state.setLoading);
 
   // Get business ID from business object or first business in the array
@@ -103,9 +105,9 @@ export const useDashboardMetrics = (period?: string) => {
   // Update store when data changes
   useEffect(() => {
     if (structuredData) {
-      setDashboardData(structuredData);
+      setDashboardStats(structuredData.stats);
     }
-  }, [structuredData, setDashboardData]);
+  }, [structuredData, setDashboardStats]);
 
   // Sync loading state with business store
   useEffect(() => {
@@ -123,7 +125,9 @@ export const useDashboardMetrics = (period?: string) => {
 };
 
 export const useDashboardReviews = (period?: string) => {
-  const setDashboardData = useBusinessStore((state) => state.setDashboardData);
+  const setDashboardReviews = useBusinessStore(
+    (state) => state.setDashboardReviews,
+  );
   const setLoading = useBusinessStore((state) => state.setLoading);
 
   const dashboardQuery = useQuery({
@@ -145,6 +149,8 @@ export const useDashboardReviews = (period?: string) => {
 
     const data = dashboardQuery.data.data;
 
+    console.log("s", data);
+
     return {
       reviews: data?.map((item: any) => ({
         id: item.id,
@@ -165,10 +171,12 @@ export const useDashboardReviews = (period?: string) => {
 
   // Update store when data changes
   useEffect(() => {
-    if (structuredData) {
-      setDashboardData(structuredData);
+    if (structuredData?.reviews) {
+      console.log({ structuredData });
+
+      setDashboardReviews(structuredData.reviews);
     }
-  }, [structuredData, setDashboardData]);
+  }, [structuredData, setDashboardReviews]);
 
   // Sync loading state with business store
   useEffect(() => {

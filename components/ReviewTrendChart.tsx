@@ -12,7 +12,7 @@ const ReviewTrendChart = () => {
   const screenWidth = Dimensions.get("window").width;
   const [period, setPeriod] = useState("30d");
   const { data, isLoading, refetch } = useReviewTrends(period);
-
+  console.log({ data });
   const tabs = [
     { label: "7 Days", value: "7d" },
     { label: "30 Days", value: "30d" },
@@ -24,36 +24,37 @@ const ReviewTrendChart = () => {
   }, [period, refetch]);
 
   const chartData = useMemo(() => {
-    if (!data?.data?.data) return [];
+    if (!data?.data) return [];
 
-    const sortedDates = Object.keys(data.data.data).sort((a, b) => {
-      const dateA = a.split("-").reverse().join("-"); // 02-12-2025 -> 2025-12-02
-      const dateB = b.split("-").reverse().join("-");
+    // Sort the array by period date
+    const sortedData = [...data.data].sort((a, b) => {
+      const dateA = a.period.split("-").reverse().join("-"); // 12-01-2026 -> 2026-01-12
+      const dateB = b.period.split("-").reverse().join("-");
       return new Date(dateA).getTime() - new Date(dateB).getTime();
     });
 
-    return sortedDates.map((date) => {
+    return sortedData.map((item) => {
       if (period === "7d") {
         return {
-          value: data.data.data[date]?.submissions_count || 0,
-          label: moment(date, "DD-MM-YYYY").format("DD MMM"),
-          dataPointText: date,
+          value: item.count || 0,
+          label: moment(item.period, "DD-MM-YYYY").format("DD MMM"),
+          dataPointText: item.period,
         };
       } else if (period === "30d") {
         return {
-          value: data.data.data[date]?.submissions_count || 0,
-          label: moment(date, "DD-MM-YYYY").format("D"),
-          dataPointText: date,
+          value: item.count || 0,
+          label: moment(item.period, "DD-MM-YYYY").format("D"),
+          dataPointText: item.period,
         };
       } else {
         return {
-          value: data.data.data[date]?.submissions_count || 0,
-          label: moment(date, "MM-YYYY").format("MMM"),
-          dataPointText: date,
+          value: item.count || 0,
+          label: moment(item.period, "MM-YYYY").format("MMM"),
+          dataPointText: item.period,
         };
       }
     });
-  }, [data.data.data, period]);
+  }, [data?.data, period]);
 
   return (
     <View className="bg-base-300 rounded-2xl p-4 mb-2 shadow-sm w-full">
@@ -110,8 +111,8 @@ const ReviewTrendChart = () => {
               period === "7d"
                 ? WP("12.7%")
                 : period === "30d"
-                ? WP("2.7%")
-                : WP("36.7%")
+                  ? WP("2.7%")
+                  : WP("36.7%")
             }
             yAxisThickness={0}
             xAxisThickness={0}
@@ -123,8 +124,8 @@ const ReviewTrendChart = () => {
                 period === "7d"
                   ? getResponsiveFontSize("xxs")
                   : period === "30d"
-                  ? getResponsiveFontSize("xxs")
-                  : getResponsiveFontSize("xs"),
+                    ? getResponsiveFontSize("xxs")
+                    : getResponsiveFontSize("xs"),
             }}
             areaChart
             curved

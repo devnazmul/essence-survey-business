@@ -1,5 +1,6 @@
 import { getReviews } from "@/api/review";
 import { useAuthStore } from "@/store/useAuthStore";
+import { getFullName } from "@/utils/getFullName";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import moment from "moment";
 
@@ -15,7 +16,9 @@ export const useReviews = (limit: number = 20, filters: any = {}) => {
     getNextPageParam: (lastPage, allPages) => {
       // Assuming the API returns a standard pagination object or we can check the length
       // If the last page has less items than the limit, there are no more pages
-      const reviewsFeed = lastPage?.data?.review_feed || [];
+      const reviewsFeed = Array.isArray(lastPage?.data)
+        ? lastPage.data
+        : lastPage?.data?.review_feed || [];
       if (reviewsFeed.length < limit) {
         return undefined;
       }
@@ -23,37 +26,47 @@ export const useReviews = (limit: number = 20, filters: any = {}) => {
     },
     enabled: !!businessId,
   });
-  console.log(query.data?.pages);
 
   const reviews =
     query.data?.pages.flatMap((page) => {
-      console.log("ppp:", page?.data[0]);
-      return (page?.data || []).map(
+      const reviewData = Array.isArray(page?.data)
+        ? page.data
+        : page?.data?.review_feed || [];
+
+      return reviewData.map(
         ({
           id,
           guest_user,
           comment,
           is_ai_flagged,
           is_voice,
-          sentiment,
+
           staff_name,
           tags,
+          topics, // Add topics as fallback
           created_at,
           calculated_rating,
           responded_at,
+          user_id,
+          user: customer,
+          is_voice_review,
+          sentiment_label: sentiment,
+          status,
         }: any) => ({
           id,
-          customerName: guest_user?.full_name,
+          customerName: user_id ? getFullName(customer) : guest_user?.full_name,
           date: moment(created_at, "DD-MM-YYYY HH:mm:ss").fromNow(),
           rating: calculated_rating,
           comment,
-          tags,
+          tags: tags || topics || [],
           staff_name,
-          sentiment,
           is_ai_flagged,
           is_voice,
           responded_at,
-        })
+          is_voice_review,
+          sentiment,
+          status,
+        }),
       );
     }) || [];
 

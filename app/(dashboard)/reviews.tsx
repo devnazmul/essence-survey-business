@@ -122,7 +122,7 @@ export default function ReviewsScreen() {
           <Feather name="search" size={20} color="gray" />
           <TextInput
             placeholder="Search by customer name or keyword"
-            className="flex-1 ml-2 text-base text-gray-700 placeholder:text-gray-400"
+            className="flex-1 ml-2 text-gray-700 placeholder:text-gray-400"
             value={search}
             onChangeText={setSearch}
           />
@@ -139,7 +139,7 @@ export default function ReviewsScreen() {
       </View>
 
       {Object.keys(activeFilters).some(
-        (key) => activeFilters[key] !== "" && activeFilters[key] !== undefined
+        (key) => activeFilters[key] !== "" && activeFilters[key] !== undefined,
       ) && (
         <ScrollView
           horizontal

@@ -1,33 +1,17 @@
 import { checkUserEmail } from "@/api/auth";
-import { createBranch, updateBranch } from "@/api/branch";
-import { getAllUsers } from "@/api/users";
-import { QUERY_KEYS } from "@/constants/queryKeys";
-import { useCustomMutation } from "@/hooks/useCustomMutation";
-import { useCustomQuery } from "@/hooks/useCustomQuery";
+import {
+  useBranchManagersQuery,
+  useCreateBranchMutation,
+  useUpdateBranchMutation,
+  type BranchFormData,
+} from "@/hooks/useBranchMutation";
 import { useAlertStore } from "@/store/useAlertStore";
 import { useAuthStore } from "@/store/useAuthStore";
 import { apiErrorHandler } from "@/utils/apiErrorHandler";
 import { ValidationErrorHandler } from "@/utils/validationErrorHandler";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
-export interface BranchFormData {
-  id: number | null;
-  name: string;
-  address: string;
-  street: string;
-  door_no: string;
-  city: string;
-  country: string;
-  postcode: string;
-  phone: string;
-  email: string;
-  is_active: string | number;
-  is_geo_enabled: number;
-  manager_id: string | number;
-  branch_code: string;
-  lat: string | number;
-  long: string | number;
-}
+export type { BranchFormData };
 
 export default function useCreateAndUpdateBranch({
   handleClosePopup,
@@ -35,7 +19,7 @@ export default function useCreateAndUpdateBranch({
   handleClosePopup: () => void;
 }) {
   // USER CONTEXT
-  const { popupOption, user, setPopupOption } = useAuthStore();
+  const { popupOption, setPopupOption } = useAuthStore();
 
   // ERROR STATE
   const [isCheckingEmail, setIsCheckingEmail] = useState(false);
@@ -43,8 +27,8 @@ export default function useCreateAndUpdateBranch({
   const [isLoadingMap, setIsLoadingMap] = useState(false);
   const [hasChanges, setHasChanges] = useState(false);
 
-  // GET EDIT DATA FROM POPUP
-  const prevData = popupOption?.data || {};
+  // GET EDIT DATA FROM POPUP WITH MEMOIZATION
+  const prevData = useMemo(() => popupOption?.data || {}, [popupOption?.data]);
 
   // Form Data
   const [formData, setFormData] = useState<BranchFormData>({
@@ -62,12 +46,19 @@ export default function useCreateAndUpdateBranch({
     is_geo_enabled: prevData?.is_geo_enabled || 0,
     manager_id: prevData?.manager_id || "",
     branch_code: prevData?.branch_code || "",
-    lat: prevData?.lat != null ? parseFloat(prevData.lat) : "",
-    long: prevData?.long != null ? parseFloat(prevData.long) : "",
+    lat:
+      prevData?.lat != null && prevData.lat !== ""
+        ? parseFloat(prevData.lat.toString())
+        : "",
+    long:
+      prevData?.long != null && prevData.long !== ""
+        ? parseFloat(prevData.long.toString())
+        : "",
   });
 
   useEffect(() => {
-    if (prevData?.id) {
+    if (popupOption?.data?.id) {
+      const prevData = popupOption.data;
       setFormData({
         id: prevData?.id || null,
         name: prevData?.name || "",
@@ -83,12 +74,18 @@ export default function useCreateAndUpdateBranch({
         is_geo_enabled: prevData?.is_geo_enabled || 0,
         manager_id: prevData?.manager_id || "",
         branch_code: prevData?.branch_code || "",
-        lat: prevData?.lat != null ? parseFloat(prevData.lat) : "",
-        long: prevData?.long != null ? parseFloat(prevData.long) : "",
+        lat:
+          prevData?.lat != null && prevData.lat !== ""
+            ? parseFloat(prevData.lat.toString())
+            : "",
+        long:
+          prevData?.long != null && prevData.long !== ""
+            ? parseFloat(prevData.long.toString())
+            : "",
       });
       setHasChanges(false);
     }
-  }, [prevData]);
+  }, [popupOption?.data]);
 
   // Update popup cross button warning based on changes
   useEffect(() => {
@@ -98,15 +95,18 @@ export default function useCreateAndUpdateBranch({
     }));
   }, [hasChanges, popupOption?.data, setPopupOption]);
 
-  const { data, isLoading } = useCustomQuery({
-    queryKey: [QUERY_KEYS.USERS, "branch_manager_select"],
-    queryFunc: async () =>
-      await getAllUsers({
-        role: "branch_manager",
-        without_branch: true,
-        ignore_id: prevData?.id,
-      }),
+  // Use new mutation hooks
+  const createFunc = useCreateBranchMutation({
+    onSuccess: handleClosePopup,
+    refetch: popupOption?.refetch,
   });
+
+  const updateFunc = useUpdateBranchMutation({
+    onSuccess: handleClosePopup,
+    refetch: popupOption?.refetch,
+  });
+
+  const { data, isLoading } = useBranchManagersQuery(prevData?.id);
 
   // HANDLE FORM CHANGE
   const handleFormChange = (name: keyof BranchFormData, value: any) => {
@@ -115,7 +115,6 @@ export default function useCreateAndUpdateBranch({
     setHasChanges(true);
   };
 
-  // HANDLE CANCEL
   // HANDLE CANCEL
   const handleCancel = () => {
     if (!popupOption?.data && hasChanges) {
@@ -143,7 +142,7 @@ export default function useCreateAndUpdateBranch({
     if (formData?.email) {
       if (
         !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/i.test(
-          formData.email.trim()
+          formData.email.trim(),
         )
       ) {
         validationErrors.email = "Invalid email";
@@ -158,7 +157,7 @@ export default function useCreateAndUpdateBranch({
             validationErrors.email = "Email already exist";
           }
           setIsCheckingEmail(false);
-        } catch (err) {
+        } catch {
           setIsCheckingEmail(false);
         }
       }
@@ -175,52 +174,6 @@ export default function useCreateAndUpdateBranch({
 
     return Object.keys(validationErrors).length === 0;
   };
-
-  // CREATE HANDLER
-  const createFunc = useCustomMutation({
-    mutationFunc: async (payload: BranchFormData) =>
-      await createBranch({
-        business_id: user?.business?.id || user?.business_id || "",
-        ...payload,
-        lat: formData?.lat ? formData?.lat + "" : "",
-        long: formData?.long ? formData?.long + "" : "",
-      }),
-    onSuccess: async () => {
-      useAlertStore.getState().showSuccess({
-        message: "Branch Added successfully",
-        onConfirm: () => {
-          popupOption?.refetch?.();
-          handleClosePopup?.();
-        },
-      });
-    },
-    onError: (err) => {
-      apiErrorHandler(err);
-    },
-  });
-
-  // UPDATE HANDLER
-  const updateFunc = useCustomMutation({
-    mutationFunc: async (payload: BranchFormData) =>
-      await updateBranch(payload.id!, {
-        business_id: user?.business?.id || user?.business_id || "",
-        ...payload,
-        lat: formData?.lat ? formData?.lat + "" : "",
-        long: formData?.long ? formData?.long + "" : "",
-      }),
-    onSuccess: async () => {
-      useAlertStore.getState().showSuccess({
-        message: "Branch Updated successfully",
-        onConfirm: () => {
-          popupOption?.refetch?.();
-          handleClosePopup?.();
-        },
-      });
-    },
-    onError: (err) => {
-      apiErrorHandler(err);
-    },
-  });
 
   // Handle form submission
   const handleSubmit = async () => {

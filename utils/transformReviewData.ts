@@ -1,3 +1,5 @@
+import { getFullName } from "./getFullName";
+
 export interface TransformedReviewQuestion {
   id: number;
   questionId: number;
@@ -60,10 +62,11 @@ export interface TransformedReviewData {
  * @returns Transformed review data optimized for UI rendering
  */
 export const transformReviewData = (
-  apiResponse: any
+  apiResponse: any,
 ): TransformedReviewData | null => {
   // Handle both cases: full response with success flag, or just the data object
   const data = apiResponse?.success ? apiResponse.data : apiResponse;
+  console.log({ data });
 
   if (!data) {
     return null;
@@ -83,7 +86,7 @@ export const transformReviewData = (
     : data.user
       ? {
           id: data.user.id,
-          name: data.user.full_name || data.user.name || "User",
+          name: getFullName(data?.user) || "User",
           email: data.user.email || null,
           phone: data.user.phone || null,
           avatar: data.user.avatar || null,
@@ -115,7 +118,7 @@ export const transformReviewData = (
         tagLabel: tagData?.tag || null, // Tag label like "Decent", "Average"
         sentiment: item.sentiment,
       };
-    }
+    },
   );
   return {
     id: data.id,

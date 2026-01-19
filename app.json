@@ -1,21 +1,39 @@
 {
   "expo": {
     "name": "Feed Genius Business",
-    "slug": "essence-survey-business",
+    "slug": "feed-genius-business",
+    "description": "Feed Genius Business App for Survey",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "essencesurveybusiness",
+    "scheme": "feedgeniusbusiness",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.telent360.essencesurveybusiness",
+      "bundleIdentifier": "com.essenceConsultancy.feedGeniusBusiness",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": ["remote-notification"],
+        "NSUserNotificationUsageDescription": "Allow Telent 360 to send you notifications, including alerts, sounds, and icon badges."
+      },
+      "config": {
+        "googleMapsApiKey": "AIzaSyDKdgxA3ph7Z7bnq2TGH0fFrySkZu2B2G4"
       }
     },
     "android": {
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDKdgxA3ph7Z7bnq2TGH0fFrySkZu2B2G4"
+        }
+      },
+      "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -24,7 +42,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.telent360.essencesurveybusiness"
+      "package": "com.essenceConsultancy.feedGeniusBusiness"
     },
     "web": {
       "bundler": "metro",
@@ -53,7 +71,7 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "8cf1da13-6bad-4aaa-a1fa-ab88573960ee"
+        "projectId": "a91a9e34-ca2a-456f-b856-fe88c743b1c6"
       }
     },
     "owner": "telent360"

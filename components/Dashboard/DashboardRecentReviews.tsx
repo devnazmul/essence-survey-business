@@ -13,7 +13,7 @@ const DashboardRecentReviews: React.FC<IDashboardRecentReviewsProps> = () => {
   const reviews = useBusinessStore((state) => state.reviews);
   const { getResponsiveFontSize } = useDimension();
   const { isLoading, refetch } = useDashboardReviews("last_30_days");
-
+  console.log({ reviews });
   useEffect(() => {
     refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -52,9 +52,7 @@ const DashboardRecentReviews: React.FC<IDashboardRecentReviewsProps> = () => {
         <>
           {reviews.length === 0 ? (
             <View className="flex-1 items-center justify-center min-h-[200px]">
-              <Text className="text-gray-400">
-                No Reviews {reviews?.length}
-              </Text>
+              <Text className="text-gray-400">No Reviews</Text>
             </View>
           ) : (
             reviews.map((review) => (

@@ -34,7 +34,7 @@ const BranchCard: React.FC<BranchCardProps> = ({
       {/* Top Section: Status and Actions */}
       <View className="flex-row justify-between items-center mb-4">
         <View
-          className={`px-3 py-1 rounded-full ${
+          className={`px-3 py-2 rounded-lg ${
             branch.is_active ? "bg-green-100" : "bg-red-100"
           }`}
         >
@@ -79,7 +79,7 @@ const BranchCard: React.FC<BranchCardProps> = ({
         >
           {branch.name}
         </Text>
-        <View className="self-start bg-slate-50 px-3 py-1 rounded-lg border border-slate-100">
+        <View className="self-start bg-gray-200 px-3 py-1 rounded-lg border border-gray-300">
           <Text
             className="text-slate-500 font-medium lowercase"
             style={{ fontSize: getResponsiveFontSize("sm") }}
@@ -170,7 +170,7 @@ const BranchCard: React.FC<BranchCardProps> = ({
           >
             Last Modified:{" "}
             {moment(branch.updated_at, "YYYY-MM-DD HH:mm:ss").format(
-              "DD MMM YYYY - HH:mm A"
+              "DD MMM YYYY - HH:mm A",
             )}
           </Text>
         </View>

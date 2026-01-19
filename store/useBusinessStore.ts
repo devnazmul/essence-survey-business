@@ -114,6 +114,8 @@ interface IBusinessStore {
   updateBusiness: () => Promise<boolean>;
   initializeSettings: (businessData: any) => void;
   setDashboardData: (data: any) => void;
+  setDashboardStats: (stats: any) => void;
+  setDashboardReviews: (reviews: IReview[]) => void;
   clearStore: () => void;
 }
 
@@ -228,6 +230,59 @@ export const useBusinessStore = create<IBusinessStore>()(
             ratingBreakdown: data?.stats?.ratingBreakdown || {},
           },
           reviews: data?.reviews || [],
+          lastUpdated: new Date().toISOString(),
+        }),
+      setDashboardStats: (stats: any) =>
+        set({
+          stats: {
+            sentimentScore: stats?.sentimentScore || {
+              value: 0,
+              max: 0,
+              change: 0,
+            },
+            avgRating: stats?.avgRating || {
+              value: 0,
+              change: 0,
+            },
+            totalReviews: stats?.totalReviews || {
+              value: 0,
+              change: 0,
+            },
+            staffLinkedReviews: stats?.staffLinkedReviews || {
+              value: 0,
+              change: 0,
+              percentage: 0,
+              total: 0,
+            },
+            aiSentiment: stats?.aiSentiment || {
+              value: "Neutral",
+              change: 0,
+              subTitle: "",
+            },
+            topTopic: stats?.topTopic || {
+              value: "N/A",
+              count: 0,
+              subTitle: "",
+            },
+            flagged: stats?.flagged || {
+              value: 0,
+              change: 0,
+            },
+            csatScore: stats?.csatScore || {
+              value: 0,
+              change: 0,
+            },
+            repeatIssue: stats?.repeatIssue || {
+              value: "N/A",
+              subTitle: "Recurring problems",
+            },
+            ratingBreakdown: stats?.ratingBreakdown || {},
+          },
+          lastUpdated: new Date().toISOString(),
+        }),
+      setDashboardReviews: (reviews: IReview[]) =>
+        set({
+          reviews: reviews || [],
           lastUpdated: new Date().toISOString(),
         }),
       setLoading: (loading) => set({ isLoading: loading }),
@@ -352,6 +407,6 @@ export const useBusinessStore = create<IBusinessStore>()(
         notifications: state.notifications,
         surveys: state.surveys,
       }),
-    }
-  )
+    },
+  ),
 );
