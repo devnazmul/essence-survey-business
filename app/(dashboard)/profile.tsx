@@ -1,7 +1,7 @@
 import { changePassword } from "@/api/auth";
 import { getProfile, updateProfile, uploadProfileImage } from "@/api/profile";
 import IMAGES from "@/assets";
-import BottomNav from "@/components/BottomNav";
+
 import AutoComplete from "@/components/CustomAutoComplete";
 import Header from "@/components/Header";
 import { BasicInputField } from "@/components/InputField";
@@ -70,7 +70,6 @@ export default function ProfileScreen() {
           <ActivityIndicator size="large" color="#22c55e" />
           <Text className="mt-4 text-gray-600">Loading profile...</Text>
         </View>
-        <BottomNav activeTab="dashboard" />
       </SafeAreaView>
     );
   }
@@ -146,7 +145,7 @@ export default function ProfileScreen() {
       if (permissionResult.granted === false) {
         Alert.alert(
           "Permission Required",
-          "Please allow access to your photo library to upload a profile picture."
+          "Please allow access to your photo library to upload a profile picture.",
         );
         return;
       }
@@ -201,7 +200,7 @@ export default function ProfileScreen() {
 
   const handlePasswordChange = async (
     currentPassword: string,
-    newPassword: string
+    newPassword: string,
   ) => {
     if (!user.id) {
       Alert.alert("Error", "User ID not found");
@@ -369,8 +368,6 @@ export default function ProfileScreen() {
         {/* Spacer for bottom nav */}
         <View className="h-8" />
       </ScrollView>
-
-      <BottomNav activeTab="dashboard" />
 
       <SuccessModal
         visible={showSuccessModal}

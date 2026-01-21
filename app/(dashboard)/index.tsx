@@ -1,5 +1,5 @@
 import IMAGES from "@/assets";
-import BottomNav from "@/components/BottomNav";
+
 import DashboardCards from "@/components/Dashboard/DashboardCards";
 import DashboardRecentReviews from "@/components/Dashboard/DashboardRecentReviews";
 import FilterTab from "@/components/FilterTab";
@@ -91,7 +91,6 @@ export default function DashboardScreen() {
       </ScrollView>
 
       {/* Bottom Navigation */}
-      <BottomNav activeTab="dashboard" />
     </SafeAreaView>
   );
 }

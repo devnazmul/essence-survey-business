@@ -1,5 +1,5 @@
 import { IMAGES } from "@/assets";
-import BottomNav from "@/components/BottomNav";
+
 import BranchCard from "@/components/BranchCard";
 import Header from "@/components/Header";
 import ScreenTitle from "@/components/ScreenTitle";
@@ -152,8 +152,6 @@ export default function BranchesScreen() {
           }
         />
       )}
-
-      <BottomNav activeTab="branches" />
     </SafeAreaView>
   );
 }

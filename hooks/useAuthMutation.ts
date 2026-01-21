@@ -1,16 +1,20 @@
 import { forgotPassword, login } from "@/api/auth";
+import { useNotification } from "@/context/useNotification";
 import { useCustomMutation } from "@/hooks/useCustomMutation";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useBusinessStore } from "@/store/useBusinessStore";
+import axios from "axios";
 import { useRouter } from "expo-router";
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
 
 export const useLoginMutation = () => {
+  const { expoPushToken } = useNotification();
+
   const router = useRouter();
   const { setAuth } = useAuthStore();
 
   const initializeSettings = useBusinessStore(
-    (state) => state.initializeSettings
+    (state) => state.initializeSettings,
   );
 
   return useCustomMutation({
@@ -23,6 +27,7 @@ export const useLoginMutation = () => {
         try {
           // 1. Set Auth FIRST so subsequent private API calls have the token
           setAuth(user, token);
+          console.log("Authenticated");
 
           // 2. Initialize business settings with user data (sets businessId and settings)
           const businessData = {
@@ -37,8 +42,32 @@ export const useLoginMutation = () => {
           if (!businessId) {
             throw new Error("No business ID found");
           }
+          // 4. Register for push notifications
 
-          // 4. Navigate to dashboard
+          console.log(
+            "ready to call calling: /api/register-device-token",
+            expoPushToken,
+          );
+          if (expoPushToken) {
+            console.log("calling: /api/register-device-token", expoPushToken);
+
+            axios.post(
+              `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/v1.0/register-device-token`,
+              {
+                device_token: expoPushToken,
+                device_type: Platform.OS === "ios" ? "ios" : "android",
+              },
+              {
+                headers: {
+                  "Content-Type": "application/json",
+                  Accept: "application/json",
+                  Authorization: `Bearer ${data?.token}`,
+                },
+              },
+            );
+          }
+
+          // 5. Navigate to dashboard
           router.replace("/(dashboard)");
         } catch (error) {
           // Still navigate if we have the token
@@ -65,13 +94,13 @@ export const useForgotPasswordMutation = () => {
       Alert.alert(
         "Success",
         "A password reset link has been sent to your email address.",
-        [{ text: "OK", onPress: () => router.back() }]
+        [{ text: "OK", onPress: () => router.back() }],
       );
     },
     onError: (error: any) => {
       Alert.alert(
         "Error",
-        "Could not send reset link. Please check your email and try again."
+        "Could not send reset link. Please check your email and try again.",
       );
     },
   });

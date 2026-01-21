@@ -1,6 +1,6 @@
 import IMAGES from "@/assets";
 import AreaPerformance from "@/components/AreaPerformance";
-import BottomNav from "@/components/BottomNav";
+
 import Header from "@/components/Header";
 import InsightProgress from "@/components/InsightProgress";
 import ScreenTitle from "@/components/ScreenTitle";
@@ -152,7 +152,7 @@ export default function AnalyticsScreen() {
                       iconBg={COLORS_LIST[index % COLORS_LIST.length].bg} // Cyclic colors
                       reviewCount={item.review_count}
                     />
-                  )
+                  ),
                 )}
               </View>
             )}
@@ -268,7 +268,6 @@ export default function AnalyticsScreen() {
           </View>
         </TouchableOpacity>
       </Modal>
-      <BottomNav activeTab="insights" />
     </SafeAreaView>
   );
 }

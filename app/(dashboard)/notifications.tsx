@@ -1,6 +1,6 @@
 import { updateNotification } from "@/api/notification";
 import IMAGES from "@/assets";
-import BottomNav from "@/components/BottomNav";
+
 import Header from "@/components/Header";
 import ScreenTitle from "@/components/ScreenTitle";
 import { COLORS } from "@/constants";
@@ -109,7 +109,7 @@ export default function NotificationsScreen() {
           ? notification.description
               .split("A new review with rating ")[1]
               .split(" has been submitted.")[0]
-          : 0
+          : 0,
       );
       if (rating >= 4) {
         IconComp = MaterialIcons;
@@ -287,7 +287,6 @@ export default function NotificationsScreen() {
           }
         />
       )}
-      <BottomNav activeTab="notifications" />
     </SafeAreaView>
   );
 }

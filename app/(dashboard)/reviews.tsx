@@ -1,5 +1,5 @@
 import IMAGES from "@/assets";
-import BottomNav from "@/components/BottomNav";
+
 import Header from "@/components/Header";
 import ReviewCard from "@/components/ReviewCard";
 import ScreenTitle from "@/components/ScreenTitle";
@@ -561,7 +561,6 @@ export default function ReviewsScreen() {
       </Modal>
 
       {/* Bottom Navigation */}
-      <BottomNav activeTab="reviews" />
     </SafeAreaView>
   );
 }

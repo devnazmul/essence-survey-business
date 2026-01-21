@@ -1,6 +1,7 @@
 import { CustomToast } from "@/components/CustomToast";
 import { GlobalAlerts } from "@/components/GlobalAlerts";
 import { GlobalModals } from "@/components/GlobalModals";
+import { NotificationProvider } from "@/context/NotificationContext";
 import { useAuthStore } from "@/store/useAuthStore";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
@@ -45,11 +46,13 @@ function AuthController() {
 export default function Root() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthController />
-      <GlobalAlerts />
-      <GlobalModals />
-      <CustomToast />
-      <StatusBar style="dark" />
+      <NotificationProvider>
+        <AuthController />
+        <GlobalAlerts />
+        <GlobalModals />
+        <CustomToast />
+        <StatusBar style="dark" />
+      </NotificationProvider>
     </QueryClientProvider>
   );
 }

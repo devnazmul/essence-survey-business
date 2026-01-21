@@ -1,4 +1,5 @@
 import { COLORS } from "@/constants";
+import { useNotification } from "@/context/useNotification";
 import {
   useBranchesQuery,
   useChangeDefaultBranchMutation,
@@ -21,6 +22,8 @@ import {
 import BranchSelectionModal from "./modals/BranchSelectionModal";
 
 const ProfileDropdown = () => {
+  const { badgeCount, clearNotificationBadge } = useNotification();
+
   const router = useRouter();
   const [visible, setVisible] = useState(false);
   const [showBranchModal, setShowBranchModal] = useState(false);
@@ -36,6 +39,7 @@ const ProfileDropdown = () => {
     setVisible(false);
     useBusinessStore.getState().clearStore();
     logout();
+    clearNotificationBadge();
     router.replace("/signin");
   };
 
@@ -101,7 +105,7 @@ const ProfileDropdown = () => {
                         ? `${user.first_Name || ""} ${user.middle_Name || ""} ${
                             user.last_Name || ""
                           }`
-                        : "User"
+                        : "User",
                     )}
                   </Text>
                   <Text className="text-xs text-gray-500" numberOfLines={1}>

@@ -37,7 +37,7 @@ export default function LoginScreen() {
   };
   const { mutate: loginUser, isPending } = useLoginMutation();
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
-    {}
+    {},
   );
 
   // Load saved credentials on mount
@@ -48,7 +48,7 @@ export default function LoginScreen() {
   const loadSavedCredentials = async () => {
     try {
       const savedCredentials = await AsyncStorage.getItem(
-        CREDENTIALS_STORAGE_KEY
+        CREDENTIALS_STORAGE_KEY,
       );
       if (savedCredentials) {
         const { email, password } = JSON.parse(savedCredentials);
@@ -64,7 +64,7 @@ export default function LoginScreen() {
     try {
       await AsyncStorage.setItem(
         CREDENTIALS_STORAGE_KEY,
-        JSON.stringify(formData)
+        JSON.stringify(formData),
       );
     } catch (error) {
       console.log("Error saving credentials:", error);
@@ -102,6 +102,7 @@ export default function LoginScreen() {
       } else {
         clearCredentials();
       }
+      console.log({ formData });
       loginUser(formData);
     }
   };
