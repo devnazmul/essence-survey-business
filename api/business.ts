@@ -79,7 +79,7 @@ export const getBusinessSettings = async (businessId: number | string) => {
 
 export const uploadBusinessLogo = async (
   businessId: number | string,
-  imageUri: string
+  imageUri: string,
 ) => {
   const formData = new FormData();
 
@@ -103,19 +103,19 @@ export const uploadBusinessLogo = async (
       headers: {
         "Content-Type": "multipart/form-data",
       },
-    }
+    },
   );
   return response.data;
 };
 
 export const updateBusinessDetails = async (
   businessId: number | string,
-  data: IBusinessSettings
+  data: IBusinessSettings,
 ) => {
   // Using POST with _method=PATCH as per API hint/convention often seen in some frameworks
   const response = await axiosPrivate.post(
     `/v1.0/business/${businessId}?_method=PATCH`,
-    data
+    data,
   );
   return response.data;
 };
@@ -123,21 +123,21 @@ export const updateBusinessDetails = async (
 // Use this version if the server accepts standard PATCH
 export const updateBusinessDetailsStandard = async (
   businessId: number | string,
-  data: IBusinessSettings
+  data: IBusinessSettings,
 ) => {
   const response = await axiosPrivate.patch(
     `/v1.0/business/${businessId}`,
-    data
+    data,
   );
   return response.data;
 };
 
 export const changeDefaultBranch = async (data: {
-  default_branch_id: number | string;
+  default_branch_id: number | string | null;
 }) => {
   const response = await axiosPrivate.patch(
     "/v1.0/business/default-branch",
-    data
+    data,
   );
   return response.data;
 };

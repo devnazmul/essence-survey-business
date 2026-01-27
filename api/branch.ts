@@ -5,66 +5,65 @@ import { axiosPrivate } from "@/utils/axiosInstance";
 // ========================
 
 export const getAllBranches = async (params: any = {}) => {
-  const response = await axiosPrivate.get("/v1.0/branches", { params });
-  return response.data;
-};
-
-export const getBranchDashboard = async (id: number | string) => {
-  const response = await axiosPrivate.get(`/v1.0/branch-dashboard/${id}`);
+  const { signal, ...query } = params;
+  const response = await axiosPrivate.get("/v1.0/branches", {
+    params: query,
+    signal,
+  });
   return response.data;
 };
 
 export const getBranchMetrics = async (
   branchId: number | string,
-  params: any = {}
+  params: any = {},
 ) => {
   const response = await axiosPrivate.get(
     `/v1.0/branches/${branchId}/metrics`,
-    { params }
+    { params },
   );
   return response.data;
 };
 
 export const getBranchInsights = async (
   branchId: number | string,
-  params: any = {}
+  params: any = {},
 ) => {
   const response = await axiosPrivate.get(
     `/v1.0/branches/${branchId}/ai-insights`,
-    { params }
+    { params },
   );
   return response.data;
 };
 
 export const getBranchRecommendations = async (
   branchId: number | string,
-  params: any = {}
+  params: any = {},
 ) => {
   const response = await axiosPrivate.get(
     `/v1.0/branches/${branchId}/recommendations`,
-    { params }
+    { params },
   );
   return response.data;
 };
 
 export const getBranchRecentReviews = async (
   branchId: number | string,
-  params: any = {}
+  params: any = {},
 ) => {
   const response = await axiosPrivate.get(
     `/v1.0/branches/${branchId}/recent-reviews`,
-    { params }
+    { params },
   );
   return response.data;
 };
 
 export const getBranchStaffPerformance = async (
   branchId: number | string,
-  params: any = {}
+  params: any = {},
 ) => {
   const response = await axiosPrivate.get(
     `/v1.0/branches/${branchId}/staff-performance`,
-    { params }
+    { params },
   );
   return response.data;
 };
@@ -101,7 +100,7 @@ export const updateBranch = async (id: number | string, data: any) => {
 
 export const toggleBranch = async (id: number | string) => {
   const response = await axiosPrivate.patch(
-    `/v1.0/branches/toggle-status/${id}`
+    `/v1.0/branches/toggle-status/${id}`,
   );
   return response.data;
 };

@@ -22,8 +22,8 @@ export const useNotifications = (perPage: number = 20, status?: string) => {
       return (page?.data || []).map((item: any) => {
         // Handle dates - if created_at is missing, use ID as fallback for sorting
         // but we need a date for grouping.
-        const date = item.created_at || new Date().toISOString();
-        const mDate = moment(new Date(date));
+        const date = item.created_at;
+        const mDate = moment(date, "DD-MM-YYYY HH:mm:ss");
 
         let dateGroup: "Today" | "Yesterday" | "Earlier" = "Earlier";
         if (mDate.isSame(moment(), "day")) {

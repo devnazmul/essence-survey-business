@@ -1,7 +1,10 @@
 import { IMAGES } from "@/assets";
 
 import BranchCard from "@/components/BranchCard";
+import { FilterBar } from "@/components/FilterBar";
+import { FilterChips } from "@/components/FilterChips";
 import Header from "@/components/Header";
+import { UniversalFilterModal } from "@/components/modals/UniversalFilterModal";
 import ScreenTitle from "@/components/ScreenTitle";
 import StatCard from "@/components/StatCard";
 import { COLORS } from "@/constants";
@@ -12,13 +15,12 @@ import {
   MaterialIcons,
 } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
-import React from "react";
+import React, { useState } from "react";
 import {
   ActivityIndicator,
   Image,
   RefreshControl,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -37,6 +39,8 @@ export default function BranchesScreen() {
     onRefresh,
     isFetching,
   } = useAllBranchesService();
+
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
 
   const branches = data?.data || [];
   const summary = data?.summary || {};
@@ -100,19 +104,102 @@ export default function BranchesScreen() {
         />
       </View>
 
-      {/* Search Bar */}
-      <View className="flex-row items-center mb-6">
-        <View className="flex-1 flex-row items-center bg-base-300 border border-gray-200 rounded-2xl px-4 h-14">
-          <Feather name="search" size={20} color="#9ca3af" />
-          <TextInput
-            placeholder="Search branches..."
-            className="flex-1 ml-3 text-slate-700 font-medium"
-            placeholderTextColor="#9ca3af"
-            value={filters.search_key}
-            onChangeText={handleSearch}
-          />
-        </View>
-      </View>
+      {/* Search and Filter Bar */}
+      <FilterBar
+        search={filters.search_key}
+        onSearchChange={handleSearch}
+        onFilterPress={() => setIsFilterVisible(true)}
+        placeholder="Search branches..."
+      />
+
+      {/* Active Filter Chips */}
+      <FilterChips
+        activeFilters={filters}
+        onRemove={(key: string) => {
+          const newFilters: any = { ...filters };
+          if (key === "search_key") newFilters[key] = "";
+          else if (key === "is_active") newFilters[key] = "";
+          else if (key === "sort_by") newFilters[key] = "created_at";
+          else if (key === "sort_order") newFilters[key] = "desc";
+          else delete newFilters[key];
+          setFilters(newFilters);
+        }}
+        getLabel={(key: string, value: any) => {
+          if (key === "search_key" && value) return `Search: ${value}`;
+          if (key === "is_active") {
+            if (value === 1 || value === "1") return "Status: Active";
+            if (value === 0 || value === "0") return "Status: Inactive";
+            return "";
+          }
+          if (key === "sort_by")
+            return `Sort: ${value.toString().replace("_", " ")}`;
+          if (key === "sort_order")
+            return value === "asc" ? "Order: Ascending" : "Order: Descending";
+          if (key === "start_date" && value) return `From: ${value}`;
+          if (key === "end_date" && value) return `To: ${value}`;
+          return "";
+        }}
+      />
+
+      {/* Filter Modal */}
+      <UniversalFilterModal
+        visible={isFilterVisible}
+        onClose={() => setIsFilterVisible(false)}
+        initialFilters={filters}
+        onApply={(newFilters) => {
+          setFilters({ ...filters, ...newFilters });
+        }}
+        onReset={() => {
+          setFilters({
+            page: 1,
+            per_page: 10,
+            is_active: "",
+            sort_order: "desc",
+            sort_by: "created_at",
+            start_date: "",
+            end_date: "",
+            search_key: "",
+          });
+        }}
+        configs={[
+          {
+            id: "is_active",
+            label: "Status",
+            type: "select",
+            colorScheme: "primary",
+            options: [
+              { label: "Active", value: 1 },
+              { label: "Inactive", value: 0 },
+            ],
+          },
+          {
+            id: "sort_by",
+            label: "Sort By",
+            type: "select",
+            colorScheme: "primary",
+            options: [
+              { label: "Name", value: "name" },
+              { label: "Date Created", value: "created_at" },
+              { label: "Date Updated", value: "updated_at" },
+            ],
+          },
+          {
+            id: "sort_order",
+            label: "Sort Order",
+            type: "select",
+            colorScheme: "primary",
+            options: [
+              { label: "Ascending", value: "asc" },
+              { label: "Descending", value: "desc" },
+            ],
+          },
+          {
+            id: "date_range",
+            label: "Date Range",
+            type: "date",
+          },
+        ]}
+      />
 
       {/* Branches List */}
       {isLoading ? (

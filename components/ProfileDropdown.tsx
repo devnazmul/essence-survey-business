@@ -7,8 +7,8 @@ import {
 import { useAuthStore } from "@/store/useAuthStore";
 import { useBusinessStore } from "@/store/useBusinessStore";
 import { formatRole } from "@/utils/formatRole";
-import getFullImageLink from "@/utils/getFullImageLink";
-import { AntDesign, Feather, MaterialIcons } from "@expo/vector-icons";
+import { getFullImageLink } from "@/utils/getFullImageLink";
+import { Feather, MaterialIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -23,7 +23,6 @@ import BranchSelectionModal from "./modals/BranchSelectionModal";
 
 const ProfileDropdown = () => {
   const { badgeCount, clearNotificationBadge } = useNotification();
-
   const router = useRouter();
   const [visible, setVisible] = useState(false);
   const [showBranchModal, setShowBranchModal] = useState(false);
@@ -48,7 +47,7 @@ const ProfileDropdown = () => {
     router.push("/(dashboard)/profile");
   };
 
-  const handleBranchSelect = async (branchId: number | string) => {
+  const handleBranchSelect = async (branchId: number | string | null) => {
     try {
       await branchMutation.mutateAsync({ default_branch_id: branchId });
       setShowBranchModal(false);
@@ -68,19 +67,34 @@ const ProfileDropdown = () => {
   };
 
   const branches = branchesData?.data || [];
-  const currentBranchId = user?.business?.id || user?.business?.[0]?.id;
+  const currentBranchId = user?.business?.default_branch_id;
   const isBusinessOwner = user?.role?.name === "business_owner";
 
   return (
     <View className="relative z-50">
       <TouchableOpacity
         onPress={() => setVisible(true)}
-        className="w-12 h-12  rounded-xl bg-primary justify-center items-center border-2 border-white shadow-sm"
+        className="w-12 h-12 relative rounded-xl bg-base-300 justify-center items-center border-2 border-primary shadow-sm"
       >
-        <Image
-          source={{ uri: getFullImageLink(user?.image) }}
-          className="w-12 h-12  rounded-xl bg-primary justify-center items-center border-2 border-white shadow-sm"
-        />
+        {badgeCount > 0 && (
+          <View className="absolute -top-2 -right-2 z-50 bg-red-500 rounded-full w-5 h-5 flex items-center justify-center">
+            <Text className="text-xs text-white">
+              {badgeCount > 9 ? `+9q76` : badgeCount}
+            </Text>
+          </View>
+        )}
+        {!user?.image ? (
+          <Image
+            source={{ uri: getFullImageLink(user?.image) }}
+            className="w-12 h-12  rounded-xl bg-primary justify-center items-center border-2 border-primary shadow-sm"
+          />
+        ) : (
+          <View className="w-12 h-12  rounded-xl bg-base-300 justify-center items-center border-2 border-primary shadow-sm">
+            <Text className="text-primary font-bold">
+              {getInitials(user?.first_Name || "")}
+            </Text>
+          </View>
+        )}
       </TouchableOpacity>
 
       <Modal transparent visible={visible} animationType="fade">
@@ -98,19 +112,33 @@ const ProfileDropdown = () => {
                 }}
               >
                 {/* Profile Header */}
-                <View className="p-4 border-b border-gray-100 bg-gray-50">
-                  <Text className="font-bold text-gray-900" numberOfLines={1}>
-                    {formatRole(
-                      user
-                        ? `${user.first_Name || ""} ${user.middle_Name || ""} ${
-                            user.last_Name || ""
-                          }`
-                        : "User",
-                    )}
-                  </Text>
-                  <Text className="text-xs text-gray-500" numberOfLines={1}>
-                    {user?.email}
-                  </Text>
+                <View className="p-4 flex-row items-center border-b border-gray-100 bg-gray-50">
+                  {!user?.image ? (
+                    <Image
+                      source={{ uri: getFullImageLink(user?.image) }}
+                      className="w-12 h-12  rounded-xl bg-primary justify-center items-center shadow-sm"
+                    />
+                  ) : (
+                    <View className="w-12 h-12  rounded-xl bg-base-300 justify-center items-center shadow-sm">
+                      <Text className="text-primary font-bold">
+                        {getInitials(user?.first_Name || "")}
+                      </Text>
+                    </View>
+                  )}
+                  <View className="flex-1 ml-4">
+                    <Text className="font-bold text-gray-900" numberOfLines={1}>
+                      {formatRole(
+                        user
+                          ? `${user.first_Name || ""} ${user.middle_Name || ""} ${
+                              user.last_Name || ""
+                            }`
+                          : "User",
+                      )}
+                    </Text>
+                    <Text className="text-xs text-gray-500" numberOfLines={1}>
+                      {user?.email}
+                    </Text>
+                  </View>
                 </View>
 
                 {/* Options */}
@@ -138,20 +166,50 @@ const ProfileDropdown = () => {
                         size={18}
                         color="#4B5563"
                       />
-                      <Text className="ml-3 text-gray-700 font-medium">
+                      <Text
+                        className="ml-3 text-gray-700 font-medium flex-1"
+                        numberOfLines={1}
+                      >
                         {branches.find((b: any) => b.id === currentBranchId)
                           ?.name || "All Branch"}
                       </Text>
                     </TouchableOpacity>
                   )}
+                  <TouchableOpacity
+                    className="flex-row items-center p-3 rounded-lg active:bg-gray-100"
+                    onPress={() => {
+                      setVisible(false);
+                      setShowBranchModal(true);
+                    }}
+                  >
+                    <MaterialIcons
+                      name="notifications-none"
+                      size={18}
+                      color="#4B5563"
+                    />
+                    <View className="ml-3 text-gray-700 font-medium items-center justify-between flex-row flex-1">
+                      <Text numberOfLines={1}>Notifications</Text>
+                      {badgeCount > 0 && (
+                        <View className="bg-red-500 rounded-full w-4 h-4 flex items-center justify-center">
+                          <Text className="text-base-300 text-xs font-bold">
+                            {badgeCount > 9 ? "9+" : badgeCount}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                  </TouchableOpacity>
 
                   <View className="h-[1px] bg-gray-100 my-1" />
 
                   <TouchableOpacity
-                    className="flex-row items-center p-3 rounded-lg active:bg-red-50"
+                    className="flex-row items-center p-3 rounded-lg active:bg-red-200 bg-red-100"
                     onPress={handleLogout}
                   >
-                    <AntDesign name="logout" size={18} color={COLORS.error} />
+                    <MaterialIcons
+                      name="logout"
+                      size={18}
+                      color={COLORS["red-500"]}
+                    />
                     <Text className="ml-3 text-error font-medium">Logout</Text>
                   </TouchableOpacity>
                 </View>

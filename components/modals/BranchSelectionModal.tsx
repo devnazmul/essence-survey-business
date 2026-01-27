@@ -13,16 +13,16 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 interface Branch {
-  id: number | string;
+  id: number | string | null;
   name: string;
 }
 
 interface BranchSelectionModalProps {
   visible: boolean;
   onClose: () => void;
-  branches: Branch[];
-  currentBranchId?: number | string;
-  onSelect: (branchId: number | string) => void;
+  branches: any[];
+  currentBranchId?: number | string | null;
+  onSelect: (branchId: number | string | null) => void;
   isLoading?: boolean;
   isUpdating?: boolean;
 }
@@ -38,11 +38,10 @@ const BranchSelectionModal: React.FC<BranchSelectionModalProps> = ({
 }) => {
   const { getResponsiveFontSize } = useDimension();
 
-  const allBranchesList = [{ id: "", name: "All Branch" }, ...branches];
+  const allBranchesList = [{ id: null, name: "All Branch" }, ...branches];
 
   const renderBranchItem = ({ item }: { item: Branch }) => {
-    const isSelected =
-      item.id === currentBranchId || (item.id === "" && !currentBranchId);
+    const isSelected = item.id === currentBranchId;
 
     return (
       <TouchableOpacity
@@ -59,7 +58,7 @@ const BranchSelectionModal: React.FC<BranchSelectionModalProps> = ({
             }`}
           >
             <Feather
-              name={item.id === "" ? "layers" : "map-pin"}
+              name={item.id === null ? "layers" : "map-pin"}
               size={18}
               color={isSelected ? "white" : "#6b7280"}
             />
@@ -73,6 +72,7 @@ const BranchSelectionModal: React.FC<BranchSelectionModalProps> = ({
             {item.name}
           </Text>
         </View>
+
         {isSelected ? (
           <Ionicons name="checkmark-circle" size={24} color={COLORS.primary} />
         ) : (
@@ -121,7 +121,9 @@ const BranchSelectionModal: React.FC<BranchSelectionModalProps> = ({
               <FlatList
                 data={allBranchesList}
                 renderItem={renderBranchItem}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={(item) =>
+                  item.id === null ? "all" : item.id.toString()
+                }
                 contentContainerStyle={{ paddingBottom: 20 }}
                 showsVerticalScrollIndicator={false}
               />

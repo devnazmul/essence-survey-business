@@ -59,7 +59,7 @@ export const SuccessModal: React.FC<SuccessModalProps> = ({
 
           {/* Text Content */}
           <Text
-            className="text-gray-900 font-bold mt-6  w-full"
+            className="text-gray-900 font-bold mt-6 text-center w-full"
             style={{ fontSize: getResponsiveFontSize("2xl") }}
           >
             {title}

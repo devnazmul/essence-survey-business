@@ -49,12 +49,12 @@ const BranchCard: React.FC<BranchCardProps> = ({
         </View>
 
         <View className="flex-row gap-x-2 bg-gray-50 rounded-full p-1">
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => onView?.(branch)}
             className="p-2 bg-white rounded-full shadow-sm"
           >
             <Feather name="eye" size={18} color={COLORS.primary} />
-          </TouchableOpacity>
+          </TouchableOpacity> */}
           <TouchableOpacity
             onPress={() => onEdit?.(branch)}
             className="p-2 bg-white rounded-full shadow-sm"

@@ -43,14 +43,9 @@ export const useLoginMutation = () => {
             throw new Error("No business ID found");
           }
           // 4. Register for push notifications
+          console.log({ expoPushToken });
 
-          console.log(
-            "ready to call calling: /api/register-device-token",
-            expoPushToken,
-          );
           if (expoPushToken) {
-            console.log("calling: /api/register-device-token", expoPushToken);
-
             axios.post(
               `${process.env.EXPO_PUBLIC_API_BASE_URL}/api/v1.0/register-device-token`,
               {
@@ -61,7 +56,7 @@ export const useLoginMutation = () => {
                 headers: {
                   "Content-Type": "application/json",
                   Accept: "application/json",
-                  Authorization: `Bearer ${data?.token}`,
+                  Authorization: `Bearer ${token}`,
                 },
               },
             );

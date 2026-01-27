@@ -13,7 +13,7 @@ import {
 import { FlashList } from "@shopify/flash-list";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -39,6 +39,10 @@ export default function NotificationsScreen() {
     unreadCount,
   } = useNotifications(20, activeTab === "Unread" ? "unread" : "");
 
+  useEffect(() => {
+    console.log({ notifications });
+  }, [notifications]);
+
   const queryClient = useQueryClient();
 
   const markReadMutation = useMutation({
@@ -61,8 +65,19 @@ export default function NotificationsScreen() {
     if (!notification.isRead) {
       markReadMutation.mutate(notification.id);
     }
-    if (notification.entityId) {
-      router.push(`/review/${notification.entityId}?from=notifications`);
+    switch (notification.type) {
+      case "new_review":
+        if (notification.entityId) {
+          router.push(`/review/${notification.entityId}?from=notifications`);
+        }
+        break;
+      case "update":
+        break;
+      default:
+        if (notification.entityId) {
+          router.push(`/review/${notification.entityId}?from=notifications`);
+        }
+        break;
     }
   };
 

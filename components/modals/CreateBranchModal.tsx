@@ -78,7 +78,7 @@ const CreateBranchModal: React.FC<CreateBranchModalProps> = ({
           className="flex-1 px-4 py-4"
           keyboardShouldPersistTaps="handled"
         >
-          <View className="space-y-4 pb-20">
+          <View className="gap-y-5 pb-20">
             {/* NAME */}
             <BasicInputField
               label="Name"
@@ -143,7 +143,7 @@ const CreateBranchModal: React.FC<CreateBranchModalProps> = ({
             />
 
             {/* CITY & COUNTRY */}
-            <View className="flex-row space-x-4">
+            <View className="flex-row gap-x-4">
               <View className="flex-1">
                 <BasicInputField
                   label="City"
@@ -226,7 +226,7 @@ const CreateBranchModal: React.FC<CreateBranchModalProps> = ({
                 >
                   {formData.manager_id
                     ? getFullName(
-                        data?.find((d: any) => d.id === formData.manager_id)
+                        data?.find((d: any) => d.id === formData.manager_id),
                       ) || "Select Manager"
                     : "Select Manager"}
                 </Text>

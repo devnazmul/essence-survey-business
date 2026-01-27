@@ -35,6 +35,7 @@ export default function useAllBranchesService() {
     start_date: "",
     end_date: "",
     search_key: "",
+    sort_by: "created_at",
   });
 
   const filterValues = [
@@ -61,7 +62,8 @@ export default function useAllBranchesService() {
     queryFunc: async ({ signal }) =>
       await getAllBranches({
         signal,
-        params: { ...filters, sort_by: "name" },
+        ...filters,
+        sort_by: "name",
       }),
   });
 
@@ -71,6 +73,7 @@ export default function useAllBranchesService() {
 
   useEffect(() => {
     refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters]);
 
   const stats = [
@@ -142,7 +145,6 @@ export default function useAllBranchesService() {
     });
   };
 
-  //HANDLE CHANGE STATUS
   //HANDLE CHANGE STATUS
   const handleChangeStatus = (data) => {
     useAlertStore.getState().showConfirm({

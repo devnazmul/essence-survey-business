@@ -1,4 +1,5 @@
 import { ErrorModal } from "@/components/modals/ErrorModal";
+import { SettingsToggle } from "@/components/ui/SettingsToggle";
 import { COLORS } from "@/constants";
 import { useBusinessStore } from "@/store/useBusinessStore";
 import { Feather } from "@expo/vector-icons";
@@ -39,6 +40,7 @@ const ThresholdRow = React.memo(function ThresholdRow({
   const getHexFromClass = (bgClass: string) => {
     const colorMap: { [key: string]: string } = {
       "bg-green-500": "#22c55e",
+      "bg-lime-500": "#84cc16",
       "bg-yellow-500": "#eab308",
       "bg-orange-500": "#f97316",
       "bg-amber-500": "#d97706",
@@ -58,7 +60,7 @@ const ThresholdRow = React.memo(function ThresholdRow({
       }`}
     >
       {/* Score Range Column */}
-      <View className="flex-[1.5] pl-2 pr-4">
+      <View className="flex-[1.3]  pl-2 pr-4">
         {isEditing ? (
           <View className="items-center">
             <MultiSlider
@@ -113,56 +115,34 @@ const ThresholdRow = React.memo(function ThresholdRow({
       </View>
 
       {/* Status Column */}
-      <View className="flex-1 pr-2">
+      <View className="flex-1  pr-2">
         {isEditing ? (
           <TextInput
             value={item.status}
             onChangeText={(text) => onStatusChange(index, text)}
-            className="border border-gray-200 rounded px-2 py-1 text-xs text-gray-700 bg-base-300"
+            className="border border-gray-200 w-full rounded px-2 py-1 text-xs text-gray-700 bg-base-300"
           />
         ) : (
-          <Text className="text-gray-600 text-xs font-medium">
+          <Text className="text-gray-600 text-xs w-full font-medium">
             {item.status}
           </Text>
         )}
       </View>
 
       {/* Color Column */}
-      <View className="flex-1 flex-row items-center">
+      <View className="flex-1 flex-row items-center justify-end">
         {isEditing ? (
-          <TouchableOpacity
-            onPress={() => onColorChange(index)}
-            className="flex-row items-center bg-green-50 border border-green-200 rounded px-2 py-1"
-          >
-            <View className={`w-2 h-2 rounded-full mr-1.5 ${item.color}`} />
-            <Text className="text-[10px] text-gray-600">
-              {item.color ? item.color.replace("bg-", "") : ""}
-            </Text>
-            <Feather
-              name="x-circle"
-              size={10}
-              color="gray"
-              style={{ marginLeft: 4 }}
+          <TouchableOpacity onPress={() => onColorChange(index)}>
+            <View
+              className={`w-7 h-7 shadow rounded-full border-2 border-base-300 ${item.color}`}
             />
           </TouchableOpacity>
         ) : (
-          <>
-            <View className={`w-3 h-3 rounded-full mr-2 ${item.color}`} />
-            <Text className="text-gray-600 text-xs">
-              {item.color ? item.color.replace("bg-", "") : ""}
-            </Text>
-          </>
+          <View
+            className={`w-7 h-7 shadow rounded-full border-2 border-base-300 ${item.color}`}
+          />
         )}
       </View>
-
-      {/* Action Column */}
-      {isEditing && (
-        <View className="w-10 items-center">
-          <TouchableOpacity onPress={() => onDelete(index)} className="p-1">
-            <Feather name="trash-2" size={14} color="#ef4444" />
-          </TouchableOpacity>
-        </View>
-      )}
     </View>
   );
 });
@@ -180,7 +160,7 @@ export default function GeneralSettings() {
 
   const [isEditingThresholds, setIsEditingThresholds] = useState(false);
   const [localThresholds, setLocalThresholds] = useState(
-    settings.default_color_threshold || []
+    settings.default_color_threshold || [],
   );
   console.log({ settings });
   const [scrollEnabled, setScrollEnabled] = useState(true);
@@ -192,7 +172,7 @@ export default function GeneralSettings() {
   }, [settings.default_color_threshold]);
 
   const [thresholdRatingInput, setThresholdRatingInput] = useState(
-    settings.threshold_rating?.toString() || ""
+    settings.threshold_rating?.toString() || "",
   );
 
   // Sync only if not editing to avoid overwriting user input
@@ -200,12 +180,19 @@ export default function GeneralSettings() {
     setThresholdRatingInput(settings.threshold_rating?.toString() || "");
   }, [settings.threshold_rating]);
 
-  const handleAddRow = useCallback(() => {
+  const handleApplyStandardDefaults = useCallback(() => {
     setLocalThresholds([
-      ...localThresholds,
-      { score_range: [0, 10], status: "New", color: "bg-blue-500" },
+      { score_range: [80, 100], status: "Excellent", color: "bg-green-500" },
+      { score_range: [65, 79], status: "Good", color: "bg-lime-500" },
+      { score_range: [50, 64], status: "Average", color: "bg-yellow-500" },
+      {
+        score_range: [40, 49],
+        status: "Needs Attention",
+        color: "bg-orange-500",
+      },
+      { score_range: [0, 39], status: "Critical", color: "bg-red-500" },
     ]);
-  }, [localThresholds]);
+  }, []);
 
   const handleDeleteRow = useCallback((index: number) => {
     setLocalThresholds((prev) => prev.filter((_, i) => i !== index));
@@ -233,6 +220,7 @@ export default function GeneralSettings() {
   const handleColorChange = useCallback((index: number) => {
     const colors = [
       "bg-green-500",
+      "bg-lime-500",
       "bg-yellow-500",
       "bg-orange-500",
       "bg-amber-500",
@@ -256,32 +244,59 @@ export default function GeneralSettings() {
   const [showErrorModal, setShowErrorModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const getOverlappingIndices = useCallback((thresholds: any[]) => {
-    const overlapping = new Set<number>();
+  const getInvalidIndices = useCallback((thresholds: any[]) => {
+    const invalid = new Set<number>();
+    if (!thresholds || thresholds.length === 0) return [];
+
+    // Check Overlaps
     for (let i = 0; i < thresholds.length; i++) {
       for (let j = i + 1; j < thresholds.length; j++) {
         const r1 = thresholds[i].score_range;
         const r2 = thresholds[j].score_range;
         if (r1 && r2) {
           if (Math.max(r1[0], r2[0]) <= Math.min(r1[1], r2[1])) {
-            overlapping.add(i);
-            overlapping.add(j);
+            invalid.add(i);
+            invalid.add(j);
           }
         }
       }
     }
-    return Array.from(overlapping);
+
+    // Check Gaps
+    const sortedWithIndices = thresholds
+      .map((t, i) => ({ t, i }))
+      .sort((a, b) => a.t.score_range[0] - b.t.score_range[0]);
+
+    if (sortedWithIndices[0].t.score_range[0] !== 0) {
+      invalid.add(sortedWithIndices[0].i);
+    }
+    if (
+      sortedWithIndices[sortedWithIndices.length - 1].t.score_range[1] !== 100
+    ) {
+      invalid.add(sortedWithIndices[sortedWithIndices.length - 1].i);
+    }
+
+    for (let i = 0; i < sortedWithIndices.length - 1; i++) {
+      const current = sortedWithIndices[i];
+      const next = sortedWithIndices[i + 1];
+      if (current.t.score_range[1] + 1 !== next.t.score_range[0]) {
+        invalid.add(current.i);
+        invalid.add(next.i);
+      }
+    }
+
+    return Array.from(invalid);
   }, []);
 
-  const overlappingIndices = React.useMemo(() => {
+  const invalidIndices = React.useMemo(() => {
     if (!isEditingThresholds) return [];
-    return getOverlappingIndices(localThresholds);
-  }, [localThresholds, isEditingThresholds, getOverlappingIndices]);
+    return getInvalidIndices(localThresholds);
+  }, [localThresholds, isEditingThresholds, getInvalidIndices]);
 
   const handleSaveThresholds = async () => {
     // Validate Statuses
     const isStatusValid = localThresholds.every(
-      (item: any) => item.status && item.status.trim() !== ""
+      (item: any) => item.status && item.status.trim() !== "",
     );
 
     if (!isStatusValid) {
@@ -290,12 +305,44 @@ export default function GeneralSettings() {
       return;
     }
 
-    // Validate Overlaps
-    const overlaps = getOverlappingIndices(localThresholds);
-    if (overlaps.length > 0) {
-      setErrorMessage(
-        "Threshold ranges cannot overlap. Please adjust the highlighted rows."
+    // Use the comprehensive invalid index check
+    const invalid = getInvalidIndices(localThresholds);
+    if (invalid.length > 0) {
+      // Re-run the detailed check to get the specific message for the modal
+      const sorted = [...localThresholds].sort(
+        (a, b) => a.score_range[0] - b.score_range[0],
       );
+
+      if (sorted[0].score_range[0] !== 0) {
+        setErrorMessage("Thresholds must start from score 0.");
+      } else if (sorted[sorted.length - 1].score_range[1] !== 100) {
+        setErrorMessage("Thresholds must end at score 100.");
+      } else {
+        // Find if it's an overlap or a gap
+        let foundSpecificError = false;
+        for (let i = 0; i < sorted.length - 1; i++) {
+          if (sorted[i].score_range[1] >= sorted[i + 1].score_range[0]) {
+            setErrorMessage(
+              `Overlap detected between ${sorted[i].status} and ${sorted[i + 1].status}.`,
+            );
+            foundSpecificError = true;
+            break;
+          }
+          if (sorted[i].score_range[1] + 1 !== sorted[i + 1].score_range[0]) {
+            setErrorMessage(
+              `Gap found between ${sorted[i].score_range[1]} and ${
+                sorted[i + 1].score_range[0]
+              }. Ranges must be continuous.`,
+            );
+            foundSpecificError = true;
+            break;
+          }
+        }
+        if (!foundSpecificError) {
+          setErrorMessage("Please fix the highlighted threshold issues.");
+        }
+      }
+
       setShowErrorModal(true);
       return;
     }
@@ -307,397 +354,327 @@ export default function GeneralSettings() {
   };
 
   return (
-    <ScrollView className="flex-1" scrollEnabled={scrollEnabled}>
-      {/* General Settings */}
-      <Section
-        title="General Settings"
-        icon="settings"
-        description="Configure basic application behavior and thresholds."
-      >
-        <View className="flex-row mb-3">
-          <ToggleRow
-            label="Guest User"
-            subLabel="Allow guests to submit reviews"
-            icon="user"
-            value={!!settings.Is_guest_user}
-            onValueChange={(val) => setSettings({ Is_guest_user: val })}
-          />
-          {!!settings.Is_guest_user && (
-            <ToggleRow
-              label="Guest Report"
-              subLabel="Enable guest reporting"
-              icon="bar-chart-2"
-              value={!!settings.guest_user_review_report}
-              onValueChange={(val) =>
-                setSettings({ guest_user_review_report: val })
-              }
-            />
-          )}
-        </View>
-
-        <View className="mb-2">
-          <Text className="text-gray-900 font-bold mb-2">Threshold Rating</Text>
-          <TextInput
-            value={thresholdRatingInput}
-            onChangeText={(text) => {
-              // Allow digits and a single decimal point
-              if (/^\d*\.?\d*$/.test(text)) {
-                setThresholdRatingInput(text);
-              }
-            }}
-            onEndEditing={(e) => {
-              const val = Number(e.nativeEvent.text);
-              if (!isNaN(val)) {
-                setSettings({ threshold_rating: val });
-              }
-            }}
-            keyboardType="numeric"
-            className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-base-300"
-          />
-        </View>
-      </Section>
-
-      {/* Guest Survey Settings */}
-      {!!settings.Is_guest_user && (
+    <View className="flex-1">
+      <ScrollView className="flex-1" scrollEnabled={scrollEnabled}>
         <Section
-          title="Guest Survey Settings"
-          icon="message-square"
-          description="Manage how guest users interact with surveys."
+          title="General Settings"
+          icon="settings"
+          description="Configure basic application behavior and thresholds."
         >
-          <View className="flex-row mb-2">
-            <ToggleRow
-              label="Overall Review"
-              icon="star"
-              value={!!settings.is_guest_user_overall_review}
-              onValueChange={(val) =>
-                setSettings({ is_guest_user_overall_review: val })
-              }
+          <View className="flex-row mb-3">
+            <SettingsToggle
+              label="Guest User"
+              subLabel="Allow guests to submit reviews"
+              icon="user"
+              value={!!settings.Is_guest_user}
+              onValueChange={(val) => setSettings({ Is_guest_user: val })}
             />
-            <ToggleRow
-              label="Survey"
-              icon="file-text"
-              value={!!settings.is_guest_user_survey}
-              onValueChange={(val) =>
-                setSettings({ is_guest_user_survey: val })
-              }
-            />
-            {!!settings.is_guest_user_survey && (
-              <ToggleRow
-                label="Required"
-                icon="alert-circle"
-                value={!!settings.is_guest_user_survey_required}
+            {!!settings.Is_guest_user && (
+              <SettingsToggle
+                label="Guest Report"
+                subLabel="Enable guest reporting"
+                icon="bar-chart-2"
+                value={!!settings.guest_user_review_report}
                 onValueChange={(val) =>
-                  setSettings({ is_guest_user_survey_required: val })
+                  setSettings({ guest_user_review_report: val })
                 }
               />
             )}
           </View>
-          {!!settings.is_guest_user_survey && (
+
+          <View className="mb-2">
+            <Text className="text-gray-900 font-bold mb-2">
+              Threshold Rating
+            </Text>
+            <TextInput
+              value={thresholdRatingInput}
+              onChangeText={(text) => {
+                // Allow digits and a single decimal point
+                if (/^\d*\.?\d*$/.test(text)) {
+                  setThresholdRatingInput(text);
+                }
+              }}
+              onEndEditing={(e) => {
+                const val = Number(e.nativeEvent.text);
+                if (!isNaN(val)) {
+                  setSettings({ threshold_rating: val });
+                }
+              }}
+              keyboardType="numeric"
+              className="border border-gray-200 rounded-lg px-4 py-3 text-gray-700 bg-base-300"
+            />
+          </View>
+        </Section>
+
+        {/* Guest Survey Settings */}
+        {!!settings.Is_guest_user && (
+          <Section
+            title="Guest Survey Settings"
+            icon="message-square"
+            description="Manage how guest users interact with surveys."
+          >
+            <View className="flex-row mb-2">
+              <SettingsToggle
+                label="Overall Review"
+                icon="star"
+                value={!!settings.is_guest_user_overall_review}
+                onValueChange={(val) =>
+                  setSettings({ is_guest_user_overall_review: val })
+                }
+              />
+              <SettingsToggle
+                label="Survey"
+                icon="file-text"
+                value={!!settings.is_guest_user_survey}
+                onValueChange={(val) =>
+                  setSettings({ is_guest_user_survey: val })
+                }
+              />
+              {!!settings.is_guest_user_survey && (
+                <SettingsToggle
+                  label="Required"
+                  icon="alert-circle"
+                  value={!!settings.is_guest_user_survey_required}
+                  onValueChange={(val) =>
+                    setSettings({ is_guest_user_survey_required: val })
+                  }
+                />
+              )}
+            </View>
+            {!!settings.is_guest_user_survey && (
+              <SurveySelector
+                label="Guest Survey"
+                surveys={surveys}
+                selectedId={settings.guest_survey_id}
+                onSelect={(id) => setSettings({ guest_survey_id: id })}
+              />
+            )}
+          </Section>
+        )}
+
+        {/* User Survey Settings */}
+        <Section
+          title="User Survey Settings"
+          icon="file-text"
+          description="Configure survey options for registered users."
+        >
+          <View className="flex-row mb-2">
+            <SettingsToggle
+              label="Overall Review"
+              icon="star"
+              value={!!settings.is_registered_user_overall_review}
+              onValueChange={(val) =>
+                setSettings({ is_registered_user_overall_review: val })
+              }
+            />
+            <SettingsToggle
+              label="Survey"
+              icon="file-text"
+              value={!!settings.is_registered_user_survey}
+              onValueChange={(val) =>
+                setSettings({ is_registered_user_survey: val })
+              }
+            />
+            {!!settings.is_registered_user_survey && (
+              <SettingsToggle
+                label="Required"
+                icon="alert-circle"
+                value={!!settings.is_registered_user_survey_required}
+                onValueChange={(val) =>
+                  setSettings({ is_registered_user_survey_required: val })
+                }
+              />
+            )}
+          </View>
+
+          {!!settings.is_registered_user_survey && (
             <SurveySelector
-              label="Guest Survey"
+              label="User Survey"
               surveys={surveys}
-              selectedId={settings.guest_survey_id}
-              onSelect={(id) => setSettings({ guest_survey_id: id })}
+              selectedId={settings.registered_user_survey_id}
+              onSelect={(id) => setSettings({ registered_user_survey_id: id })}
             />
           )}
         </Section>
-      )}
 
-      {/* User Survey Settings */}
-      <Section
-        title="User Survey Settings"
-        icon="file-text"
-        description="Configure survey options for registered users."
-      >
-        <View className="flex-row mb-2">
-          <ToggleRow
-            label="Overall Review"
-            icon="star"
-            value={!!settings.is_registered_user_overall_review}
-            onValueChange={(val) =>
-              setSettings({ is_registered_user_overall_review: val })
-            }
-          />
-          <ToggleRow
-            label="Survey"
-            icon="file-text"
-            value={!!settings.is_registered_user_survey}
-            onValueChange={(val) =>
-              setSettings({ is_registered_user_survey: val })
-            }
-          />
-          {!!settings.is_registered_user_survey && (
-            <ToggleRow
-              label="Required"
-              icon="alert-circle"
-              value={!!settings.is_registered_user_survey_required}
+        {/* Staff Display (Guest) */}
+        <Section
+          title="Staff Display (Guest)"
+          icon="users"
+          description="Visibility of staff information for guest users."
+        >
+          <View className="flex-row">
+            <SettingsToggle
+              label="Show Staffs"
+              icon="users"
+              value={!!settings.is_guest_user_show_stuffs}
               onValueChange={(val) =>
-                setSettings({ is_registered_user_survey_required: val })
+                setSettings({ is_guest_user_show_stuffs: val })
               }
             />
-          )}
-        </View>
-        {!!settings.is_registered_user_survey && (
-          <SurveySelector
-            label="User Survey"
-            surveys={surveys}
-            selectedId={settings.registered_user_survey_id}
-            onSelect={(id) => setSettings({ registered_user_survey_id: id })}
-          />
-        )}
-      </Section>
+            {!!settings.is_guest_user_show_stuffs && (
+              <>
+                <SettingsToggle
+                  label="Show Image"
+                  icon="image"
+                  value={!!settings.is_guest_user_show_stuff_image}
+                  onValueChange={(val) =>
+                    setSettings({ is_guest_user_show_stuff_image: val })
+                  }
+                />
+                <SettingsToggle
+                  label="Show Name"
+                  icon="type"
+                  value={!!settings.is_guest_user_show_stuff_name}
+                  onValueChange={(val) =>
+                    setSettings({ is_guest_user_show_stuff_name: val })
+                  }
+                />
+              </>
+            )}
+          </View>
+        </Section>
 
-      {/* Staff Display (Guest) */}
-      <Section
-        title="Staff Display (Guest)"
-        icon="users"
-        description="Visibility of staff information for guest users."
-      >
-        <View className="flex-row">
-          <ToggleRow
-            label="Show Staffs"
-            icon="users"
-            value={!!settings.is_guest_user_show_stuffs}
-            onValueChange={(val) =>
-              setSettings({ is_guest_user_show_stuffs: val })
-            }
-          />
-          {!!settings.is_guest_user_show_stuffs && (
-            <>
-              <ToggleRow
-                label="Show Image"
-                icon="image"
-                value={!!settings.is_guest_user_show_stuff_image}
-                onValueChange={(val) =>
-                  setSettings({ is_guest_user_show_stuff_image: val })
-                }
-              />
-              <ToggleRow
-                label="Show Name"
-                icon="type"
-                value={!!settings.is_guest_user_show_stuff_name}
-                onValueChange={(val) =>
-                  setSettings({ is_guest_user_show_stuff_name: val })
-                }
-              />
-            </>
-          )}
-        </View>
-      </Section>
+        {/* Staff Display (User) */}
+        <Section
+          title="Staff Display (User)"
+          icon="users"
+          description="Visibility of staff information for registered users."
+        >
+          <View className="flex-row">
+            <SettingsToggle
+              label="Show Staffs"
+              icon="users"
+              value={!!settings.is_registered_user_show_stuffs}
+              onValueChange={(val) =>
+                setSettings({ is_registered_user_show_stuffs: val })
+              }
+            />
+            {!!settings.is_registered_user_show_stuffs && (
+              <>
+                <SettingsToggle
+                  label="Show Image"
+                  icon="image"
+                  value={!!settings.is_registered_user_show_stuff_image}
+                  onValueChange={(val) =>
+                    setSettings({ is_registered_user_show_stuff_image: val })
+                  }
+                />
+                <SettingsToggle
+                  label="Show Name"
+                  icon="type"
+                  value={!!settings.is_registered_user_show_stuff_name}
+                  onValueChange={(val) =>
+                    setSettings({ is_registered_user_show_stuff_name: val })
+                  }
+                />
+              </>
+            )}
+          </View>
+        </Section>
 
-      {/* Staff Display (User) */}
-      <Section
-        title="Staff Display (User)"
-        icon="users"
-        description="Visibility of staff information for registered users."
-      >
-        <View className="flex-row">
-          <ToggleRow
-            label="Show Staffs"
-            icon="users"
-            value={!!settings.is_registered_user_show_stuffs}
-            onValueChange={(val) =>
-              setSettings({ is_registered_user_show_stuffs: val })
-            }
-          />
-          {!!settings.is_registered_user_show_stuffs && (
-            <>
-              <ToggleRow
-                label="Show Image"
-                icon="image"
-                value={!!settings.is_registered_user_show_stuff_image}
-                onValueChange={(val) =>
-                  setSettings({ is_registered_user_show_stuff_image: val })
-                }
-              />
-              <ToggleRow
-                label="Show Name"
-                icon="type"
-                value={!!settings.is_registered_user_show_stuff_name}
-                onValueChange={(val) =>
-                  setSettings({ is_registered_user_show_stuff_name: val })
-                }
-              />
-            </>
-          )}
-        </View>
-      </Section>
-
-      {/* Default Color Thresholds */}
-      <Section
-        title="Default Color Thresholds"
-        icon="sliders"
-        description="Define score ranges and their associated colors/statuses."
-      >
-        <View className="flex-row justify-end mb-4 gap-2">
-          {!isEditingThresholds ? (
-            <TouchableOpacity
-              onPress={() => setIsEditingThresholds(true)}
-              className="bg-green-100 px-4 py-2 rounded-lg"
-            >
-              <Text className="text-green-700 text-xs font-bold">Edit</Text>
-            </TouchableOpacity>
-          ) : (
-            <>
+        {/* Default Color Thresholds */}
+        <Section
+          title="Default Color Thresholds"
+          icon="sliders"
+          description="Define score ranges and their associated colors/statuses."
+        >
+          <View className="flex-row justify-end mb-4 gap-2">
+            {!isEditingThresholds ? (
               <TouchableOpacity
-                onPress={handleAddRow}
-                className="bg-green-50 border border-green-200 px-3 py-1 rounded-lg flex-row items-center"
+                onPress={() => setIsEditingThresholds(true)}
+                className="bg-green-100 px-4 py-2 rounded-lg"
               >
-                <Feather name="plus" size={14} color="#15803d" />
-                <Text
-                  style={{
-                    lineHeight: 20,
-                  }}
-                  className="text-green-700 w-14 text-xs font-bold ml-1"
-                >
-                  Add Row
-                </Text>
+                <Text className="text-green-700 text-xs font-bold">Edit</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() => {
-                  setLocalThresholds(settings.default_color_threshold || []);
-                  setIsEditingThresholds(false);
-                }}
-                className="bg-gray-100 px-3 py-1 rounded-lg"
-              >
-                <Text
-                  style={{
-                    lineHeight: 20,
-                  }}
-                  className="text-gray-700 text-xs font-bold"
+            ) : (
+              <>
+                <TouchableOpacity
+                  onPress={handleApplyStandardDefaults}
+                  className="bg-blue-50 border border-blue-200 px-3 py-1 rounded-lg flex-row items-center"
                 >
-                  Cancel
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleSaveThresholds}
-                className="bg-green-500 px-3 py-1 rounded-lg"
-              >
-                <Text
-                  style={{
-                    lineHeight: 20,
+                  <Feather name="refresh-ccw" size={14} color="#1d4ed8" />
+                  <Text
+                    style={{
+                      lineHeight: 20,
+                    }}
+                    className="text-blue-700 font-bold px-2 text-xs  ml-1"
+                  >
+                    Apply Standards
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => {
+                    setLocalThresholds(settings.default_color_threshold || []);
+                    setIsEditingThresholds(false);
                   }}
-                  className="text-white text-xs font-bold"
+                  className="bg-gray-100 px-3 py-1 rounded-lg"
                 >
-                  Save
-                </Text>
-              </TouchableOpacity>
-            </>
-          )}
-        </View>
-
-        <View className="bg-base-300 rounded-lg overflow-hidden">
-          <View className="flex-row py-2 border-b border-gray-100 items-center">
-            <Text className="flex-[1.5] text-gray-400 text-[10px] font-bold uppercase pl-2">
-              Score Range
-            </Text>
-            <Text className="flex-1 text-gray-400 text-[10px] font-bold uppercase">
-              Status
-            </Text>
-            <Text className="flex-1 text-gray-400 text-[10px] font-bold uppercase">
-              Color
-            </Text>
-            {isEditingThresholds && (
-              <Text className="w-10 text-gray-400 text-[10px] font-bold uppercase text-center">
-                Action
-              </Text>
+                  <Text
+                    style={{
+                      lineHeight: 20,
+                    }}
+                    className="text-gray-700 text-xs font-bold"
+                  >
+                    Cancel
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleSaveThresholds}
+                  className="bg-green-500 px-3 py-1 rounded-lg"
+                >
+                  <Text
+                    style={{
+                      lineHeight: 20,
+                    }}
+                    className="text-white text-xs font-bold"
+                  >
+                    Save
+                  </Text>
+                </TouchableOpacity>
+              </>
             )}
           </View>
 
-          {localThresholds.map((item: any, index: number) => (
-            <ThresholdRow
-              key={index}
-              item={item}
-              index={index}
-              isEditing={isEditingThresholds}
-              isOverlapping={overlappingIndices.includes(index)}
-              setScrollEnabled={setScrollEnabled}
-              onValuesChange={handleValuesChange}
-              onStatusChange={handleStatusChange}
-              onColorChange={handleColorChange}
-              onDelete={handleDeleteRow}
-            />
-          ))}
-        </View>
-      </Section>
-      <View className="h-8" />
+          <View className="bg-base-300 rounded-lg overflow-hidden">
+            <View className="flex-row py-2 border-b border-gray-100 items-center">
+              <Text className="flex-[2] text-gray-400 text-[10px] font-bold uppercase pl-2">
+                Score Range
+              </Text>
+              <Text className="flex-[1.5]  text-gray-400 text-[10px] font-bold uppercase">
+                Status
+              </Text>
+              <Text className="flex-[1.5] text-gray-400 text-right text-[10px] font-bold uppercase">
+                Color
+              </Text>
+            </View>
+
+            {localThresholds.map((item: any, index: number) => (
+              <ThresholdRow
+                key={index}
+                item={item}
+                index={index}
+                isEditing={isEditingThresholds}
+                isOverlapping={invalidIndices.includes(index)}
+                setScrollEnabled={setScrollEnabled}
+                onValuesChange={handleValuesChange}
+                onStatusChange={handleStatusChange}
+                onColorChange={handleColorChange}
+                onDelete={handleDeleteRow}
+              />
+            ))}
+          </View>
+        </Section>
+      </ScrollView>
       <ErrorModal
         visible={showErrorModal}
         onClose={() => setShowErrorModal(false)}
         title="Validation Error"
         message={errorMessage}
       />
-    </ScrollView>
+    </View>
   );
 }
-
-const ToggleRow = ({
-  label,
-  value,
-  onValueChange,
-  subLabel,
-  icon,
-}: {
-  label: string;
-  value: boolean | undefined;
-  onValueChange: (val: boolean) => void;
-  subLabel?: string;
-  icon?: string;
-}) => (
-  <TouchableOpacity
-    activeOpacity={0.7}
-    onPress={() => onValueChange(!(value ?? false))}
-    style={{
-      shadowColor: "#000",
-      shadowOffset: {
-        width: 0,
-        height: 2,
-      },
-      shadowOpacity: 0.1,
-      shadowRadius: 3.84,
-      elevation: 3,
-    }}
-    className={`flex-1 mx-1.5 mb-4 p-4 rounded-2xl border ${
-      value ? "border-green-400 bg-base-300" : "border-red-400 bg-base-300"
-    } min-h-[110px] justify-between transition-all`}
-  >
-    <View className="flex-row justify-between items-start">
-      <View
-        className={`${value ? "bg-green-50" : "bg-red-100"} p-2 rounded-xl`}
-      >
-        {icon && (
-          <Feather
-            name={icon as any}
-            size={18}
-            color={value ? COLORS["green-500"] : COLORS["red-500"]}
-          />
-        )}
-      </View>
-      <View
-        className={`w-7 h-7 rounded-full items-center justify-center border-2 ${
-          value ? "bg-green-500 border-green-500" : "border-gray-200 bg-white"
-        }`}
-      >
-        {value && <Feather name="check" size={16} color="white" />}
-      </View>
-    </View>
-
-    <View className="mt-2">
-      <Text
-        className={`text-xs font-bold ${
-          value ? "text-gray-900" : "text-gray-500"
-        }`}
-      >
-        {label}
-      </Text>
-      {subLabel && (
-        <Text className="text-[10px] text-gray-400 mt-0.5" numberOfLines={1}>
-          {subLabel}
-        </Text>
-      )}
-    </View>
-  </TouchableOpacity>
-);
 
 const Section = ({
   title,

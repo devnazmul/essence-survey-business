@@ -1,4 +1,4 @@
-import { getNotification } from "@/api/notification";
+import { getNotification, updateNotification } from "@/api/notification";
 import { registerForPushNotificationsAsync } from "@/utils/registerForPushNotificationAsync";
 import * as Notifications from "expo-notifications";
 import { useRouter } from "expo-router";
@@ -96,7 +96,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener(
         async (response) => {
-          const data = response.notification.request.content.data; // Corrected path to data
+          const data = response.notification.request.content.data;
           Notifications.getBadgeCountAsync().then((count) => {
             if (count > 0) {
               Notifications.setBadgeCountAsync(Math.max(count - 1, 0));
@@ -106,15 +106,37 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
             setIsNotificationChanged(Math.random());
           });
 
-          if (data?.notification_id) {
-            router.push({
-              pathname: "/(dashboard)/(notification)",
-              params: {
-                redirectId: data.notification_id,
-              },
-            } as any);
+          const notificationId = (data?.notification_id || data?.id) as
+            | string
+            | number
+            | undefined;
+          const entityId = (data?.entity_id || data?.entityId) as
+            | string
+            | undefined;
+          const type = data?.type as string | undefined;
+
+          if (notificationId) {
+            updateNotification(notificationId, { status: "read" }).catch(
+              (err: any) =>
+                console.error("Failed to mark push notification as read:", err),
+            );
+          }
+
+          if (entityId) {
+            switch (type) {
+              case "new_review":
+                router.push(`/review/${entityId}?from=notifications` as any);
+                break;
+              case "update":
+                // No navigation for update type as per notifications.tsx
+                router.push("/(dashboard)/notifications" as any);
+                break;
+              default:
+                router.push(`/review/${entityId}?from=notifications` as any);
+                break;
+            }
           } else {
-            router.push("/(dashboard)/(notification)" as any);
+            router.push("/(dashboard)/notifications" as any);
           }
         },
       );
