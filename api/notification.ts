@@ -9,10 +9,15 @@ export const getNotification = async ({
   perPage?: string | number;
   status?: string;
 }) => {
-  const url = `/v1.0/notification?page=${page}&perPage=${perPage}${status ? `&status=${status}` : ""}`;
-  console.log({ url });
+  const url = `/v1.0/notification`;
 
-  const response = await axiosPrivate.get(url);
+  const response = await axiosPrivate.get(url, {
+    params: {
+      page,
+      perPage,
+      status,
+    },
+  });
   return response.data;
 };
 

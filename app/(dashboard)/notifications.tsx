@@ -1,9 +1,9 @@
 import { updateNotification } from "@/api/notification";
 import IMAGES from "@/assets";
-
 import Header from "@/components/Header";
 import ScreenTitle from "@/components/ScreenTitle";
 import { COLORS } from "@/constants";
+import { useNotification } from "@/context/useNotification";
 import { useNotifications } from "@/hooks/useNotifications";
 import {
   Feather,
@@ -25,6 +25,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function NotificationsScreen() {
+  const { setIsNotificationChanged } = useNotification();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("All");
   const {
@@ -62,15 +63,24 @@ export default function NotificationsScreen() {
   });
 
   const handleNotificationPress = (notification: any) => {
+    setIsNotificationChanged(Math.random());
     if (!notification.isRead) {
       markReadMutation.mutate(notification.id);
     }
+
     switch (notification.type) {
       case "new_review":
         if (notification.entityId) {
           router.push(`/review/${notification.entityId}?from=notifications`);
         }
         break;
+
+      case "low_rating_review":
+        if (notification.entityId) {
+          router.push(`/review/${notification.entityId}?from=notifications`);
+        }
+        break;
+
       case "update":
         break;
       default:
@@ -100,10 +110,12 @@ export default function NotificationsScreen() {
       }
     });
 
+    console.log({ groups });
     return Object.entries(groups).filter(([_, items]) => items.length > 0);
   }, [filteredNotifications]);
 
   const NotificationIcon = ({ notification }: { notification: any }) => {
+    console.log({ notification });
     const { type, originalType, isRead, data, title } = notification;
 
     // Determine icon based on content/type

@@ -19,6 +19,7 @@ export interface INotificationContext {
   setIsNotificationChanged: (value: number) => void;
   clearNotificationBadge: () => void;
   setUnreadNotification: () => void;
+  fetchUnreadCount: () => void;
 }
 
 export const NotificationContext = createContext<INotificationContext | null>(
@@ -55,7 +56,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
         status: "unread",
         page,
       });
-      setUnReadNotificationCount(res?.total_unread_messages || 0);
+      setUnReadNotificationCount(res?.meta?.total || 0);
       return res;
     } catch (err) {
       console.error("Failed to fetch notification count", err);
@@ -66,7 +67,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   useEffect(() => {
     fetchUnreadCount().then((res) => {
       if (res) {
-        setBadgeCount(res?.total_unread_messages || 0);
+        setBadgeCount(res?.meta?.total || 0);
       }
     });
   }, [isNotificationChanged]);
@@ -160,8 +161,8 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
   const setUnreadNotification = () => {
     fetchUnreadCount().then((res) => {
       if (res) {
-        Notifications.setBadgeCountAsync(res?.total_unread_messages || 0);
-        setBadgeCount(res?.total_unread_messages || 0);
+        Notifications.setBadgeCountAsync(res?.meta?.total || 0);
+        setBadgeCount(res?.meta?.total || 0);
       }
     });
   };
@@ -175,6 +176,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({
     clearNotificationBadge,
     setUnreadNotification,
     unReadNotificationCount,
+    fetchUnreadCount,
   };
 
   return (

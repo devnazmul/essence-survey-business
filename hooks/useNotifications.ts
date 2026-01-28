@@ -37,8 +37,8 @@ export const useNotifications = (perPage: number = 20, status?: string) => {
           title: item.title,
           description: item.message,
           time: mDate.fromNow(),
-          isRead: item.status === "read",
-          type: item.type === "new_review" ? "review" : "update", // update for low_rating or other
+          isRead: item.read_at !== null,
+          type: item.type, // update for low_rating or other
           originalType: item.type,
           entityId: item.entity_id,
           dateGroup,

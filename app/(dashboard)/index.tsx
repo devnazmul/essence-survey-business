@@ -6,6 +6,7 @@ import FilterTab from "@/components/FilterTab";
 import Header from "@/components/Header";
 import ScreenTitle from "@/components/ScreenTitle";
 import Button from "@/components/ui/Button";
+import { useNotification } from "@/context/useNotification";
 import { useDashboardMetrics } from "@/hooks/useDashboard";
 import * as WebBrowser from "expo-web-browser";
 import React, { useEffect, useState } from "react";
@@ -16,10 +17,13 @@ export default function DashboardScreen() {
   const [activeTab, setActiveTab] = useState<string>("last_30_days");
   const { isLoading, refetch } = useDashboardMetrics(activeTab);
   const [refreshing, setRefreshing] = useState(false);
+  const { setIsNotificationChanged } = useNotification();
 
   const onRefresh = async () => {
     setRefreshing(true);
     await refetch();
+    setIsNotificationChanged(Math.random());
+
     setRefreshing(false);
   };
 

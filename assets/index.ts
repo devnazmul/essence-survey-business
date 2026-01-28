@@ -16,10 +16,10 @@ export const IMAGES = {
   },
 
   logo: require("./logo.png"),
-  comingSoon: require("./coming-soon.png"),
-  success: require("./success.png"),
+  comingSoon: require("./coming-soon.jpg"),
+  success: require("./success.jpg"),
   logoV3: require("./logoV3.png"),
-  placeholderUser: require("./images/placeholder_user.png"),
+  placeholderUser: require("./images/placeholder_user.jpg"),
 };
 
 export default IMAGES;
