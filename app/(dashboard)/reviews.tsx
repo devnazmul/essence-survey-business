@@ -1,12 +1,18 @@
+import { getAllBranches } from "@/api/branch";
+import { getSurveys } from "@/api/survey";
+import { getAllUsers } from "@/api/users";
 import { IMAGES } from "@/assets";
 import { FilterBar } from "@/components/FilterBar";
 import { FilterChips } from "@/components/FilterChips";
 import Header from "@/components/Header";
-import { UniversalFilterModal } from "@/components/modals/UniversalFilterModal";
 import ReviewCard from "@/components/ReviewCard";
 import ScreenTitle from "@/components/ScreenTitle";
+import { UniversalFilterModal } from "@/components/modals/UniversalFilterModal";
 import { COLORS } from "@/constants";
+import { useCustomQuery } from "@/hooks/useCustomQuery";
 import { useReviews } from "@/hooks/useReviews";
+import { useAuthStore } from "@/store/useAuthStore";
+import { getFullName } from "@/utils/getFullName";
 import { FlashList } from "@shopify/flash-list";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
@@ -19,11 +25,78 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+const periodOptions = [
+  {
+    id: "all_time",
+    name: "All Time",
+    setToTheFilter: {
+      period: "all_time",
+    },
+  },
+  {
+    id: "last_7_days",
+    name: "Last 7 Days",
+    setToTheFilter: {
+      period: "last_7_days",
+    },
+  },
+  {
+    id: "last_30_days",
+    name: "Last 30 Days",
+    setToTheFilter: {
+      period: "last_30_days",
+    },
+  },
+];
+
+const sortOptions = [
+  { id: "desc", name: "Newest First" },
+  { id: "asc", name: "Oldest First" },
+];
+
+const reviewType = [
+  { id: "", name: "All" },
+  { id: 1, name: "Overall" },
+  { id: 0, name: "Survey" },
+];
+
+const reviewCommentType = [
+  { id: "", name: "All" },
+  { id: 1, name: "Voice" },
+  { id: 0, name: "Text" },
+];
+
 export default function ReviewsScreen() {
+  const { user } = useAuthStore();
   const params = useLocalSearchParams();
   const [search, setSearch] = React.useState("");
   const [activeFilters, setActiveFilters] = React.useState<any>({});
   const [isFilterVisible, setIsFilterVisible] = React.useState(false);
+
+  const { data: allBranches } = useCustomQuery({
+    queryKey: ["allBranches", user?.business?.id],
+    queryFunc: async ({ signal }) =>
+      await getAllBranches({
+        signal,
+        sort_by: "name",
+      }),
+    enabled: !!user?.business?.id,
+  });
+
+  const { data: allStaffs } = useCustomQuery({
+    queryKey: ["staffs"],
+    queryFunc: async ({ signal }) =>
+      await getAllUsers({
+        sort_order: "asc",
+        role: "business_staff",
+      }),
+  });
+
+  const { data: allSurveys } = useCustomQuery({
+    queryKey: ["allSurveys", user?.business?.id],
+    queryFunc: async ({ signal }) => await getSurveys(user?.business?.id || ""),
+    enabled: !!user?.business?.id,
+  });
 
   const paramsString = JSON.stringify(params);
   const lastParamsRef = React.useRef("");
@@ -84,23 +157,35 @@ export default function ReviewsScreen() {
         onRemove={(key) => {
           const newFilters = { ...activeFilters };
           delete newFilters[key];
+          if (key === "branch_ids") delete newFilters.branch_name;
+          if (key === "staff_id") delete newFilters.staff_name;
+          if (key === "survey_id") delete newFilters.survey_name;
           setActiveFilters(newFilters);
         }}
         getLabel={(key, value) => {
-          if (key === "meets_threshold")
-            return value.toString() === "1" ? "Satisfied" : "Flagged";
-          if (key === "sentiment_score")
-            return `Sentiment: ${value.toString().replace("_", " ")}`;
-          if (key === "topics") return `Topic: ${value}`;
-          if (key === "is_repeat_issue") return "Repeat Issue";
+          if (["branch_ids", "staff_id", "survey_id"].includes(key)) return "";
+
+          if (key === "period") {
+            const name =
+              periodOptions.find((o) => o.id === value)?.name || value;
+            return `Period: ${name}`;
+          }
+          if (key === "rating") return `Rating: ${value}`;
+          if (key === "flagged_reviews")
+            return `Threshold: ${value.toString() === "1" ? "Flagged" : "Satisfied"}`;
+          if (key === "sort_order") {
+            const name = sortOptions.find((o) => o.id === value)?.name || value;
+            return `Sort: ${name}`;
+          }
           if (key === "is_overall")
-            return value.toString() === "1" ? "Overall View" : "Survey View";
-          if (key === "status") return `Status: ${value}`;
-          if (key === "sort_order")
-            return `Sort: ${value.toString().replace("_", " ")}`;
-          if (key === "has_staff")
-            return value.toString() === "1" ? "Staff Related" : "No Staff";
-          if (key === "rating") return `${value} Stars`;
+            return `Type: ${value.toString() === "1" ? "Overall View" : "Survey View"}`;
+          if (key === "is_voice_review")
+            return `Comment Type: ${value.toString() === "1" ? "Voice Review" : "Text Review"}`;
+          if (key === "branch_name") return `Branch: ${value}`;
+          if (key === "staff_name") return `Staff: ${value}`;
+          if (key === "survey_name") return `Survey: ${value}`;
+
+          if (key === "is_repeat_issue") return "Repeat Issue";
           if (key === "start_date") return `Start: ${value}`;
           if (key === "end_date") return `To: ${value}`;
           return "";
@@ -151,15 +236,11 @@ export default function ReviewsScreen() {
         onReset={resetFilters}
         configs={[
           {
-            id: "status",
-            label: "Status",
+            id: "period",
+            label: "Period",
             type: "select",
             colorScheme: "blue",
-            options: [
-              { label: "Pending", value: "pending" },
-              { label: "Approved", value: "approved" },
-              { label: "Rejected", value: "rejected" },
-            ],
+            options: periodOptions,
           },
           {
             id: "rating",
@@ -167,61 +248,77 @@ export default function ReviewsScreen() {
             type: "rating",
           },
           {
-            id: "sentiment_score",
-            label: "Sentiment",
+            id: "flagged_reviews",
+            label: "Threshold",
             type: "select",
-            colorScheme: "purple",
+            colorScheme: "red",
             options: [
-              { label: "Positive", value: "positive" },
-              { label: "Neutral", value: "neutral" },
-              { label: "Negative", value: "negative" },
+              { id: 1, name: "Flagged" },
+              { id: 0, name: "Satisfied" },
             ],
-          },
-          {
-            id: "meets_threshold",
-            label: "Satisfaction",
-            type: "select",
-            colorScheme: "green",
-            options: [
-              { label: "Satisfied", value: "1" },
-              { label: "Flagged", value: "0" },
-            ],
-          },
-          {
-            id: "has_staff",
-            label: "Staff Related",
-            type: "select",
-            colorScheme: "indigo",
-            options: [
-              { label: "Staff Related", value: "1" },
-              { label: "No Staff", value: "0" },
-            ],
-          },
-          {
-            id: "is_overall",
-            label: "View Type",
-            type: "select",
-            colorScheme: "teal",
-            options: [
-              { label: "Overall", value: "1" },
-              { label: "Survey", value: "0" },
-            ],
-          },
-          {
-            id: "topics",
-            label: "Topic Search",
-            type: "text",
-            placeholder: "Search by topic...",
           },
           {
             id: "sort_order",
             label: "Sort Order",
             type: "select",
+            colorScheme: "indigo",
+            options: sortOptions,
+          },
+          {
+            id: "is_overall",
+            label: "Type",
+            type: "select",
+            colorScheme: "teal",
+            options: reviewType,
+          },
+          {
+            id: "is_voice_review",
+            label: "Comment Type",
+            type: "select",
+            colorScheme: "purple",
+            options: reviewCommentType,
+          },
+          {
+            id: "branch_ids",
+            label: "Branch",
+            type: "searchable-select",
             colorScheme: "blue",
-            options: [
-              { label: "Newest First", value: "desc" },
-              { label: "Oldest First", value: "asc" },
-            ],
+            options: allBranches?.data?.map((d: any) => ({
+              id: d?.id,
+              name: d?.name,
+              setToTheFilter: {
+                branch_ids: d?.id,
+                branch_name: d?.name,
+              },
+            })),
+          },
+          {
+            id: "staff_id",
+            label: "Staff",
+            type: "searchable-select",
+            colorScheme: "green",
+            options: allStaffs?.map((staff: any) => ({
+              id: staff?.id,
+              name: getFullName(staff),
+              setToTheFilter: {
+                staff_id: staff?.id,
+                staff_name: getFullName(staff),
+              },
+            })),
+          },
+          {
+            id: "survey_id",
+            label: "Survey",
+            type: "searchable-select",
+            colorScheme: "yellow",
+            options: allSurveys?.map((survey: any) => ({
+              id: survey?.id,
+              name: survey?.name,
+              setToTheFilter: {
+                survey_id: survey?.id,
+                survey_name: survey?.name,
+              },
+            })),
           },
           {
             id: "date_range",

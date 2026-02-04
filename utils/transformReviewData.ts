@@ -19,6 +19,7 @@ export interface TransformedReviewData {
   status: "Replied" | "Reply needed";
   overallRating: number;
   sentimentScore: number;
+
   // Customer Information
   customer: {
     id: number;

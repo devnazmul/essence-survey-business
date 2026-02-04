@@ -9,11 +9,7 @@ import ScreenTitle from "@/components/ScreenTitle";
 import StatCard from "@/components/StatCard";
 import { COLORS } from "@/constants";
 import useAllBranchesService from "@/services/AllBranches.service";
-import {
-  Feather,
-  MaterialCommunityIcons,
-  MaterialIcons,
-} from "@expo/vector-icons";
+import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
 import React, { useState } from "react";
 import {
@@ -21,7 +17,6 @@ import {
   Image,
   RefreshControl,
   Text,
-  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -57,13 +52,13 @@ export default function BranchesScreen() {
 
       <View className="flex-row justify-between items-center mb-4">
         <ScreenTitle title="All Branches" />
-        <TouchableOpacity
+        {/* <TouchableOpacity
           onPress={handleAddStuff}
           className="bg-primary px-4 py-2 rounded-xl flex-row items-center"
         >
           <Feather name="plus" size={20} color="white" />
           <Text className="text-white font-bold ml-2">Add Branch</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
       {/* Analytics Summary */}
@@ -81,7 +76,7 @@ export default function BranchesScreen() {
         />
         <StatCard
           title="Avg Rating"
-          value={`${summary.avg_rating || 0}/5`}
+          value={`${summary.avg_rating || 0} out of 5`}
           color="#FFFBEB"
           iconName="star"
           iconColor="#FACC15"
@@ -119,7 +114,6 @@ export default function BranchesScreen() {
           const newFilters: any = { ...filters };
           if (key === "search_key") newFilters[key] = "";
           else if (key === "is_active") newFilters[key] = "";
-          else if (key === "sort_by") newFilters[key] = "created_at";
           else if (key === "sort_order") newFilters[key] = "desc";
           else delete newFilters[key];
           setFilters(newFilters);
@@ -131,12 +125,8 @@ export default function BranchesScreen() {
             if (value === 0 || value === "0") return "Status: Inactive";
             return "";
           }
-          if (key === "sort_by")
-            return `Sort: ${value.toString().replace("_", " ")}`;
           if (key === "sort_order")
             return value === "asc" ? "Order: Ascending" : "Order: Descending";
-          if (key === "start_date" && value) return `From: ${value}`;
-          if (key === "end_date" && value) return `To: ${value}`;
           return "";
         }}
       />
@@ -156,8 +146,6 @@ export default function BranchesScreen() {
             is_active: "",
             sort_order: "desc",
             sort_by: "created_at",
-            start_date: "",
-            end_date: "",
             search_key: "",
           });
         }}
@@ -173,17 +161,6 @@ export default function BranchesScreen() {
             ],
           },
           {
-            id: "sort_by",
-            label: "Sort By",
-            type: "select",
-            colorScheme: "primary",
-            options: [
-              { label: "Name", value: "name" },
-              { label: "Date Created", value: "created_at" },
-              { label: "Date Updated", value: "updated_at" },
-            ],
-          },
-          {
             id: "sort_order",
             label: "Sort Order",
             type: "select",
@@ -192,11 +169,6 @@ export default function BranchesScreen() {
               { label: "Ascending", value: "asc" },
               { label: "Descending", value: "desc" },
             ],
-          },
-          {
-            id: "date_range",
-            label: "Date Range",
-            type: "date",
           },
         ]}
       />

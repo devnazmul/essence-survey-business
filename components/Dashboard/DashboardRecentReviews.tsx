@@ -7,13 +7,12 @@ import React, { useEffect } from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import ReviewCard from "../ReviewCard";
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface IDashboardRecentReviewsProps {}
 const DashboardRecentReviews: React.FC<IDashboardRecentReviewsProps> = () => {
   const reviews = useBusinessStore((state) => state.reviews);
   const { getResponsiveFontSize } = useDimension();
   const { isLoading, refetch } = useDashboardReviews("last_30_days");
-  console.log({ reviews });
+
   useEffect(() => {
     refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps

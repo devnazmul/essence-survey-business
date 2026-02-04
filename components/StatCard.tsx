@@ -1,5 +1,6 @@
+import { COLORS } from "@/constants";
 import { useDimension } from "@/hooks/useDimension";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Pressable, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeInUp, FadeOutUp } from "react-native-reanimated";
@@ -29,6 +30,7 @@ const StatCard = React.memo(
     description,
     breakdown = [],
     bottomRightSection,
+    isShowPercentageOnValue,
   }: {
     onTitleClick?: () => void;
     isLoading?: boolean;
@@ -52,6 +54,7 @@ const StatCard = React.memo(
     description?: string;
     breakdown?: any[];
     bottomRightSection?: any;
+    isShowPercentageOnValue?: boolean;
   }) => {
     const { getResponsiveFontSize } = useDimension();
     const [showTooltip, setShowTooltip] = useState(false);
@@ -197,7 +200,7 @@ const StatCard = React.memo(
                       size={getResponsiveFontSize("5xl") * 1.8}
                       strokeWidth={13}
                       color={iconColor || "#10b981"}
-                      isPercent={isPercentage}
+                      isPercent={isShowPercentageOnValue}
                       valueFontSize={valueFontSize}
                     />
                     {subTitle && (
@@ -303,7 +306,6 @@ const StatCard = React.memo(
             )}
           </>
         )}
-
         {/* CHANGE */}
         {!isPercentage && change !== undefined && (
           <>
@@ -311,7 +313,22 @@ const StatCard = React.memo(
               <View className="h-5 mb-1 w-10 bg-gray-800/5  rounded" />
             ) : (
               <View className={`flex flex-row items-center mt-2`}>
-                <View className={`bg-base-300 rounded-full px-5 py-1 w-auto`}>
+                <View
+                  className={`bg-base-300 flex flex-row gap-x-1 items-center rounded-full px-2 py-1 w-auto`}
+                >
+                  {change >= 0 ? (
+                    <MaterialIcons
+                      name="trending-up"
+                      size={15}
+                      color={COLORS["green-700"]}
+                    />
+                  ) : (
+                    <MaterialIcons
+                      name="trending-down"
+                      size={15}
+                      color={COLORS["red-700"]}
+                    />
+                  )}
                   <Text
                     style={{ fontSize: getResponsiveFontSize("md") }}
                     className={`${
@@ -341,18 +358,20 @@ const StatCard = React.memo(
           </>
         )}
 
-        <View className="absolute bottom-[5px] right-[14px]">
-          <Text
-            style={{
-              fontSize: getResponsiveFontSize("xs"),
-            }}
-          >
-            {bottomRightSection || 0} Reviews
-          </Text>
-        </View>
+        {!!bottomRightSection && (
+          <View className="absolute bottom-[5px] right-[14px]">
+            <Text
+              style={{
+                fontSize: getResponsiveFontSize("xs"),
+              }}
+            >
+              {bottomRightSection || 0} Reviews
+            </Text>
+          </View>
+        )}
       </View>
     );
-  }
+  },
 );
 
 StatCard.displayName = "StatCard";

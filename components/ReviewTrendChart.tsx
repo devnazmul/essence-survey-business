@@ -2,26 +2,42 @@ import { COLORS } from "@/constants";
 import { useDimension } from "@/hooks/useDimension";
 import { useReviewTrends } from "@/hooks/useReviewTrends";
 import moment from "moment";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { ActivityIndicator, Dimensions, Text, View } from "react-native";
 import { CurveType, LineChart } from "react-native-gifted-charts";
-import FilterTab from "./FilterTab";
 
-const ReviewTrendChart = () => {
+const getPeriod = (activeTab: string) => {
+  switch (activeTab) {
+    case "last_7_days":
+      return "7d";
+    case "last_30_days":
+      return "30d";
+    case "last_90_days":
+      return "90d";
+    default:
+      return "30d";
+  }
+};
+
+const ReviewTrendChart = ({
+  activeTab,
+  activeTypeTab,
+}: {
+  activeTab: string;
+  activeTypeTab: string;
+}) => {
   const { getResponsiveFontSize, WP } = useDimension();
   const screenWidth = Dimensions.get("window").width;
-  const [period, setPeriod] = useState("30d");
-  const { data, isLoading, refetch } = useReviewTrends(period);
-  console.log({ data });
-  const tabs = [
-    { label: "7 Days", value: "7d" },
-    { label: "30 Days", value: "30d" },
-    { label: "90 Days", value: "90d" },
-  ];
+
+  const { data, isLoading, refetch } = useReviewTrends(
+    getPeriod(activeTab),
+    activeTypeTab,
+  );
 
   useEffect(() => {
     refetch();
-  }, [period, refetch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, activeTypeTab]);
 
   const chartData = useMemo(() => {
     if (!data?.data) return [];
@@ -34,13 +50,13 @@ const ReviewTrendChart = () => {
     });
 
     return sortedData.map((item) => {
-      if (period === "7d") {
+      if (getPeriod(activeTab) === "7d") {
         return {
           value: item.count || 0,
           label: moment(item.period, "DD-MM-YYYY").format("DD MMM"),
           dataPointText: item.period,
         };
-      } else if (period === "30d") {
+      } else if (getPeriod(activeTab) === "30d") {
         return {
           value: item.count || 0,
           label: moment(item.period, "DD-MM-YYYY").format("D"),
@@ -54,7 +70,8 @@ const ReviewTrendChart = () => {
         };
       }
     });
-  }, [data?.data, period]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.data, getPeriod(activeTab)]);
 
   return (
     <View className="bg-base-300 rounded-2xl p-4 mb-2 shadow-sm w-full">
@@ -64,33 +81,6 @@ const ReviewTrendChart = () => {
       >
         Review Trends
       </Text>
-
-      {/* Tabs */}
-      <FilterTab
-        isLoading={isLoading}
-        activeTab={period}
-        tabs={[
-          {
-            ...tabs[0],
-            onPress: () => {
-              setPeriod("7d");
-            },
-          },
-          {
-            ...tabs[1],
-
-            onPress: () => {
-              setPeriod("30d");
-            },
-          },
-          {
-            ...tabs[2],
-            onPress: () => {
-              setPeriod("90d");
-            },
-          },
-        ]}
-      />
 
       {isLoading ? (
         <View className="h-32 w-full justify-center items-center">
@@ -108,9 +98,9 @@ const ReviewTrendChart = () => {
             endOpacity={0}
             initialSpacing={WP("2.5%")}
             spacing={
-              period === "7d"
+              getPeriod(activeTab) === "7d"
                 ? WP("12.7%")
-                : period === "30d"
+                : getPeriod(activeTab) === "30d"
                   ? WP("2.7%")
                   : WP("36.7%")
             }
@@ -121,9 +111,9 @@ const ReviewTrendChart = () => {
             xAxisLabelTextStyle={{
               color: "transparent",
               fontSize:
-                period === "7d"
+                getPeriod(activeTab) === "7d"
                   ? getResponsiveFontSize("xxs")
-                  : period === "30d"
+                  : getPeriod(activeTab) === "30d"
                     ? getResponsiveFontSize("xxs")
                     : getResponsiveFontSize("xs"),
             }}

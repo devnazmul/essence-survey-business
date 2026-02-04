@@ -7,7 +7,7 @@ import { useBusinessStore } from "@/store/useBusinessStore";
 import { useQuery } from "@tanstack/react-query";
 import React, { useEffect } from "react";
 
-export const useDashboardMetrics = (period?: string) => {
+export const useDashboardMetrics = (period?: string, type?: string) => {
   const { user } = useAuthStore();
   const setDashboardStats = useBusinessStore(
     (state) => state.setDashboardStats,
@@ -18,8 +18,8 @@ export const useDashboardMetrics = (period?: string) => {
   const businessId = user?.business?.id || user?.business?.[0]?.id;
 
   const dashboardMetricsQuery = useQuery({
-    queryKey: ["dashboard-metrics", period],
-    queryFn: () => getDashboardMetrics(period),
+    queryKey: ["dashboard-metrics", period, type],
+    queryFn: () => getDashboardMetrics(period, type),
     enabled: !!businessId,
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: true,
@@ -36,7 +36,6 @@ export const useDashboardMetrics = (period?: string) => {
     if (!dashboardMetricsQuery.data?.data) return null;
 
     const data = dashboardMetricsQuery.data.data;
-    console.log(data);
 
     return {
       stats: {
@@ -45,6 +44,7 @@ export const useDashboardMetrics = (period?: string) => {
           max: data?.ai_sentiment_score?.max,
           change: data?.ai_sentiment_score?.change,
         },
+        allReviews: data?.all_reviews?.value || 0,
         avgRating: {
           value: data?.avg_overall_rating?.value,
           change: data?.avg_overall_rating?.change,
@@ -66,15 +66,16 @@ export const useDashboardMetrics = (period?: string) => {
           subTitle: data?.all_sentiment?.based_on || "Based on selected period",
         },
         topTopic: {
-          value: data?.top_topic?.top_topic || "N/A",
-          count: data?.top_topic?.top_topic_count || 0,
-          subTitle: data?.top_topic?.top_topic_count
-            ? `Mentioned in ${data.top_topic.top_topic_count} reviews`
+          value: data?.top_topic?.name || "N/A",
+          count: data?.top_topic?.count || 0,
+          subTitle: data?.top_topic?.count
+            ? `Mentioned in ${data.top_topic.count} reviews`
             : "",
         },
         flagged: {
           value: data?.flagged_reviews?.count || 0,
           change: 0,
+          count: data?.flagged_reviews?.review_count || 0,
         },
         csatScore: {
           value: data?.csat_score?.percentage || 0,

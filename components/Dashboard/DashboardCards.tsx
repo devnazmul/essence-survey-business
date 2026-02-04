@@ -17,10 +17,12 @@ import StatCard from "../StatCard";
 
 interface IDashboardCardsProps {
   activeTab: string;
+  activeTypeTab: string;
   isLoading: boolean;
 }
 const DashboardCards: React.FC<IDashboardCardsProps> = ({
   activeTab,
+  activeTypeTab,
   isLoading,
 }) => {
   const stats = useBusinessStore((state) => state.stats);
@@ -48,6 +50,7 @@ const DashboardCards: React.FC<IDashboardCardsProps> = ({
             },
           });
         }}
+        isShowPercentageOnValue={false}
         valueFontSize={getResponsiveFontSize("lg")}
         isLoading={isLoading}
         title="Total Reviews"
@@ -56,7 +59,7 @@ const DashboardCards: React.FC<IDashboardCardsProps> = ({
         change={parseChange(stats.totalReviews?.change)}
         color="#e0fee9"
         showProgress
-        max={stats.totalReviews?.total}
+        max={stats.allReviews}
         breakdown={[
           (stats.ratingBreakdown?.breakdown?.exact_ratings?.[5] ?? 0) > 0 && {
             emoji: "😊",
@@ -87,6 +90,7 @@ const DashboardCards: React.FC<IDashboardCardsProps> = ({
             ? getResponsiveFontSize("md")
             : getResponsiveFontSize("lg")
         }
+        // change={parseChange(stats.totalReviews?.change)}
         bottomRightSection={stats.totalReviews?.value}
         onTitleClick={() => {
           router.push({
@@ -105,7 +109,7 @@ const DashboardCards: React.FC<IDashboardCardsProps> = ({
         subTitle="Satisfaction"
         color="#ccfbf1"
         showProgress
-        isPercentage
+        isShowPercentageOnValue
         iconColor={COLORS["cyan-500"]}
         description="A breakdown of customer feedback into positive, neutral, and negative sentiment. This is based on the meaning and emotion detected in customer comments."
       />
@@ -231,7 +235,6 @@ const DashboardCards: React.FC<IDashboardCardsProps> = ({
         iconPosition="right"
         description="The most common themes mentioned by customers, such as staff behaviour, wait time, or cleanliness. Topics are grouped automatically using AI."
       />
-
       <StatCard
         bottomRightSection={stats.totalReviews?.value}
         onTitleClick={() => {
@@ -284,7 +287,7 @@ const DashboardCards: React.FC<IDashboardCardsProps> = ({
         color="#fef9c3"
         description="Tracks recurring problems mentioned across multiple reviews. Identifying patterns helps prioritize which issues to fix first."
       />
-      <ReviewTrendChart />
+      <ReviewTrendChart activeTypeTab={activeTypeTab} activeTab={activeTab} />
     </View>
   );
 };

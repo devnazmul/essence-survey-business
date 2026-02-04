@@ -5,7 +5,7 @@ export const getAnalyticsData = async (
   businessId: string | number,
   period: string = "last_30_days",
   start_date?: string,
-  end_date?: string
+  end_date?: string,
 ) => {
   try {
     const params: any = {
@@ -19,10 +19,14 @@ export const getAnalyticsData = async (
       `/v1.0/dashboard/insights-overview`,
       {
         params,
-      }
+      },
     );
+    if (!response.data || !response.data.success) {
+      throw new Error(response.data?.message || "Failed to fetch analytics");
+    }
     return response.data.data;
   } catch (error) {
     apiErrorHandler(error);
+    throw error;
   }
 };

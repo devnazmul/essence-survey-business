@@ -11,7 +11,7 @@ import {
   MaterialIcons,
 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function useAllBranchesService() {
   // AUTH
@@ -32,8 +32,6 @@ export default function useAllBranchesService() {
     per_page: 10,
     is_active: "",
     sort_order: "desc",
-    start_date: "",
-    end_date: "",
     search_key: "",
     sort_by: "created_at",
   });
@@ -63,18 +61,12 @@ export default function useAllBranchesService() {
       await getAllBranches({
         signal,
         ...filters,
-        sort_by: "name",
       }),
   });
 
   const onRefresh = async () => {
     await refetch();
   };
-
-  useEffect(() => {
-    refetch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
 
   const stats = [
     {

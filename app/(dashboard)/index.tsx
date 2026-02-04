@@ -1,5 +1,6 @@
 import IMAGES from "@/assets";
 
+import AIPanel from "@/components/Dashboard/AIPanel";
 import DashboardCards from "@/components/Dashboard/DashboardCards";
 import DashboardRecentReviews from "@/components/Dashboard/DashboardRecentReviews";
 import FilterTab from "@/components/FilterTab";
@@ -15,7 +16,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function DashboardScreen() {
   const [activeTab, setActiveTab] = useState<string>("last_30_days");
-  const { isLoading, refetch } = useDashboardMetrics(activeTab);
+  const [activeTypeTab, setActiveTypeTab] = useState<string>("all_type");
+  const { isLoading, refetch } = useDashboardMetrics(activeTab, activeTypeTab);
   const [refreshing, setRefreshing] = useState(false);
   const { setIsNotificationChanged } = useNotification();
 
@@ -30,7 +32,7 @@ export default function DashboardScreen() {
   useEffect(() => {
     refetch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab]);
+  }, [activeTab, activeTypeTab]);
 
   const handleOpenHowItWorks = async () => {
     await WebBrowser.openBrowserAsync(
@@ -57,47 +59,64 @@ export default function DashboardScreen() {
       </View>
 
       {/* Filters */}
-      <FilterTab
-        isLoading={isLoading}
-        activeTab={activeTab}
-        tabs={[
-          {
-            label: "All Time",
-            value: "all_time",
-            onPress: () => {
-              setActiveTab("all_time");
+      <View className="flex-row justify-between items-center">
+        <FilterTab
+          title={"Period"}
+          isLoading={isLoading}
+          activeTab={activeTab}
+          tabs={[
+            {
+              label: "7 Days",
+              value: "last_7_days",
+              onPress: () => {
+                setActiveTab("last_7_days");
+              },
             },
-          },
-          {
-            label: "30 Days",
-            value: "last_30_days",
-            onPress: () => {
-              setActiveTab("last_30_days");
+            {
+              label: "30 Days",
+              value: "last_30_days",
+              onPress: () => {
+                setActiveTab("last_30_days");
+              },
             },
-          },
-          {
-            label: "7 Days",
-            value: "last_7_days",
-            onPress: () => {
-              setActiveTab("last_7_days");
+            {
+              label: "90 Days",
+              value: "last_90_days",
+              onPress: () => {
+                setActiveTab("last_90_days");
+              },
             },
-          },
-          {
-            label: "This Month",
-            value: "this_month",
-            onPress: () => {
-              setActiveTab("this_month");
+          ]}
+        />
+        <FilterTab
+          title={"Type"}
+          isLoading={isLoading}
+          activeTab={activeTypeTab}
+          tabs={[
+            {
+              label: "All",
+              value: "all_type",
+              onPress: () => {
+                setActiveTypeTab("all_type");
+              },
             },
-          },
-          {
-            label: "Last Month",
-            value: "last_month",
-            onPress: () => {
-              setActiveTab("last_month");
+            {
+              label: "Survey",
+              value: "survey_type",
+              onPress: () => {
+                setActiveTypeTab("survey_type");
+              },
             },
-          },
-        ]}
-      />
+            {
+              label: "Overall",
+              value: "overall_type",
+              onPress: () => {
+                setActiveTypeTab("overall_type");
+              },
+            },
+          ]}
+        />
+      </View>
 
       <ScrollView
         className="flex-1 pb-10"
@@ -106,7 +125,13 @@ export default function DashboardScreen() {
         }
       >
         {/* Stats */}
-        <DashboardCards activeTab={activeTab} isLoading={isLoading} />
+        <DashboardCards
+          activeTypeTab={activeTypeTab}
+          activeTab={activeTab}
+          isLoading={isLoading}
+        />
+
+        <AIPanel period={activeTab} type={activeTypeTab} />
 
         <DashboardRecentReviews />
       </ScrollView>

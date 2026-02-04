@@ -52,6 +52,7 @@ interface IBusinessStore {
       max: number;
       change: number;
     };
+    allReviews: number;
     avgRating: {
       value: number;
       change: number;
@@ -133,6 +134,7 @@ export const useBusinessStore = create<IBusinessStore>()(
           max: 0,
           change: 0,
         },
+        allReviews: 0,
         avgRating: {
           value: 0,
           change: 0,
@@ -191,6 +193,7 @@ export const useBusinessStore = create<IBusinessStore>()(
               max: 0,
               change: 0,
             },
+            allReviews: data?.stats?.allReviews || 0,
             avgRating: data?.stats?.avgRating || {
               value: 0,
               change: 0,
@@ -240,6 +243,7 @@ export const useBusinessStore = create<IBusinessStore>()(
               max: 0,
               change: 0,
             },
+            allReviews: stats?.allReviews || 0,
             avgRating: stats?.avgRating || {
               value: 0,
               change: 0,
@@ -369,6 +373,7 @@ export const useBusinessStore = create<IBusinessStore>()(
           stats: {
             sentimentScore: { value: 0, max: 0, change: 0 },
             avgRating: { value: 0, change: 0, percentage: 0, total: 0 },
+            allReviews: 0,
             totalReviews: { value: 0, change: 0, percentage: 0, total: 0 },
             staffLinkedReviews: {
               value: 0,

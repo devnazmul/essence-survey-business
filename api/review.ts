@@ -25,19 +25,58 @@ export const getReviews = async (
   businessId: string | number,
   page: number = 1,
   limit: number = 20,
-  filters: any = {}
+  filters: any = {},
 ) => {
   try {
     const params: any = {
       page,
       per_page: limit,
-      ...filters,
+      businessId, // most endpoints need this
     };
 
-    // Mapping search to search_key just in case, though we will try to use search_key directly in UI
+    // Map Filters to Swagger-compliant keys
+    if (filters.period) params.period = filters.period;
+
+    // Sort Mapping: desc -> newest, asc -> oldest
+    if (filters.sort_order) {
+      params.sort_by = filters.sort_order === "desc" ? "newest" : "oldest";
+    }
+
+    // Rating Mapping: UI 'rating' (number) -> 'star_ids' (string)
+    if (filters.rating) {
+      params.star_ids = filters.rating.toString();
+    }
+
+    // Flagged Mapping: UI 'flagged_reviews' (1=Flagged, 0=Satisfied) -> 'meets_threshold' (0=Flagged, 1=Satisfied)
+    if (filters.flagged_reviews !== undefined) {
+      params.meets_threshold =
+        filters.flagged_reviews.toString() === "1" ? 0 : 1;
+    }
+
+    // Other simple mappings
+    if (filters.is_overall !== undefined)
+      params.is_overall = filters.is_overall;
+    if (filters.is_voice_review !== undefined)
+      params.is_voice_review = filters.is_voice_review;
+
+    // Staff & Branch
+    if (filters.branch_ids) params.branch_ids = filters.branch_ids.toString();
+    if (filters.staff_id) params.staff_id = filters.staff_id;
+
+    // Survey Mapping: survey_id -> survey_ids
+    if (filters.survey_id) params.survey_ids = filters.survey_id.toString();
+
+    // Search Mapping
     if (filters.search) {
       params.search_key = filters.search;
-      delete params.search;
+    }
+
+    // Date Range Mapping
+    if (filters.start_date) {
+      params.start_date = filters.start_date;
+    }
+    if (filters.end_date) {
+      params.end_date = filters.end_date;
     }
 
     const response = await axiosPrivate.get(`/v1.0/reviews`, {
@@ -46,5 +85,6 @@ export const getReviews = async (
     return response.data;
   } catch (error) {
     apiErrorHandler(error);
+    throw error; // Rethrow so React Query knows it failed
   }
 };

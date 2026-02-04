@@ -1,9 +1,8 @@
-import { COLORS } from "@/constants";
 import { useDimension } from "@/hooks/useDimension";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
 import moment from "moment";
 import React from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, View } from "react-native";
 
 interface BranchCardProps {
   branch: {
@@ -48,13 +47,13 @@ const BranchCard: React.FC<BranchCardProps> = ({
           </Text>
         </View>
 
-        <View className="flex-row gap-x-2 bg-gray-50 rounded-full p-1">
-          {/* <TouchableOpacity
+        {/* <View className="flex-row gap-x-2 bg-gray-50 rounded-full p-1">
+          <TouchableOpacity
             onPress={() => onView?.(branch)}
             className="p-2 bg-white rounded-full shadow-sm"
           >
             <Feather name="eye" size={18} color={COLORS.primary} />
-          </TouchableOpacity> */}
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={() => onEdit?.(branch)}
             className="p-2 bg-white rounded-full shadow-sm"
@@ -67,7 +66,7 @@ const BranchCard: React.FC<BranchCardProps> = ({
           >
             <Feather name="trash-2" size={18} color={COLORS["red-500"]} />
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
 
       {/* Title and Branch Code */}

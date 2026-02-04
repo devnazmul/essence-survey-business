@@ -5,7 +5,16 @@ import { axiosPrivate } from "@/utils/axiosInstance";
 // ========================
 
 export const getAllBranches = async (params: any = {}) => {
-  const { signal, ...query } = params;
+  const { signal } = params;
+
+  // Extract only swagger-supported parameters
+  const query: any = {};
+  if (params.page) query.page = params.page;
+  if (params.per_page) query.per_page = params.per_page;
+  if (params.search_key) query.search_key = params.search_key;
+  if (params.sort_by) query.sort_by = params.sort_by;
+  if (params.sort_order) query.sort_order = params.sort_order;
+
   const response = await axiosPrivate.get("/v1.0/branches", {
     params: query,
     signal,

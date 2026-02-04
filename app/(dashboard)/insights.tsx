@@ -1,6 +1,5 @@
-import IMAGES from "@/assets";
+import logoImg from "@/assets";
 import AreaPerformance from "@/components/AreaPerformance";
-
 import Header from "@/components/Header";
 import InsightProgress from "@/components/InsightProgress";
 import ScreenTitle from "@/components/ScreenTitle";
@@ -10,7 +9,7 @@ import { useAnalytics } from "@/hooks/useAnalytics";
 import { useDimension } from "@/hooks/useDimension";
 import { getFullImageLink } from "@/utils/getFullImageLink";
 import { Feather, MaterialIcons } from "@expo/vector-icons";
-import React from "react";
+import React, { useMemo } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -54,18 +53,40 @@ export default function AnalyticsScreen() {
     setRefreshing(false);
   }, [refetch]);
 
-  const getImageUrl = React.useCallback((imagePath: string) => {
-    if (!imagePath)
-      return "https://ui-avatars.com/api/?name=User&background=random";
-    return getFullImageLink(imagePath);
-  }, []);
+  const aggregatedIssues = useMemo(() => {
+    if (!data?.top_issues) return [];
+
+    const grouped = data.top_issues.reduce((acc: any, item: any) => {
+      const rawName = item.issue || "Unknown";
+      const issueName = rawName.trim(); // Trim spaces but keep casing for display preference (or use rawName.trim().toLowerCase() for stricter dedupe)
+
+      const existingKey = Object.keys(acc).find(
+        (k) => k.toLowerCase() === issueName.toLowerCase(),
+      );
+
+      if (!existingKey) {
+        acc[issueName] = { ...item, issue: issueName };
+      } else {
+        acc[existingKey].count =
+          (acc[existingKey].count || 0) + (item.count || 0);
+        acc[existingKey].percentage =
+          (acc[existingKey].percentage || 0) + (item.percentage || 0);
+      }
+      return acc;
+    }, {});
+
+    return Object.values(grouped).sort(
+      (a: any, b: any) => (b.count || 0) - (a.count || 0),
+    );
+  }, [data?.top_issues]);
 
   return (
     <SafeAreaView className="flex-1 bg-base-100 px-4 pt-2">
       {/* Header */}
       <Header
-        // leftComponent={...} // Defaulting to ProfileDropdown now
-        centerComponent={<Image source={IMAGES.logo} className={`w-16 h-16`} />}
+        centerComponent={
+          <Image source={logoImg.logo} className={`w-16 h-16`} />
+        }
       />
       <View className="flex-row items-center justify-between mb-4">
         <ScreenTitle title="Insights Overview" />
@@ -92,7 +113,7 @@ export default function AnalyticsScreen() {
           }
         >
           {/* Top Issues */}
-          {data?.top_issues?.length > 0 && (
+          {aggregatedIssues.length > 0 && (
             <View className="bg-base-300 rounded-2xl p-5 mb-4 shadow-sm">
               <View className="flex-row justify-between items-center mb-4">
                 <Text
@@ -110,23 +131,16 @@ export default function AnalyticsScreen() {
                 </View>
               </View>
 
-              {data?.top_issues?.map((item: any, index: number) => (
+              {aggregatedIssues.map((item: any, index: number) => (
                 <InsightProgress
                   key={index}
                   label={item.issue}
                   percentage={item.percentage}
                   color={COLORS.error}
-                  backgroundColor="#FEE2E2" // red-100
-                  count={item.count} // Pass count if component supports it or modify component
+                  backgroundColor="#FEE2E2"
+                  count={item.count}
                 />
-              )) || <Text className="text-gray-400">No issues found</Text>}
-
-              {/* <TouchableOpacity className="flex-row items-center mt-2">
-              <Text className="text-blue-500 font-medium text-sm mr-1">
-                Drill down into issues
-              </Text>
-              <Feather name="arrow-right" size={14} color="#3B82F6" />
-            </TouchableOpacity> */}
+              ))}
             </View>
           )}
 
@@ -149,7 +163,7 @@ export default function AnalyticsScreen() {
                       rating={item.rating}
                       icon="business"
                       color={COLORS_LIST[index % COLORS_LIST.length].text}
-                      iconBg={COLORS_LIST[index % COLORS_LIST.length].bg} // Cyclic colors
+                      iconBg={COLORS_LIST[index % COLORS_LIST.length].bg}
                       reviewCount={item.review_count}
                     />
                   ),
@@ -174,15 +188,10 @@ export default function AnalyticsScreen() {
                   rating={item.rating}
                   icon="storefront"
                   color={COLORS_LIST[(index + 2) % COLORS_LIST.length].text}
-                  iconBg={COLORS_LIST[(index + 2) % COLORS_LIST.length].bg} // Cyclic colors with offset
+                  iconBg={COLORS_LIST[(index + 2) % COLORS_LIST.length].bg}
                   reviewCount={item.review_count}
                 />
               ))}
-              {/* <TouchableOpacity className="w-full py-3 border border-gray-200 rounded-xl items-center mt-2">
-              <Text className="text-gray-600 font-medium">
-                Compare all locations
-              </Text>
-            </TouchableOpacity> */}
             </View>
           )}
 
@@ -203,16 +212,10 @@ export default function AnalyticsScreen() {
                   role={item.role}
                   rating={item.rating}
                   reviews={item.review_count}
-                  image={item.image}
+                  image={getFullImageLink(item.image)}
                   isFirst={index === 0}
                 />
               ))}
-              {/* <TouchableOpacity className="flex-row items-center mt-3">
-              <Text className="text-blue-500 font-medium text-sm mr-1">
-                View Team Report
-              </Text>
-              <Feather name="arrow-right" size={14} color="#3B82F6" />
-            </TouchableOpacity> */}
             </View>
           )}
         </ScrollView>
