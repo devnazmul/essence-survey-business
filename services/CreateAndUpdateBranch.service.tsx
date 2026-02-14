@@ -138,11 +138,11 @@ export default function useCreateAndUpdateBranch({
     if (!formData?.address) validationErrors.address = "Address is Required";
     if (!formData?.branch_code)
       validationErrors.branch_code = "Branch Code is Required";
-
+    console.log({ s: formData.email });
     if (formData?.email) {
       if (
         !/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/i.test(
-          formData.email.trim(),
+          formData.email,
         )
       ) {
         validationErrors.email = "Invalid email";
@@ -188,7 +188,7 @@ export default function useCreateAndUpdateBranch({
 
   // CHECK USER EMAIL
   const handleCheckUserEmail = (email: string) => {
-    if (email === prevData?.email) return;
+    if (!email || email === prevData?.email) return;
     setErrors((prevErrors) => ({ ...prevErrors, email: "" }));
     setIsCheckingEmail(true);
     checkUserEmail({ email, ignore_user_id: prevData?.id })

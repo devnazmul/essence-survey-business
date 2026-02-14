@@ -102,8 +102,9 @@ export const createBranch = async (data: any) => {
 //                        PUT APIS
 // ==========================
 
-export const updateBranch = async (id: number | string, data: any) => {
-  const response = await axiosPrivate.patch(`/v1.0/branches/${id}`, data);
+export const updateBranch = async (data: any) => {
+  const { id, ...rest } = data;
+  const response = await axiosPrivate.patch(`/v1.0/branches/${id}`, rest);
   return response.data;
 };
 

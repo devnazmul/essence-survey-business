@@ -1,47 +1,48 @@
+
+> feed-genius@1.0.0 lint
+> expo lint
+
 env: load .env
 env: export EXPO_PUBLIC_WEBSITE_URL EXPO_PUBLIC_GOOGLE_MAP_API EXPO_PUBLIC_API_BASE_URL
+yarn run v1.22.22
+$ '/home/devn/Documents/work/asjad/Native App/essence-survey-business/node_modules/.bin/eslint' '/home/devn/Documents/work/asjad/Native App/essence-survey-business/app' '/home/devn/Documents/work/asjad/Native App/essence-survey-business/components' --fix=false --cache=true '--cache-location=/home/devn/Documents/work/asjad/Native App/essence-survey-business/.expo/cache/eslint/'
 
-D:\Work\Asjad\App\essence-survey-business\app\(dashboard)\index.tsx
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/app/(dashboard)/index.tsx
   1:8  warning  Using exported name 'IMAGES' as identifier for default import  import/no-named-as-default
 
-D:\Work\Asjad\App\essence-survey-business\app\(dashboard)\insights.tsx
-   1:8  warning  Using exported name 'IMAGES' as identifier for default import  import/no-named-as-default
-  50:9  warning  'getImageUrl' is assigned a value but never used               @typescript-eslint/no-unused-vars
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/app/(dashboard)/notifications.tsx
+    2:8   warning  Using exported name 'IMAGES' as identifier for default import  import/no-named-as-default
+  119:13  warning  'type' is assigned a value but never used                      @typescript-eslint/no-unused-vars
+  119:41  warning  'data' is assigned a value but never used                      @typescript-eslint/no-unused-vars
+  119:47  warning  'title' is assigned a value but never used                     @typescript-eslint/no-unused-vars
 
-D:\Work\Asjad\App\essence-survey-business\app\(dashboard)\notifications.tsx
-   2:8   warning  Using exported name 'IMAGES' as identifier for default import  import/no-named-as-default
-  92:13  warning  'type' is assigned a value but never used                      @typescript-eslint/no-unused-vars
-  92:41  warning  'data' is assigned a value but never used                      @typescript-eslint/no-unused-vars
-  92:47  warning  'title' is assigned a value but never used                     @typescript-eslint/no-unused-vars
-
-D:\Work\Asjad\App\essence-survey-business\app\(dashboard)\profile.tsx
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/app/(dashboard)/profile.tsx
     3:8   warning  Using exported name 'IMAGES' as identifier for default import            import/no-named-as-default
    12:8   warning  Using exported name 'getFullImageLink' as identifier for default import  import/no-named-as-default
-  166:17  warning  'uploadResponse' is assigned a value but never used                      @typescript-eslint/no-unused-vars
+  165:17  warning  'uploadResponse' is assigned a value but never used                      @typescript-eslint/no-unused-vars
 
-D:\Work\Asjad\App\essence-survey-business\app\(dashboard)\reviews.tsx
-  1:8  warning  Using exported name 'IMAGES' as identifier for default import  import/no-named-as-default
-
-D:\Work\Asjad\App\essence-survey-business\app\review\[id].tsx
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/app/review/[id].tsx
   2:8  warning  Using exported name 'IMAGES' as identifier for default import  import/no-named-as-default
 
-D:\Work\Asjad\App\essence-survey-business\app\review\respond\[id].tsx
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/app/review/respond/[id].tsx
   2:8  warning  Using exported name 'IMAGES' as identifier for default import  import/no-named-as-default
 
-D:\Work\Asjad\App\essence-survey-business\components\BottomNav.tsx
-  12:1   warning  Import in body of module; reorder to top            import/first
-  18:10  warning  'drawerVisible' is assigned a value but never used  @typescript-eslint/no-unused-vars
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/components/CircularProgress.tsx
+  37:6  warning  React Hook useEffect has a missing dependency: 'progress'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
 
-D:\Work\Asjad\App\essence-survey-business\components\CircularProgress.tsx
-  35:6  warning  React Hook useEffect has a missing dependency: 'progress'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
-
-D:\Work\Asjad\App\essence-survey-business\components\CustomToast.tsx
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/components/CustomToast.tsx
   23:6  warning  React Hook useEffect has a missing dependency: 'showToast'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
 
-D:\Work\Asjad\App\essence-survey-business\components\Header.tsx
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/components/Dashboard/DashboardRecentReviews.tsx
+  10:11  warning  An empty interface declaration allows any non-nullish value, including literals like `0` and `""`.
+- If that's what you want, disable this lint rule with an inline comment or configure the 'allowInterfaces' rule option.
+- If you want a type meaning "any object", you probably want `object` instead.
+- If you want a type meaning "any value", you probably want `unknown` instead  @typescript-eslint/no-empty-object-type
+
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/components/Header.tsx
   19:11  warning  'unreadCount' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
-D:\Work\Asjad\App\essence-survey-business\components\InputField.tsx
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/components/InputField.tsx
    61:11  warning  'getResponsiveHeight' is assigned a value but never used    @typescript-eslint/no-unused-vars
    61:75  warning  'WP' is assigned a value but never used                     @typescript-eslint/no-unused-vars
   187:11  warning  'getResponsiveHeight' is assigned a value but never used    @typescript-eslint/no-unused-vars
@@ -58,19 +59,10 @@ D:\Work\Asjad\App\essence-survey-business\components\InputField.tsx
   399:10  warning  'isVisibleContent' is assigned a value but never used       @typescript-eslint/no-unused-vars
   399:28  warning  'setIsVisibleContent' is assigned a value but never used    @typescript-eslint/no-unused-vars
 
-D:\Work\Asjad\App\essence-survey-business\components\ProfileDropdown.tsx
-   4:8  warning  Using exported name 'getFullImageLink' as identifier for default import  import/no-named-as-default
-  34:9  warning  'getInitials' is assigned a value but never used                         @typescript-eslint/no-unused-vars
-
-D:\Work\Asjad\App\essence-survey-business\components\ReviewTrendChart.tsx
-  11:11  warning  'getResponsiveFontSize' is assigned a value but never used                                                  @typescript-eslint/no-unused-vars
-  24:6   warning  React Hook useEffect has a missing dependency: 'refetch'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
-  56:6   warning  React Hook useMemo has a missing dependency: 'period'. Either include it or remove the dependency array     react-hooks/exhaustive-deps
-
-D:\Work\Asjad\App\essence-survey-business\components\ScannerScreen.tsx
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/components/ScannerScreen.tsx
   7:12  warning  'toggleCameraFacing' is defined but never used  @typescript-eslint/no-unused-vars
 
-D:\Work\Asjad\App\essence-survey-business\components\Screens\Login.tsx
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/components/Screens/Login.tsx
    17:11  warning  An empty interface declaration allows any non-nullish value, including literals like `0` and `""`.
 - If that's what you want, disable this lint rule with an inline comment or configure the 'allowInterfaces' rule option.
 - If you want a type meaning "any object", you probably want `object` instead.
@@ -78,34 +70,33 @@ D:\Work\Asjad\App\essence-survey-business\components\Screens\Login.tsx
    20:34  warning  'HP' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                   @typescript-eslint/no-unused-vars
   118:16  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`                                                                                                                                                                                                                                                                                                                           react/no-unescaped-entities
 
-D:\Work\Asjad\App\essence-survey-business\components\Screens\Rating.tsx
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/components/Screens/Rating.tsx
   4:11  warning  An empty interface declaration allows any non-nullish value, including literals like `0` and `""`.
 - If that's what you want, disable this lint rule with an inline comment or configure the 'allowInterfaces' rule option.
 - If you want a type meaning "any object", you probably want `object` instead.
 - If you want a type meaning "any value", you probably want `unknown` instead  @typescript-eslint/no-empty-object-type
 
-D:\Work\Asjad\App\essence-survey-business\components\SearchBar.tsx
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/components/SearchBar.tsx
   15:15  warning  'WP' is assigned a value but never used  @typescript-eslint/no-unused-vars
 
-D:\Work\Asjad\App\essence-survey-business\components\StaffPerformance.tsx
-  3:8  warning  Using exported name 'getFullImageLink' as identifier for default import  import/no-named-as-default
-
-D:\Work\Asjad\App\essence-survey-business\components\Test\TestReview.tsx
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/components/Test/TestReview.tsx
   4:11  warning  An empty interface declaration allows any non-nullish value, including literals like `0` and `""`.
 - If that's what you want, disable this lint rule with an inline comment or configure the 'allowInterfaces' rule option.
 - If you want a type meaning "any object", you probably want `object` instead.
 - If you want a type meaning "any value", you probably want `unknown` instead  @typescript-eslint/no-empty-object-type
 
-D:\Work\Asjad\App\essence-survey-business\components\modals\DrawerModal.tsx
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/components/modals/DrawerModal.tsx
   14:7  warning  'MenuItem' is assigned a value but never used  @typescript-eslint/no-unused-vars
   25:1  warning  Import in body of module; reorder to top       import/first
 
-D:\Work\Asjad\App\essence-survey-business\components\modals\SuccessModal.tsx
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/components/modals/SuccessModal.tsx
   1:8  warning  Using exported name 'IMAGES' as identifier for default import  import/no-named-as-default
 
-D:\Work\Asjad\App\essence-survey-business\components\settings\BusinessSettings.tsx
+/home/devn/Documents/work/asjad/Native App/essence-survey-business/components/settings/BusinessSettings.tsx
   6:8  warning  Using exported name 'getFullImageLink' as identifier for default import  import/no-named-as-default
 
-✖ 50 problems (1 error, 49 warnings)
-  0 errors and 2 warnings potentially fixable with the `--fix` option.
+✖ 40 problems (1 error, 39 warnings)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
 
+error Command failed with exit code 1.
+info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.

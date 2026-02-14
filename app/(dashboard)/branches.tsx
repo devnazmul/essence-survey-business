@@ -9,7 +9,11 @@ import ScreenTitle from "@/components/ScreenTitle";
 import StatCard from "@/components/StatCard";
 import { COLORS } from "@/constants";
 import useAllBranchesService from "@/services/AllBranches.service";
-import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
+import {
+  Feather,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
 import React, { useState } from "react";
 import {
@@ -17,6 +21,7 @@ import {
   Image,
   RefreshControl,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -25,7 +30,7 @@ export default function BranchesScreen() {
   const {
     data,
     isLoading,
-    handleAddStuff,
+    handleAddBranch,
     handleEdit,
     handleDelete,
     handleView,
@@ -52,13 +57,13 @@ export default function BranchesScreen() {
 
       <View className="flex-row justify-between items-center mb-4">
         <ScreenTitle title="All Branches" />
-        {/* <TouchableOpacity
-          onPress={handleAddStuff}
+        <TouchableOpacity
+          onPress={handleAddBranch}
           className="bg-primary px-4 py-2 rounded-xl flex-row items-center"
         >
           <Feather name="plus" size={20} color="white" />
           <Text className="text-white font-bold ml-2">Add Branch</Text>
-        </TouchableOpacity> */}
+        </TouchableOpacity>
       </View>
 
       {/* Analytics Summary */}

@@ -92,7 +92,7 @@ export default function useAllBranchesService() {
   ];
 
   // HANDLE ADD
-  const handleAddStuff = () => {
+  const handleAddBranch = () => {
     setPopupOption({
       open: true,
       type: "branches",
@@ -255,7 +255,7 @@ export default function useAllBranchesService() {
     isLoading,
     isStatusChanging,
     handleChangeStatus,
-    handleAddStuff,
+    handleAddBranch,
     handleEdit,
     handleDelete,
     handleView,

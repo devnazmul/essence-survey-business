@@ -31,8 +31,7 @@ export const checkUserEmail = async (data: {
   email: string;
   ignore_user_id?: number | string;
 }) => {
-  const response = await axiosPrivate.get(`/v1.0/auth/check-email`, {
-    params: data,
-  });
+  if (!data?.email) return { success: true, data: false };
+  const response = await axiosPrivate.post(`/v1.0/auth/check-user-email`, data);
   return response.data;
 };

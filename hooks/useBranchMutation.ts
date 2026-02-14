@@ -62,7 +62,7 @@ export const useUpdateBranchMutation = (options?: BranchMutationOptions) => {
 
   return useCustomMutation({
     mutationFn: async (payload: BranchFormData) =>
-      await updateBranch(payload.id!, {
+      await updateBranch({
         business_id: user?.business?.id || user?.business_id || "",
         ...payload,
         lat: payload?.lat ? payload?.lat + "" : "",

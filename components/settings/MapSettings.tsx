@@ -2,9 +2,9 @@ import { SettingsToggle } from "@/components/ui/SettingsToggle";
 import { COLORS } from "@/constants";
 import { useBusinessStore } from "@/store/useBusinessStore";
 import { Feather } from "@expo/vector-icons";
+import { GoogleMaps } from "expo-maps";
 import React from "react";
 import { ScrollView, Text, TextInput, View } from "react-native";
-import MapView, { Circle, Marker } from "react-native-maps";
 
 export default function MapSettings() {
   const settings = useBusinessStore((state) => state.settings);
@@ -58,28 +58,37 @@ export default function MapSettings() {
             />
 
             <View className="rounded-2xl overflow-hidden border border-gray-100 h-64 bg-gray-50">
-              <MapView
+              <GoogleMaps.View
                 style={{ width: "100%", height: "100%" }}
-                region={region}
-              >
-                <Marker
-                  coordinate={{
+                cameraPosition={{
+                  coordinates: {
                     latitude: region.latitude,
                     longitude: region.longitude,
-                  }}
-                  title="Business Location"
-                />
-                <Circle
-                  center={{
-                    latitude: region.latitude,
-                    longitude: region.longitude,
-                  }}
-                  radius={Number(settings.review_distance_limit) || 0}
-                  strokeWidth={2}
-                  strokeColor={COLORS.primary}
-                  fillColor={`${COLORS.primary}20`}
-                />
-              </MapView>
+                  },
+                  zoom: 15,
+                }}
+                markers={[
+                  {
+                    coordinates: {
+                      latitude: region.latitude,
+                      longitude: region.longitude,
+                    },
+                    title: "Business Location",
+                  },
+                ]}
+                circles={[
+                  {
+                    center: {
+                      latitude: region.latitude,
+                      longitude: region.longitude,
+                    },
+                    radius: Number(settings.review_distance_limit) || 0,
+                    color: `${COLORS.primary}20`,
+                    lineColor: COLORS.primary,
+                    lineWidth: 2,
+                  },
+                ]}
+              />
             </View>
           </View>
         )}
