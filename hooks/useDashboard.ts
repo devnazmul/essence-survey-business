@@ -150,8 +150,6 @@ export const useDashboardReviews = (period?: string) => {
 
     const data = dashboardQuery.data.data;
 
-    console.log("s", data);
-
     return {
       reviews: data?.map((item: any) => ({
         id: item.id,
