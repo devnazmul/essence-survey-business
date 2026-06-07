@@ -67,7 +67,8 @@ export const useDashboard = (period?: string, type?: string) => {
         aiSentiment: {
           value: metrics?.all_sentiment?.status || "Neutral",
           change: 0,
-          subTitle: metrics?.all_sentiment?.based_on || "Based on selected period",
+          subTitle:
+            metrics?.all_sentiment?.based_on || "Based on selected period",
         },
         topTopic: {
           value: metrics?.top_topic?.name || "N/A",
@@ -102,21 +103,75 @@ export const useDashboard = (period?: string, type?: string) => {
             },
           },
         },
-        boxes: data.boxes || [],
       },
-      reviews: recent_reviews?.map((item: any) => ({
-        id: item.id,
-        customerName: item.author,
-        date: item.time_ago,
-        rating: item.calculated_rating,
-        comment: item.comment,
-        tags: item.tags,
-        staff_name: item.staff_name,
-        sentiment: item.sentiment,
-        is_ai_flagged: item.is_ai_flagged,
-        is_voice: item.is_voice,
-        responded_at: item.responded_at,
-      })) || [],
+      notifications: [],
+    };
+  }, [dashboardMetricsQuery.data]);
+
+  // Update store when data changes
+  useEffect(() => {
+    if (structuredData) {
+      setDashboardStats(structuredData.stats);
+    }
+  }, [structuredData, setDashboardStats]);
+
+  // Sync loading state with business store
+  useEffect(() => {
+    setLoading(dashboardMetricsQuery.isLoading);
+  }, [dashboardMetricsQuery.isLoading, setLoading]);
+
+  return {
+    data: dashboardMetricsQuery.data,
+    isLoading: dashboardMetricsQuery.isLoading,
+    error: dashboardMetricsQuery.error,
+    refetch: async () => {
+      await dashboardMetricsQuery.refetch();
+    },
+  };
+};
+
+export const useDashboardReviews = (period?: string) => {
+  const setDashboardReviews = useBusinessStore(
+    (state) => state.setDashboardReviews,
+  );
+  const setLoading = useBusinessStore((state) => state.setLoading);
+
+  const dashboardQuery = useQuery({
+    queryKey: ["dashboard-reviews", period],
+    queryFn: () => getDashboardRecentReviews(period),
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
+  });
+
+  useEffect(() => {
+    if (dashboardQuery.error) {
+      console.log("useDashboardReviews error:", dashboardQuery.error);
+    }
+  }, [dashboardQuery.error]);
+
+  // Compute structured data
+  const structuredData = React.useMemo(() => {
+    if (!dashboardQuery.data?.data) return null;
+
+    const data = dashboardQuery.data.data;
+
+    console.log("s", data);
+
+    return {
+      reviews:
+        data?.map((item: any) => ({
+          id: item.id,
+          customerName: item.author,
+          date: item.time_ago,
+          rating: item.calculated_rating,
+          comment: item.comment,
+          tags: item.tags,
+          staff_name: item.staff_name,
+          sentiment: item.sentiment,
+          is_ai_flagged: item.is_ai_flagged,
+          is_voice: item.is_voice,
+          responded_at: item.responded_at,
+        })) || [],
       trends: data.review_trends || [],
       aiInsights: data.ai_insights || null,
     };
