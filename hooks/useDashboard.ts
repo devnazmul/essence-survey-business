@@ -1,4 +1,4 @@
-import { getUnifiedDashboard } from "@/api/dashboard";
+import { getUnifiedDashboard, getDashboardRecentReviews } from "@/api/dashboard";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useBusinessStore } from "@/store/useBusinessStore";
 import { useQuery } from "@tanstack/react-query";
@@ -103,30 +103,50 @@ export const useDashboard = (period?: string, type?: string) => {
             },
           },
         },
+        boxes: data.boxes || [],
       },
       notifications: [],
+      reviews: recent_reviews?.map((item: any) => ({
+        id: item.id,
+        customerName: item.author,
+        date: item.time_ago,
+        rating: item.calculated_rating,
+        comment: item.comment,
+        tags: item.tags,
+        staff_name: item.staff_name,
+        sentiment: item.sentiment,
+        is_ai_flagged: item.is_ai_flagged,
+        is_voice: item.is_voice,
+        responded_at: item.responded_at,
+      })) || [],
+      trends: data.review_trends || [],
+      aiInsights: data.ai_insights || null,
     };
-  }, [dashboardMetricsQuery.data]);
+  }, [dashboardQuery.data]);
 
   // Update store when data changes
   useEffect(() => {
     if (structuredData) {
       setDashboardStats(structuredData.stats);
+      setDashboardReviews(structuredData.reviews);
     }
-  }, [structuredData, setDashboardStats]);
+  }, [structuredData, setDashboardStats, setDashboardReviews]);
 
   // Sync loading state with business store
   useEffect(() => {
-    setLoading(dashboardMetricsQuery.isLoading);
-  }, [dashboardMetricsQuery.isLoading, setLoading]);
+    setLoading(dashboardQuery.isLoading);
+  }, [dashboardQuery.isLoading, setLoading]);
 
   return {
-    data: dashboardMetricsQuery.data,
-    isLoading: dashboardMetricsQuery.isLoading,
-    error: dashboardMetricsQuery.error,
+    data: dashboardQuery.data,
+    isLoading: dashboardQuery.isLoading,
+    error: dashboardQuery.error,
     refetch: async () => {
-      await dashboardMetricsQuery.refetch();
+      await dashboardQuery.refetch();
     },
+    // Adding direct access to trends and insights for secondary hooks
+    trends: structuredData?.trends || [],
+    aiInsights: structuredData?.aiInsights || null,
   };
 };
 
@@ -172,18 +192,15 @@ export const useDashboardReviews = (period?: string) => {
           is_voice: item.is_voice,
           responded_at: item.responded_at,
         })) || [],
-      trends: data.review_trends || [],
-      aiInsights: data.ai_insights || null,
     };
   }, [dashboardQuery.data]);
 
   // Update store when data changes
   useEffect(() => {
     if (structuredData) {
-      setDashboardStats(structuredData.stats);
       setDashboardReviews(structuredData.reviews);
     }
-  }, [structuredData, setDashboardStats, setDashboardReviews]);
+  }, [structuredData, setDashboardReviews]);
 
   // Sync loading state with business store
   useEffect(() => {
@@ -197,17 +214,11 @@ export const useDashboardReviews = (period?: string) => {
     refetch: async () => {
       await dashboardQuery.refetch();
     },
-    // Adding direct access to trends and insights for secondary hooks
-    trends: structuredData?.trends || [],
-    aiInsights: structuredData?.aiInsights || null,
+    reviews: structuredData?.reviews || [],
   };
 };
 
 // Compatibility hooks
 export const useDashboardMetrics = (period?: string, type?: string) => {
   return useDashboard(period, type);
-};
-
-export const useDashboardReviews = (period?: string) => {
-  return useDashboard(period);
 };
