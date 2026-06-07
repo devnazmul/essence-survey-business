@@ -48,7 +48,7 @@ const ReviewCard = React.memo(({ review }: any) => {
                 />
               ))}
               <Text className="ml-2 text-gray-400 font-bold text-xs">
-                ({review.rating.toFixed(1) || 0})
+                ({(review.rating || 0).toFixed(1) || 0})
               </Text>
             </View>
           </View>

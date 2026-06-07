@@ -221,45 +221,58 @@ const AIPanel: React.FC<AIPanelProps> = ({ period, type }) => {
                   AI Detected Issues
                 </Text>
                 {aggregatedDetectedIssues.map((issue: any, index: number) => {
-                  return (
-                    <View key={index} className="mb-4 last:mb-0">
-                      <View className="flex-row items-center gap-2 mb-1">
-                        <View className="w-1.5 h-1.5 bg-red-400 rounded-full" />
-                        <Text className="text-red-700 font-bold text-xs">
-                          Issue {index + 1}
-                        </Text>
-                      </View>
-                      <Text className="text-gray-700 text-xs mb-2 font-medium">
+                  console.log({ issue });
+
+                  if (issue?.title === "No major issues detected.") {
+                    return (
+                      <Text
+                        key={index}
+                        className="text-gray-700 text-xs mb-2 font-medium"
+                      >
                         {issue.title}
                       </Text>
-                      <View className="pl-3 border-l-2 border-red-100 space-y-1">
-                        {issue.business_actions?.length > 0 && (
-                          <Text className="text-[10px] text-gray-600">
-                            <Text className="font-bold text-gray-800">
-                              Business:{" "}
-                            </Text>
-                            {issue.business_actions.join(", ")}
+                    );
+                  } else {
+                    return (
+                      <View key={index} className="mb-4 last:mb-0">
+                        <View className="flex-row items-center gap-2 mb-1">
+                          <View className="w-1.5 h-1.5 bg-red-400 rounded-full" />
+                          <Text className="text-red-700 font-bold text-xs">
+                            Issue {index + 1}
                           </Text>
-                        )}
-                        {issue.staff_actions?.length > 0 && (
-                          <Text className="text-[10px] text-gray-600">
-                            <Text className="font-bold text-gray-800">
-                              Staff:{" "}
+                        </View>
+                        <Text className="text-gray-700 text-xs mb-2 font-medium">
+                          {issue.title}
+                        </Text>
+                        <View className="pl-3 border-l-2 border-red-100 space-y-1">
+                          {issue.business_actions?.length > 0 && (
+                            <Text className="text-[10px] text-gray-600">
+                              <Text className="font-bold text-gray-800">
+                                Business:{" "}
+                              </Text>
+                              {issue.business_actions.join(", ")}
                             </Text>
-                            {issue.staff_actions.join(", ")}
-                          </Text>
-                        )}
-                        {issue.immediate_actions?.length > 0 && (
-                          <Text className="text-[10px] text-gray-600">
-                            <Text className="font-bold text-red-600">
-                              Immediate:{" "}
+                          )}
+                          {issue.staff_actions?.length > 0 && (
+                            <Text className="text-[10px] text-gray-600">
+                              <Text className="font-bold text-gray-800">
+                                Staff:{" "}
+                              </Text>
+                              {issue.staff_actions.join(", ")}
                             </Text>
-                            {issue.immediate_actions.join(", ")}
-                          </Text>
-                        )}
+                          )}
+                          {issue.immediate_actions?.length > 0 && (
+                            <Text className="text-[10px] text-gray-600">
+                              <Text className="font-bold text-red-600">
+                                Immediate:{" "}
+                              </Text>
+                              {issue.immediate_actions.join(", ")}
+                            </Text>
+                          )}
+                        </View>
                       </View>
-                    </View>
-                  );
+                    );
+                  }
                 })}
               </View>
             </View>
@@ -277,6 +290,7 @@ const AIPanel: React.FC<AIPanelProps> = ({ period, type }) => {
                 <Text className="font-bold text-amber-900 text-xs mb-3 uppercase tracking-wider">
                   AI Opportunities
                 </Text>
+                {console.log({ aiData })}
                 {aiData.opportunities.map((item: any, index: number) => {
                   const opp = checkType(item);
                   return (
@@ -290,6 +304,16 @@ const AIPanel: React.FC<AIPanelProps> = ({ period, type }) => {
                       {typeof opp === "string" && (
                         <Text className="text-gray-700 text-xs mb-2 font-medium">
                           {opp}
+                        </Text>
+                      )}
+                      {Array.isArray(opp) && opp.map((textItem: any, idx: number) => (
+                        <Text key={idx} className="text-gray-700 text-xs mb-2 font-medium">
+                          {typeof textItem === "string" ? textItem : (textItem?.title || "")}
+                        </Text>
+                      ))}
+                      {typeof opp === "object" && !Array.isArray(opp) && opp?.title && (
+                        <Text className="text-gray-700 text-xs mb-2 font-medium">
+                          {opp.title}
                         </Text>
                       )}
                       <View className="pl-3 border-l-2 border-green-100 space-y-1">

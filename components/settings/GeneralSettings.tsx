@@ -162,7 +162,7 @@ export default function GeneralSettings() {
   const [localThresholds, setLocalThresholds] = useState(
     settings.default_color_threshold || [],
   );
-  console.log({ settings });
+  // console.log({ settings });
   const [scrollEnabled, setScrollEnabled] = useState(true);
 
   useEffect(() => {

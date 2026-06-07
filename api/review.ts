@@ -39,17 +39,17 @@ export const getReviews = async (
 
     // Sort Mapping: desc -> newest, asc -> oldest
     if (filters.sort_order) {
-      params.sort_by = filters.sort_order === "desc" ? "newest" : "oldest";
+      params.sort_order = filters.sort_order === "desc" ? "newest" : "oldest";
     }
 
     // Rating Mapping: UI 'rating' (number) -> 'star_ids' (string)
     if (filters.rating) {
-      params.star_ids = filters.rating.toString();
+      params.rating = filters.rating.toString();
     }
 
     // Flagged Mapping: UI 'flagged_reviews' (1=Flagged, 0=Satisfied) -> 'meets_threshold' (0=Flagged, 1=Satisfied)
     if (filters.flagged_reviews !== undefined) {
-      params.meets_threshold =
+      params.flagged_reviews =
         filters.flagged_reviews.toString() === "1" ? 0 : 1;
     }
 
@@ -64,7 +64,7 @@ export const getReviews = async (
     if (filters.staff_id) params.staff_id = filters.staff_id;
 
     // Survey Mapping: survey_id -> survey_ids
-    if (filters.survey_id) params.survey_ids = filters.survey_id.toString();
+    if (filters.survey_id) params.survey_id = filters.survey_id.toString();
 
     // Search Mapping
     if (filters.search) {

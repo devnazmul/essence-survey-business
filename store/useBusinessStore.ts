@@ -94,6 +94,7 @@ interface IBusinessStore {
       subTitle?: string;
     };
     ratingBreakdown?: any;
+    boxes?: any[];
   };
   reviews: IReview[];
   notifications: INotification[];
@@ -174,6 +175,7 @@ export const useBusinessStore = create<IBusinessStore>()(
           subTitle: "Recurring problems",
         },
         ratingBreakdown: {},
+        boxes: [],
       },
       reviews: [],
       notifications: [],
@@ -231,6 +233,7 @@ export const useBusinessStore = create<IBusinessStore>()(
               subTitle: "Recurring problems",
             },
             ratingBreakdown: data?.stats?.ratingBreakdown || {},
+            boxes: data?.stats?.boxes || [],
           },
           reviews: data?.reviews || [],
           lastUpdated: new Date().toISOString(),
@@ -281,6 +284,7 @@ export const useBusinessStore = create<IBusinessStore>()(
               subTitle: "Recurring problems",
             },
             ratingBreakdown: stats?.ratingBreakdown || {},
+            boxes: stats?.boxes || [],
           },
           lastUpdated: new Date().toISOString(),
         }),
@@ -387,6 +391,7 @@ export const useBusinessStore = create<IBusinessStore>()(
             csatScore: { value: 0, change: 0 },
             repeatIssue: { value: "N/A", subTitle: "Recurring problems" },
             ratingBreakdown: {},
+            boxes: [],
           },
           reviews: [],
           notifications: [],

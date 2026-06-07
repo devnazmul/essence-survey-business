@@ -42,7 +42,7 @@ export default function useCreateAndUpdateBranch({
     postcode: prevData?.postcode || "",
     phone: prevData?.phone || "",
     email: prevData?.email || "",
-    is_active: prevData?.is_active || "",
+    is_active: prevData?.is_active || 1,
     is_geo_enabled: prevData?.is_geo_enabled || 0,
     manager_id: prevData?.manager_id || "",
     branch_code: prevData?.branch_code || "",

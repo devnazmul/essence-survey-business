@@ -35,6 +35,7 @@ export interface TransformedReviewData {
   comment: string | null;
   isPrivate: boolean | null;
   verified: boolean;
+  isAiProcessed: boolean;
   // AI/Moderation data
   moderationResults: {
     issuesFound: string[];
@@ -136,6 +137,7 @@ export const transformReviewData = (
     comment: data.comment,
     isPrivate: data.is_private,
     verified: data.verified === 1,
+    isAiProcessed: data.is_ai_processed === true || data.is_ai_processed === 1,
 
     moderationResults: data.moderation_results || {
       issuesFound: [],

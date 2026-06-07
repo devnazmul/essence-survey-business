@@ -59,3 +59,10 @@ export const getDashboardAIInsights = async (
 
   return response.data;
 };
+
+export const getUnifiedDashboard = async (period?: string, type?: string) => {
+  const url = `/v1.0/dashboard/unified${period ? `?period=${period}` : ""}${type === "overall_type" ? `&is_overall=1` : type === "survey_type" ? `&is_overall=0` : ""}`;
+  const response = await axiosPrivate.get(url);
+
+  return response.data;
+};

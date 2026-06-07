@@ -1,16 +1,15 @@
-import { getDashboardAIInsights } from "@/api/dashboard";
-import { useAuthStore } from "@/store/useAuthStore";
-import { useQuery } from "@tanstack/react-query";
+import { useDashboard } from "./useDashboard";
 
 export const useAIInsights = (period?: string, type?: string) => {
-  const { user } = useAuthStore();
-  const businessId = user?.business?.id || user?.business?.[0]?.id;
+  const { data, isLoading, error, refetch, aiInsights } = useDashboard(
+    period,
+    type,
+  );
 
-  return useQuery({
-    queryKey: ["dashboard-ai-insights", period, type],
-    queryFn: () => getDashboardAIInsights(period, type),
-    enabled: !!businessId,
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: true,
-  });
+  return {
+    data: { data: aiInsights },
+    isLoading,
+    error,
+    refetch,
+  };
 };

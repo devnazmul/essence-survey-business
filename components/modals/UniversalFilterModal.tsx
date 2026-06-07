@@ -14,6 +14,7 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Keyboard,
 } from "react-native";
 import Toast from "react-native-toast-message";
 
@@ -100,6 +101,28 @@ export const UniversalFilterModal: React.FC<UniversalFilterModalProps> = ({
   const [searchQueries, setSearchQueries] = useState<Record<string, string>>(
     {},
   );
+  const [activeInputs, setActiveInputs] = useState<Record<string, boolean>>({});
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      "keyboardDidShow",
+      () => {
+        setKeyboardVisible(true);
+      }
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      "keyboardDidHide",
+      () => {
+        setKeyboardVisible(false);
+      }
+    );
+
+    return () => {
+      keyboardDidHideListener.remove();
+      keyboardDidShowListener.remove();
+    };
+  }, []);
 
   useEffect(() => {
     if (visible) {
@@ -385,6 +408,18 @@ export const UniversalFilterModal: React.FC<UniversalFilterModalProps> = ({
                 placeholderTextColor="#9ca3af"
                 className="flex-1 ml-2 text-sm text-gray-700 font-medium"
                 value={searchQueries[config.id] || ""}
+                onFocus={() =>
+                  setActiveInputs((prev) => ({ ...prev, [config.id]: true }))
+                }
+                onBlur={() => {
+                  // Small delay to allow onPress of an option to fire before list hides
+                  setTimeout(() => {
+                    setActiveInputs((prev) => ({
+                      ...prev,
+                      [config.id]: false,
+                    }));
+                  }, 150);
+                }}
                 onChangeText={(text) =>
                   setSearchQueries((prev) => ({ ...prev, [config.id]: text }))
                 }
@@ -400,8 +435,8 @@ export const UniversalFilterModal: React.FC<UniversalFilterModalProps> = ({
               )}
             </View>
 
-            {/* Scrollable Results - Only show if query is NOT empty */}
-            {query.length > 0 && (
+            {/* Scrollable Results */}
+            {(activeInputs[config.id] || query.length > 0) && (
               <View className="max-h-40 bg-base-200 rounded-2xl overflow-hidden border border-gray-100 mt-2">
                 <ScrollView nestedScrollEnabled className="w-full">
                   {filteredOptions.length > 0 ? (
@@ -414,13 +449,22 @@ export const UniversalFilterModal: React.FC<UniversalFilterModalProps> = ({
                       return (
                         <TouchableOpacity
                           key={value}
-                          onPress={() =>
+                          onPress={() => {
                             updateFilter(
                               config.id,
                               value,
                               option.setToTheFilter,
-                            )
-                          }
+                            );
+                            setSearchQueries((prev) => ({
+                              ...prev,
+                              [config.id]: "",
+                            }));
+                            setActiveInputs((prev) => ({
+                              ...prev,
+                              [config.id]: false,
+                            }));
+                            Keyboard.dismiss();
+                          }}
                           className={`px-4 py-3 border-b border-gray-100 flex-row items-center justify-between ${
                             isSelected ? "bg-primary/5" : ""
                           }`}
@@ -456,7 +500,7 @@ export const UniversalFilterModal: React.FC<UniversalFilterModalProps> = ({
             )}
 
             {/* Show currently selected item label if dropdown is closed and something is selected */}
-            {query.length === 0 && tempFilters[config.id] && (
+            {!activeInputs[config.id] && query.length === 0 && tempFilters[config.id] && (
               <View className="flex-row items-center px-4 py-2 bg-primary/5 rounded-xl border border-primary/10">
                 <Feather name="check-circle" size={14} color={COLORS.primary} />
                 <Text className="ml-2 text-primary font-medium text-xs">
@@ -494,7 +538,7 @@ export const UniversalFilterModal: React.FC<UniversalFilterModalProps> = ({
       >
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
-          className="flex-1"
+          className={isKeyboardVisible ? "" : "flex-1"}
         >
           <View className="flex-1 justify-end bg-black/50">
             <View className="bg-base-300 rounded-t-[40px] p-8 h-[85%] shadow-2xl">

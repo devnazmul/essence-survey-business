@@ -83,7 +83,7 @@ const ProfileDropdown = () => {
             </Text>
           </View>
         )}
-        {!user?.image ? (
+        {user?.image ? (
           <Image
             source={{ uri: getFullImageLink(user?.image) }}
             className="w-12 h-12  rounded-xl bg-primary justify-center items-center border-2 border-primary shadow-sm"
@@ -112,8 +112,11 @@ const ProfileDropdown = () => {
                 }}
               >
                 {/* Profile Header */}
-                <View className="p-4 flex-row items-center border-b border-gray-100 bg-gray-50">
-                  {!user?.image ? (
+                <TouchableOpacity
+                  className="p-4 flex-row items-center border-b border-gray-100 bg-gray-50 active:bg-gray-200"
+                  onPress={handleProfileNavigation}
+                >
+                  {user?.image ? (
                     <Image
                       source={{ uri: getFullImageLink(user?.image) }}
                       className="w-12 h-12  rounded-xl bg-primary justify-center items-center shadow-sm"
@@ -139,7 +142,7 @@ const ProfileDropdown = () => {
                       {user?.email}
                     </Text>
                   </View>
-                </View>
+                </TouchableOpacity>
 
                 {/* Options */}
                 <View className="p-2">
@@ -179,7 +182,7 @@ const ProfileDropdown = () => {
                     className="flex-row items-center p-3 rounded-lg active:bg-gray-100"
                     onPress={() => {
                       setVisible(false);
-                      setShowBranchModal(true);
+                      router.push("/(dashboard)/notifications");
                     }}
                   >
                     <MaterialIcons

@@ -14,8 +14,32 @@ export const getAllBranches = async (params: any = {}) => {
   if (params.search_key) query.search_key = params.search_key;
   if (params.sort_by) query.sort_by = params.sort_by;
   if (params.sort_order) query.sort_order = params.sort_order;
+  if (params.is_active !== undefined && params.is_active !== "") {
+    query.is_active = params.is_active;
+  }
 
   const response = await axiosPrivate.get("/v1.0/branches", {
+    params: query,
+    signal,
+  });
+  return response.data;
+};
+
+export const getBranchOverview = async (params: any = {}) => {
+  const { signal } = params;
+
+  // Extract only swagger-supported parameters
+  const query: any = {};
+  if (params.page) query.page = params.page;
+  if (params.per_page) query.per_page = params.per_page;
+  if (params.search_key) query.search_key = params.search_key;
+  if (params.sort_by) query.sort_by = params.sort_by;
+  if (params.sort_order) query.sort_order = params.sort_order;
+  if (params.is_active !== undefined && params.is_active !== "") {
+    query.is_active = params.is_active;
+  }
+
+  const response = await axiosPrivate.get("/v1.0/branches/overview", {
     params: query,
     signal,
   });

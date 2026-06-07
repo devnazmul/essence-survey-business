@@ -13,7 +13,7 @@ import {
 import { FlashList } from "@shopify/flash-list";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -40,9 +40,9 @@ export default function NotificationsScreen() {
     unreadCount,
   } = useNotifications(20, activeTab === "Unread" ? "unread" : "");
 
-  useEffect(() => {
-    console.log({ notifications });
-  }, [notifications]);
+  // useEffect(() => {
+  //   console.log({ notifications });
+  // }, [notifications]);
 
   const queryClient = useQueryClient();
 
@@ -110,12 +110,12 @@ export default function NotificationsScreen() {
       }
     });
 
-    console.log({ groups });
+    // console.log({ groups });
     return Object.entries(groups).filter(([_, items]) => items.length > 0);
   }, [filteredNotifications]);
 
   const NotificationIcon = ({ notification }: { notification: any }) => {
-    console.log({ notification });
+    // console.log({ notifi/cation });
     const { type, originalType, isRead, data, title } = notification;
 
     // Determine icon based on content/type
