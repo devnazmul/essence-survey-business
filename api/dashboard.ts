@@ -18,15 +18,6 @@ export const getDashboardData = async (
   return response.data;
 };
 
-export const getDashboardRecentReviews = async (period?: string) => {
-  const url = `/v1.0/dashboard/recent-reviews${
-    period ? `?period=${period}` : ""
-  }`;
-  const response = await axiosPrivate.get(url);
-
-  return response.data;
-};
-
 export const getReviewTrends = async (
   businessId: string | number,
   period?: string,

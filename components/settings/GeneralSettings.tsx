@@ -12,6 +12,7 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from "react-native";
 
@@ -52,20 +53,29 @@ const ThresholdRow = React.memo(function ThresholdRow({
   };
 
   const hexColor = getHexFromClass(item.color);
-
+  const { width } = useWindowDimensions();
   return (
     <View
-      className={`flex-row py-4 border-b border-gray-50 items-center ${
-        isOverlapping ? "bg-red-50" : isEditing ? "bg-gray-50/30" : ""
-      }`}
+      className={
+        isEditing
+          ? `flex-col gap-y-2 py-2 px-2 rounded-md ${
+              isOverlapping ? "bg-red-50" : isEditing ? "bg-gray-100 " : ""
+            }`
+          : `flex-row py-4 border-b border-gray-50 items-center ${
+              isOverlapping ? "bg-red-50" : isEditing ? "bg-gray-50/30" : ""
+            }`
+      }
     >
       {/* Score Range Column */}
-      <View className="flex-[1.3]  pl-2 pr-4">
+      <View className={`flex-[1.3] pl-2 pr-4`}>
         {isEditing ? (
           <View className="items-center">
+            <Text className="text-gray-700  text-md font-bold w-full text-left">
+              Score range:
+            </Text>
             <MultiSlider
               values={item.score_range}
-              sliderLength={120}
+              sliderLength={width * 0.75}
               onValuesChangeStart={() => setScrollEnabled(false)}
               onValuesChangeFinish={(values) => {
                 setScrollEnabled(true);
@@ -79,33 +89,33 @@ const ThresholdRow = React.memo(function ThresholdRow({
               snapped
               selectedStyle={{ backgroundColor: hexColor }}
               markerStyle={{
-                height: 16,
-                width: 16,
-                borderRadius: 8,
+                height: 25,
+                width: 25,
+                borderRadius: 25,
                 backgroundColor: "white",
                 borderWidth: 2,
                 marginTop: 4,
                 borderColor: hexColor,
               }}
               pressedMarkerStyle={{
-                height: 20,
-                width: 20,
+                height: 40,
+                width: 40,
               }}
               containerStyle={{ height: 30 }}
               trackStyle={{ height: 4, borderRadius: 2 }}
             />
-            <View className="flex-row justify-between w-full mt-1">
-              <Text className="text-[10px] text-gray-500 font-bold">
+            <View className="flex-row justify-between w-full -mt-2s">
+              <Text className="text-md text-gray-500 font-bold">
                 {item.score_range ? item.score_range[0] : 0}
               </Text>
-              <Text className="text-[10px] text-gray-500 font-bold">
+              <Text className="text-md text-gray-500 font-bold">
                 {item.score_range ? item.score_range[1] : 0}
               </Text>
             </View>
           </View>
         ) : (
           <View className="bg-gray-100 px-2 py-1 rounded self-start">
-            <Text className="text-gray-600 text-[10px] font-bold">
+            <Text className="text-gray-600 text-[12px] font-bold">
               {item.score_range
                 ? `${item.score_range[0]} - ${item.score_range[1]}`
                 : "0 - 0"}
@@ -115,13 +125,18 @@ const ThresholdRow = React.memo(function ThresholdRow({
       </View>
 
       {/* Status Column */}
-      <View className="flex-1  pr-2">
+      <View className="flex-1 pr-2">
         {isEditing ? (
-          <TextInput
-            value={item.status}
-            onChangeText={(text) => onStatusChange(index, text)}
-            className="border border-gray-200 w-full rounded px-2 py-1 text-xs text-gray-700 bg-base-300"
-          />
+          <View className="flex-row items-center gap-x-2">
+            <Text className="text-gray-700 pl-2 text-md font-bold  text-left">
+              Status:
+            </Text>
+            <TextInput
+              value={item.status}
+              onChangeText={(text) => onStatusChange(index, text)}
+              className="border border-gray-200 flex-1 rounded px-2 py-1 text-md text-gray-700 bg-base-300"
+            />
+          </View>
         ) : (
           <Text className="text-gray-600 text-xs w-full font-medium">
             {item.status}
@@ -130,19 +145,21 @@ const ThresholdRow = React.memo(function ThresholdRow({
       </View>
 
       {/* Color Column */}
-      <View className="flex-1 flex-row items-center justify-end">
-        {isEditing ? (
-          <TouchableOpacity onPress={() => onColorChange(index)}>
+      {!isEditing && (
+        <View className="flex-1 flex-row items-center justify-end">
+          {isEditing ? (
+            <TouchableOpacity onPress={() => onColorChange(index)}>
+              <View
+                className={`w-7 h-7 shadow rounded-full border-2 border-base-300 ${item.color}`}
+              />
+            </TouchableOpacity>
+          ) : (
             <View
               className={`w-7 h-7 shadow rounded-full border-2 border-base-300 ${item.color}`}
             />
-          </TouchableOpacity>
-        ) : (
-          <View
-            className={`w-7 h-7 shadow rounded-full border-2 border-base-300 ${item.color}`}
-          />
-        )}
-      </View>
+          )}
+        </View>
+      )}
     </View>
   );
 });
@@ -380,6 +397,15 @@ export default function GeneralSettings() {
                 }
               />
             )}
+            <SettingsToggle
+              label="Treat Manager as Staff"
+              subLabel="Allow customers to rate managers same as staff."
+              icon="user"
+              value={!!settings.is_treat_manager_as_staff}
+              onValueChange={(val) =>
+                setSettings({ is_treat_manager_as_staff: val })
+              }
+            />
           </View>
 
           <View className="mb-2">
@@ -637,32 +663,42 @@ export default function GeneralSettings() {
           </View>
 
           <View className="bg-base-300 rounded-lg overflow-hidden">
-            <View className="flex-row py-2 border-b border-gray-100 items-center">
-              <Text className="flex-[2] text-gray-400 text-[10px] font-bold uppercase pl-2">
-                Score Range
-              </Text>
-              <Text className="flex-[1.5]  text-gray-400 text-[10px] font-bold uppercase">
-                Status
-              </Text>
-              <Text className="flex-[1.5] text-gray-400 text-right text-[10px] font-bold uppercase">
-                Color
-              </Text>
-            </View>
+            {!!!isEditingThresholds && (
+              <View className="flex-row py-2 border-b border-gray-100 items-center">
+                <View className="flex-[1.3] pl-2 pr-4">
+                  <Text className="text-gray-400 text-[10px] font-bold uppercase">
+                    Score Range
+                  </Text>
+                </View>
+                <View className="flex-1 pr-2">
+                  <Text className="text-gray-400 text-[10px] font-bold uppercase">
+                    Status
+                  </Text>
+                </View>
+                <View className="flex-1 flex-row items-center justify-end">
+                  <Text className="text-gray-400 text-[10px] font-bold uppercase">
+                    Color
+                  </Text>
+                </View>
+              </View>
+            )}
 
-            {localThresholds.map((item: any, index: number) => (
-              <ThresholdRow
-                key={index}
-                item={item}
-                index={index}
-                isEditing={isEditingThresholds}
-                isOverlapping={invalidIndices.includes(index)}
-                setScrollEnabled={setScrollEnabled}
-                onValuesChange={handleValuesChange}
-                onStatusChange={handleStatusChange}
-                onColorChange={handleColorChange}
-                onDelete={handleDeleteRow}
-              />
-            ))}
+            <View className={`${isEditingThresholds ? "gap-y-2" : ""} py-1`}>
+              {localThresholds.map((item: any, index: number) => (
+                <ThresholdRow
+                  key={index}
+                  item={item}
+                  index={index}
+                  isEditing={isEditingThresholds}
+                  isOverlapping={invalidIndices.includes(index)}
+                  setScrollEnabled={setScrollEnabled}
+                  onValuesChange={handleValuesChange}
+                  onStatusChange={handleStatusChange}
+                  onColorChange={handleColorChange}
+                  onDelete={handleDeleteRow}
+                />
+              ))}
+            </View>
           </View>
         </Section>
       </ScrollView>

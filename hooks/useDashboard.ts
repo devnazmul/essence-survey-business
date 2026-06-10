@@ -1,4 +1,4 @@
-import { getUnifiedDashboard, getDashboardRecentReviews } from "@/api/dashboard";
+import { getUnifiedDashboard } from "@/api/dashboard";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useBusinessStore } from "@/store/useBusinessStore";
 import { useQuery } from "@tanstack/react-query";
@@ -150,73 +150,6 @@ export const useDashboard = (period?: string, type?: string) => {
   };
 };
 
-export const useDashboardReviews = (period?: string) => {
-  const setDashboardReviews = useBusinessStore(
-    (state) => state.setDashboardReviews,
-  );
-  const setLoading = useBusinessStore((state) => state.setLoading);
-
-  const dashboardQuery = useQuery({
-    queryKey: ["dashboard-reviews", period],
-    queryFn: () => getDashboardRecentReviews(period),
-    staleTime: 5 * 60 * 1000,
-    refetchOnWindowFocus: true,
-  });
-
-  useEffect(() => {
-    if (dashboardQuery.error) {
-      console.log("useDashboardReviews error:", dashboardQuery.error);
-    }
-  }, [dashboardQuery.error]);
-
-  // Compute structured data
-  const structuredData = React.useMemo(() => {
-    if (!dashboardQuery.data?.data) return null;
-
-    const data = dashboardQuery.data.data;
-
-    console.log("s", data);
-
-    return {
-      reviews:
-        data?.map((item: any) => ({
-          id: item.id,
-          customerName: item.author,
-          date: item.time_ago,
-          rating: item.calculated_rating,
-          comment: item.comment,
-          tags: item.tags,
-          staff_name: item.staff_name,
-          sentiment: item.sentiment,
-          is_ai_flagged: item.is_ai_flagged,
-          is_voice: item.is_voice,
-          responded_at: item.responded_at,
-        })) || [],
-    };
-  }, [dashboardQuery.data]);
-
-  // Update store when data changes
-  useEffect(() => {
-    if (structuredData) {
-      setDashboardReviews(structuredData.reviews);
-    }
-  }, [structuredData, setDashboardReviews]);
-
-  // Sync loading state with business store
-  useEffect(() => {
-    setLoading(dashboardQuery.isLoading);
-  }, [dashboardQuery.isLoading, setLoading]);
-
-  return {
-    data: dashboardQuery.data,
-    isLoading: dashboardQuery.isLoading,
-    error: dashboardQuery.error,
-    refetch: async () => {
-      await dashboardQuery.refetch();
-    },
-    reviews: structuredData?.reviews || [],
-  };
-};
 
 // Compatibility hooks
 export const useDashboardMetrics = (period?: string, type?: string) => {

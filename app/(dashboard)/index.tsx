@@ -131,7 +131,7 @@ export default function DashboardScreen() {
 
         <AIPanel period={activeTab} type={activeTypeTab} />
 
-        <DashboardRecentReviews period={activeTab} />
+        <DashboardRecentReviews period={activeTab} isLoading={isLoading} />
       </ScrollView>
 
       {/* Bottom Navigation */}

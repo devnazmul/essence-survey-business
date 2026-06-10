@@ -33,7 +33,7 @@ export const SettingsToggle: React.FC<SettingsToggleProps> = ({
     }}
     className={`flex-1 mx-1.5 mb-4 p-4 rounded-2xl border ${
       value ? "border-green-400 bg-base-300" : "border-red-400 bg-base-300"
-    } min-h-[110px] justify-between transition-all`}
+    } min-h-[100px] justify-between transition-all`}
   >
     <View className="flex-row justify-between items-start">
       <View
@@ -56,7 +56,7 @@ export const SettingsToggle: React.FC<SettingsToggleProps> = ({
       </View>
     </View>
 
-    <View className="mt-2">
+    <View className="">
       <Text
         className={`text-xs font-bold ${
           value ? "text-gray-900" : "text-gray-500"
