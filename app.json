@@ -10,7 +10,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "buildNumber": "9",
+      "buildNumber": "10",
       "supportsTablet": true,
       "bundleIdentifier": "com.prismlogicltd.feedGeniusBusiness",
       "infoPlist": {
@@ -68,7 +68,9 @@
         {
           "requestLocationPermission": false
         }
-      ]
+      ],
+      "expo-font",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,
