@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "Feed Genius Business",
+    "name": "Feed Genius Business Suite",
     "slug": "feed-genius-business",
-    "description": "Feed Genius Business App for Survey",
+    "description": "Feed Genius Business Suite App for Survey",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -10,12 +10,13 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "buildNumber": "9",
       "supportsTablet": true,
-      "bundleIdentifier": "com.essenceConsultancy.feedGeniusBusiness",
+      "bundleIdentifier": "com.prismlogicltd.feedGeniusBusiness",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": ["remote-notification"],
-        "NSUserNotificationUsageDescription": "Allow Feed Genius Business to send you notifications, including alerts, sounds, and icon badges."
+        "NSUserNotificationUsageDescription": "Allow Feed Genius Business Suite to send you notifications, including alerts, sounds, and icon badges."
       },
       "config": {
         "googleMapsApiKey": "AIzaSyDKdgxA3ph7Z7bnq2TGH0fFrySkZu2B2G4"
@@ -40,7 +41,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.essenceConsultancy.feedGeniusBusiness"
+      "package": "com.prismlogicltd.feedGeniusBusiness"
     },
     "web": {
       "bundler": "metro",
