@@ -10,7 +10,6 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "buildNumber": "10",
       "supportsTablet": true,
       "bundleIdentifier": "com.prismlogicltd.feedGeniusBusiness",
       "infoPlist": {
