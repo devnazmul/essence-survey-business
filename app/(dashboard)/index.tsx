@@ -35,9 +35,7 @@ export default function DashboardScreen() {
   }, [activeTab, activeTypeTab]);
 
   const handleOpenHowItWorks = async () => {
-    await WebBrowser.openBrowserAsync(
-      "https://feed-genius.quickreview.app/analysis-logic",
-    );
+    await WebBrowser.openBrowserAsync("https://feedgenius.ai/analysis-logic");
   };
 
   return (
@@ -133,7 +131,7 @@ export default function DashboardScreen() {
 
         <AIPanel period={activeTab} type={activeTypeTab} />
 
-        <DashboardRecentReviews />
+        <DashboardRecentReviews period={activeTab} isLoading={isLoading} />
       </ScrollView>
 
       {/* Bottom Navigation */}

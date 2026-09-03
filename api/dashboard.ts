@@ -18,15 +18,6 @@ export const getDashboardData = async (
   return response.data;
 };
 
-export const getDashboardRecentReviews = async (period?: string) => {
-  const url = `/v1.0/dashboard/recent-reviews${
-    period ? `?period=${period}` : ""
-  }`;
-  const response = await axiosPrivate.get(url);
-
-  return response.data;
-};
-
 export const getReviewTrends = async (
   businessId: string | number,
   period?: string,
@@ -55,6 +46,13 @@ export const getDashboardAIInsights = async (
   type?: string,
 ) => {
   const url = `/v1.0/dashboard/ai-insights${period === "all_time" ? "" : `?period=${period}`}${type === "overall_type" ? `&is_overall=1` : `${type === "survey_type" ? `&is_overall=0` : ""}`}`;
+  const response = await axiosPrivate.get(url);
+
+  return response.data;
+};
+
+export const getUnifiedDashboard = async (period?: string, type?: string) => {
+  const url = `/v1.0/dashboard/unified${period ? `?period=${period}` : ""}${type === "overall_type" ? `&is_overall=1` : type === "survey_type" ? `&is_overall=0` : ""}`;
   const response = await axiosPrivate.get(url);
 
   return response.data;

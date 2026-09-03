@@ -81,7 +81,6 @@ const ReviewTrendChart = ({
       >
         Review Trends
       </Text>
-
       {isLoading ? (
         <View className="h-32 w-full justify-center items-center">
           <ActivityIndicator color={COLORS.primary} />

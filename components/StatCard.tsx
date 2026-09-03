@@ -8,6 +8,7 @@ import CircularProgress from "./CircularProgress";
 
 const StatCard = React.memo(
   ({
+    cardKey,
     onTitleClick,
     isLoading = false,
     title,
@@ -32,6 +33,7 @@ const StatCard = React.memo(
     bottomRightSection,
     isShowPercentageOnValue,
   }: {
+    cardKey?: string;
     onTitleClick?: () => void;
     isLoading?: boolean;
     title: string;
@@ -48,7 +50,7 @@ const StatCard = React.memo(
     iconColor?: string;
     iconSize?: number;
     Icon?: any;
-    iconPosition?: string;
+    iconPosition?: any;
     showProgress?: boolean;
     max?: number;
     description?: string;
@@ -181,7 +183,7 @@ const StatCard = React.memo(
           ) : (
             <>
               {/* RIGHT ICON  */}
-              {Icon && iconPosition === "right" && (
+              {Icon && (typeof iconPosition === 'function' ? iconPosition(cardKey) : iconPosition) === "right" && (
                 <Icon
                   name={iconName}
                   size={iconSize}
@@ -193,7 +195,7 @@ const StatCard = React.memo(
               {/* VALUE */}
               {showProgress ? (
                 <View className="flex flex-row items-center justify-between flex-1">
-                  <View className="flex flex-row items-center gap-x-3">
+                  <View className="flex flex-row items-center gap-x-5">
                     <CircularProgress
                       value={value}
                       max={max}
@@ -206,7 +208,7 @@ const StatCard = React.memo(
                     {subTitle && (
                       <Text
                         style={{ fontSize: getResponsiveFontSize("sm") }}
-                        className={`text-gray-600 font-semibold mb-2 opacity-80 mt-1`}
+                        className={`text-gray-600 font-semibold mb-2 opacity-80 mt-1 text-wrap max-w-[80px]`}
                       >
                         {subTitle}
                       </Text>
@@ -254,7 +256,7 @@ const StatCard = React.memo(
               )}
 
               {/* LEFT ICON  */}
-              {Icon && iconPosition === "left" && (
+              {Icon && (typeof iconPosition === 'function' ? iconPosition(cardKey) : iconPosition) === "left" && (
                 <Icon
                   name={iconName}
                   size={iconSize}

@@ -8,6 +8,7 @@ import { BasicInputField } from "@/components/InputField";
 import ScreenTitle from "@/components/ScreenTitle";
 import { ChangePasswordModal } from "@/components/modals/ChangePasswordModal";
 import { SuccessModal } from "@/components/modals/SuccessModal";
+import { useDimension } from "@/hooks/useDimension";
 import { useAuthStore } from "@/store/useAuthStore";
 import getFullImageLink from "@/utils/getFullImageLink";
 import { Feather } from "@expo/vector-icons";
@@ -17,6 +18,8 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   Text,
   TouchableOpacity,
@@ -26,7 +29,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function ProfileScreen() {
   const { user, setUser } = useAuthStore();
-
+  const { getResponsiveHeight } = useDimension();
   // All hooks must be declared before any early returns
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -112,17 +115,19 @@ export default function ProfileScreen() {
         phone: phone,
         Address: address,
         image: user.image,
+        email: user.email,
       };
 
-      await updateProfile(payload);
+      const newUserData = await updateProfile(payload);
 
       // Update local store
       setUser({
-        first_Name: firstName,
-        last_Name: lastName,
-        phone: phone,
-        address: address, // Store uses lowercase 'address' usually, but syncs with API 'Address' if needed
-        name: `${firstName} ${lastName}`.trim(),
+        first_Name: newUserData?.data?.first_Name,
+        last_Name: newUserData?.data?.last_Name,
+        phone: newUserData?.data?.phone,
+        address: newUserData?.data?.Address, // Store uses lowercase 'address' usually, but syncs with API 'Address' if needed
+        name: `${newUserData?.data?.first_Name} ${newUserData?.data?.last_Name}`.trim(),
+        ...user,
       });
 
       setSuccessMessage("Profile updated successfully!");
@@ -237,137 +242,145 @@ export default function ProfileScreen() {
 
       <ScreenTitle title="Profile" />
 
-      <ScrollView className="flex-1 mb-20" showsVerticalScrollIndicator={false}>
-        {/* Profile Image */}
-        <View className="items-center mb-6">
-          <TouchableOpacity
-            onPress={pickImage}
-            disabled={isPickingImage || isUploadingImage}
-            className="w-32 h-32 bg-base-300 rounded-full shadow-sm border border-gray-100 items-center justify-center mb-2 overflow-hidden relative"
-          >
-            <Image
-              source={{ uri: getFullImageLink(user.image) }}
-              className="w-32 h-32"
-              defaultSource={IMAGES.comingSoon} // Fallback if user.image is missing initially
-            />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={{ paddingBottom: getResponsiveHeight("xs") }}
+      >
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View className="justify-between">
+            {/* Profile Image */}
+            <View className="items-center mb-6">
+              <TouchableOpacity
+                onPress={pickImage}
+                disabled={isPickingImage || isUploadingImage}
+                className="w-32 h-32 bg-base-300 rounded-full shadow-sm border border-gray-100 items-center justify-center mb-2 overflow-hidden relative"
+              >
+                <Image
+                  source={{ uri: getFullImageLink(user.image) }}
+                  className="w-32 h-32"
+                  defaultSource={IMAGES.comingSoon} // Fallback if user.image is missing initially
+                />
 
-            {/* Overlay */}
-            <View className="absolute inset-0 bg-black/20 items-center justify-center">
-              {isUploadingImage ? (
-                <ActivityIndicator size="small" color="#fff" />
-              ) : (
-                <Feather name="camera" size={24} color="#fff" />
-              )}
+                {/* Overlay */}
+                <View className="absolute inset-0 bg-black/20 items-center justify-center">
+                  {isUploadingImage ? (
+                    <ActivityIndicator size="small" color="#fff" />
+                  ) : (
+                    <Feather name="camera" size={24} color="#fff" />
+                  )}
+                </View>
+              </TouchableOpacity>
+              <Text className="text-gray-900 font-bold mb-1">{user.email}</Text>
             </View>
-          </TouchableOpacity>
-          <Text className="text-gray-900 font-bold mb-1">{user.email}</Text>
-        </View>
 
-        {/* First Name */}
-        <View className="mb-4">
-          <Text className="text-gray-900 font-bold mb-2">
-            First Name <Text className="text-error">*</Text>
-          </Text>
-          <BasicInputField
-            placeholder="First Name"
-            value={firstName}
-            onChangeText={(e: any) => {
-              setFirstName(e.target.value);
-              if (errors.firstName)
-                setErrors({ ...errors, firstName: undefined });
-            }}
-            isError={!!errors.firstName}
-            hintMessage={errors.firstName}
-            required
-          />
-        </View>
-
-        {/* Last Name */}
-        <View className="mb-4">
-          <Text className="text-gray-900 font-bold mb-2">
-            Last Name <Text className="text-error">*</Text>
-          </Text>
-          <BasicInputField
-            placeholder="Last Name"
-            value={lastName}
-            onChangeText={(e: any) => {
-              setLastName(e.target.value);
-              if (errors.lastName)
-                setErrors({ ...errors, lastName: undefined });
-            }}
-            isError={!!errors.lastName}
-            hintMessage={errors.lastName}
-            required
-          />
-        </View>
-
-        {/* Phone */}
-        <View className="mb-4">
-          <Text className="text-gray-900 font-bold mb-2">Phone</Text>
-          <BasicInputField
-            placeholder="Phone Number"
-            value={phone}
-            onChangeText={(e: any) => {
-              setPhone(e.target.value);
-            }}
-            inputMode="tel"
-          />
-        </View>
-
-        {/* Address with Autocomplete */}
-        <View className="mb-6 z-50">
-          <Text className="text-gray-900 font-bold mb-2">
-            Address <Text className="text-error">*</Text>
-          </Text>
-          <View className="h-40 z-50">
-            <AutoComplete
-              required
-              value={address}
-              error={errors.address}
-              onPress={(data, details = null) => {
-                setAddress(data.description);
-                if (errors.address)
-                  setErrors({ ...errors, address: undefined });
-              }}
-              onChange={(text) => {
-                setAddress(text);
-                if (errors.address)
-                  setErrors({ ...errors, address: undefined });
-              }}
-              placeholder="Search address"
-            />
-          </View>
-        </View>
-
-        {/* Actions */}
-        <View className="gap-y-3 mt-4">
-          <TouchableOpacity
-            onPress={handleUpdateProfile}
-            disabled={isLoading}
-            className={`w-full bg-green-500 py-4 rounded-lg items-center shadow-sm active:bg-green-600 ${isLoading ? "opacity-70" : ""}`}
-          >
-            {isLoading ? (
-              <ActivityIndicator color="white" />
-            ) : (
-              <Text className="text-white font-bold text-base">
-                Update Profile
+            {/* First Name */}
+            <View className="mb-4">
+              <Text className="text-gray-900 font-bold mb-2">
+                First Name <Text className="text-error">*</Text>
               </Text>
-            )}
-          </TouchableOpacity>
+              <BasicInputField
+                placeholder="First Name"
+                value={firstName}
+                onChangeText={(e: any) => {
+                  setFirstName(e.target.value);
+                  if (errors.firstName)
+                    setErrors({ ...errors, firstName: undefined });
+                }}
+                isError={!!errors.firstName}
+                hintMessage={errors.firstName}
+                required
+              />
+            </View>
 
-          <TouchableOpacity
-            onPress={handleChangePassword}
-            className="w-full bg-base-300 border-2 border-green-500 py-4 rounded-lg items-center shadow-sm active:bg-gray-50"
-          >
-            <Text className="text-green-500 font-bold text-base">
-              Change Password
-            </Text>
-          </TouchableOpacity>
-        </View>
+            {/* Last Name */}
+            <View className="mb-4">
+              <Text className="text-gray-900 font-bold mb-2">
+                Last Name <Text className="text-error">*</Text>
+              </Text>
+              <BasicInputField
+                placeholder="Last Name"
+                value={lastName}
+                onChangeText={(e: any) => {
+                  setLastName(e.target.value);
+                  if (errors.lastName)
+                    setErrors({ ...errors, lastName: undefined });
+                }}
+                isError={!!errors.lastName}
+                hintMessage={errors.lastName}
+                required
+              />
+            </View>
 
-        {/* Spacer for bottom nav */}
-        <View className="h-8" />
-      </ScrollView>
+            {/* Phone */}
+            <View className="mb-4">
+              <Text className="text-gray-900 font-bold mb-2">Phone</Text>
+              <BasicInputField
+                placeholder="Phone Number"
+                value={phone}
+                onChangeText={(e: any) => {
+                  setPhone(e.target.value);
+                }}
+                inputMode="tel"
+              />
+            </View>
+
+            {/* Address with Autocomplete */}
+            <View className="z-50 mb-20">
+              <Text className="text-gray-900 font-bold mb-2">
+                Address <Text className="text-error">*</Text>
+              </Text>
+              <View className="max-h-40 z-50">
+                <AutoComplete
+                  required
+                  value={address}
+                  error={errors.address}
+                  onPress={(data, details = null) => {
+                    setAddress(data.description);
+                    if (errors.address)
+                      setErrors({ ...errors, address: undefined });
+                  }}
+                  onChange={(text) => {
+                    setAddress(text);
+                    if (errors.address)
+                      setErrors({ ...errors, address: undefined });
+                  }}
+                  placeholder="Search address"
+                />
+              </View>
+            </View>
+          </View>
+          <View>
+            {/* Actions */}
+            <View className="gap-y-3">
+              <TouchableOpacity
+                onPress={handleUpdateProfile}
+                disabled={isLoading}
+                className={`w-full bg-primary py-4 rounded-lg items-center shadow-sm active:bg-green-600 ${isLoading ? "opacity-70" : ""}`}
+              >
+                {isLoading ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text className="text-white font-bold text-base">
+                    Update Profile
+                  </Text>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={handleChangePassword}
+                className="w-full bg-base-300 border-2 border-primary py-4 rounded-lg items-center shadow-sm active:bg-gray-50"
+              >
+                <Text className="text-primary font-bold text-base">
+                  Change Password
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       <SuccessModal
         visible={showSuccessModal}

@@ -48,6 +48,7 @@ export interface IBusinessSettings {
   is_registered_user_show_stuffs?: boolean;
   is_registered_user_show_stuff_image?: boolean;
   is_registered_user_show_stuff_name?: boolean;
+  is_treat_manager_as_staff?: boolean;
   enable_ip_check?: boolean;
   enable_location_check?: boolean;
   latitude?: number;

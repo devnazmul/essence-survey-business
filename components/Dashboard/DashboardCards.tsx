@@ -1,13 +1,14 @@
 import { COLORS } from "@/constants";
 import { useDimension } from "@/hooks/useDimension";
 import { useBusinessStore } from "@/store/useBusinessStore";
-import { formatRole } from "@/utils/formatRole";
 import {
   AntDesign,
+  Feather,
   FontAwesome,
-  FontAwesome6,
+  FontAwesome5,
   Ionicons,
-  MaterialCommunityIcons,
+  Octicons,
+  SimpleLineIcons,
 } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React from "react";
@@ -20,6 +21,141 @@ interface IDashboardCardsProps {
   activeTypeTab: string;
   isLoading: boolean;
 }
+
+const COLOR_MAP: Record<string, { bg: string; icon: string }> = {
+  blue: { bg: "#cde8fb", icon: COLORS["blue-500"] },
+  yellow: { bg: "#fbf5dd", icon: COLORS["orange-500"] },
+  cyan: { bg: "#ccfbf1", icon: COLORS["cyan-500"] },
+  green: { bg: "#e0fee9", icon: COLORS["green-500"] },
+  purple: { bg: "#F2E7F8", icon: COLORS["purple-500"] },
+  indigo: { bg: "#e0e7ff", icon: COLORS["blue-600"] },
+  teal: { bg: "#ccfbf1", icon: COLORS["cyan-600"] },
+  brown: { bg: "#f5ebe0", icon: COLORS["orange-700"] },
+  red: { bg: "#fee2e2", icon: COLORS["red-600"] },
+  orange: { bg: "#ffedd5", icon: COLORS["orange-500"] },
+  gold: { bg: "#fef9c3", icon: COLORS["orange-600"] },
+};
+
+const EmojiIcon = ({
+  name,
+  size,
+  className,
+  color,
+}: {
+  name: string;
+  size: number;
+  className?: string;
+  color?: string;
+}) => {
+  switch (name) {
+    case "📝":
+      return null;
+    case "📈":
+      return null;
+    case "⭐":
+      return (
+        <AntDesign
+          name="star"
+          size={size}
+          className={className}
+          color={color}
+        />
+      );
+    case "😊":
+      return (
+        <FontAwesome5
+          name="brain"
+          size={size}
+          className={className}
+          color={color}
+        />
+      );
+    case "🔥":
+      return (
+        <SimpleLineIcons
+          name="graph"
+          size={size}
+          className={className}
+          color={color}
+        />
+      );
+    case "🔄":
+      return (
+        <Feather
+          name="refresh-ccw"
+          size={size}
+          className={className}
+          color={color}
+        />
+      );
+    case "🏷️":
+      return (
+        <FontAwesome
+          name="folder-open-o"
+          size={size}
+          className={className}
+          color={color}
+        />
+      );
+    case "🏢":
+      return (
+        <Octicons
+          name="stack"
+          size={size}
+          className={className}
+          color={color}
+        />
+      );
+    case "🗺️":
+      return (
+        <Octicons
+          name="location"
+          size={size}
+          className={className}
+          color={color}
+        />
+      );
+    case "👥":
+      return (
+        <Feather name="users" size={size} className={className} color={color} />
+      );
+    case "📉":
+      return (
+        <Ionicons
+          name="warning-outline"
+          size={size}
+          className={className}
+          color={color}
+        />
+      );
+    case "🚩":
+      return (
+        <Feather name="flag" size={size} className={className} color={color} />
+      );
+    case "🏆":
+      return (
+        <Octicons
+          name="trophy"
+          size={size}
+          className={className}
+          color={color}
+        />
+      );
+    case "🚀":
+      return (
+        <Feather
+          name="trending-up"
+          size={size}
+          className={className}
+          color={color}
+        />
+      );
+
+    default:
+      return null;
+  }
+};
+
 const DashboardCards: React.FC<IDashboardCardsProps> = ({
   activeTab,
   activeTypeTab,
@@ -29,264 +165,142 @@ const DashboardCards: React.FC<IDashboardCardsProps> = ({
 
   const { getResponsiveFontSize } = useDimension();
 
-  const parseChange = (val: any): number => {
+  const parseChange = (val: any): number | undefined => {
+    if (val === null || val === undefined) return undefined;
     if (typeof val === "number") return val;
     if (typeof val === "string") {
       const parsed = parseFloat(val.replace(/[^0-9.-]/g, ""));
-      return isNaN(parsed) ? 0 : parsed;
+      return isNaN(parsed) ? undefined : parsed;
     }
-    return 0;
+    return undefined;
   };
 
+  const getColors = (colorStr: string) =>
+    COLOR_MAP[colorStr?.toLowerCase()] || { bg: "#f3f4f6", icon: "#6b7280" };
+
+  const handleCardClick = (box: any) => {
+    if (!box.key) return; // For skeleton state
+
+    const params: any = {
+      period: activeTab,
+      ...(activeTypeTab !== "all_type" && {
+        is_overall: activeTab === "all_time" ? 1 : 0,
+      }),
+    };
+
+    if (box.is_default_rule && box.rule_id) {
+      params.rule_id = box.rule_id;
+    } else {
+      switch (box.key) {
+        case "CSAT_SCORE":
+        case "FLAG_AND_ALERT":
+          params.meets_threshold = box.key === "CSAT_SCORE" ? 1 : 0;
+          break;
+        case "STAFF_MENTION_DETECTION":
+        case "TOP_PERFORMER":
+          params.has_staff = 1;
+          break;
+        case "REPEAT_ISSUE":
+          params.is_repeat_issue = 1;
+          break;
+      }
+    }
+    router.push({
+      pathname: "/reviews",
+      params,
+    });
+  };
+
+  const displayBoxes =
+    stats.boxes && stats.boxes.length > 0
+      ? stats.boxes
+      : isLoading
+        ? Array(8).fill({})
+        : [];
+  const getPosition = (key: string) => {
+    if (key === "AVG_RATING") {
+      return "right";
+    } else {
+      return "left";
+    }
+  };
   return (
     <View className="flex-row flex-wrap justify-between gap-x-1">
-      <StatCard
-        onTitleClick={() => {
-          router.push({
-            pathname: "/reviews",
-            params: {
-              is_overall: activeTab === "all_time" ? 1 : 0,
-              period: activeTab,
+      {displayBoxes.map((box, index) => {
+        const colors = getColors(box.color);
+
+        let breakdown: any = undefined;
+        if (box.key === "TOTAL_REVIEWS") {
+          breakdown = [
+            (stats.ratingBreakdown?.breakdown?.exact_ratings?.[5] ?? 0) > 0 && {
+              emoji: "😊",
+              count: stats.ratingBreakdown?.breakdown?.exact_ratings?.[5] || 0,
             },
-          });
-        }}
-        isShowPercentageOnValue={false}
-        valueFontSize={getResponsiveFontSize("lg")}
-        isLoading={isLoading}
-        title="Total Reviews"
-        value={stats.totalReviews?.value || 0}
-        bottomRightSection={stats.totalReviews?.value}
-        change={parseChange(stats.totalReviews?.change)}
-        color="#e0fee9"
-        showProgress
-        max={stats.allReviews}
-        breakdown={[
-          (stats.ratingBreakdown?.breakdown?.exact_ratings?.[5] ?? 0) > 0 && {
-            emoji: "😊",
-            count: stats.ratingBreakdown?.breakdown?.exact_ratings?.[5] || 0,
-          },
-          (stats.ratingBreakdown?.breakdown?.exact_ratings?.[4] ?? 0) > 0 && {
-            emoji: "🙂",
-            count: stats.ratingBreakdown?.breakdown?.exact_ratings?.[4] || 0,
-          },
-          (stats.ratingBreakdown?.breakdown?.exact_ratings?.[3] ?? 0) > 0 && {
-            emoji: "😐",
-            count: stats.ratingBreakdown?.breakdown?.exact_ratings?.[3] || 0,
-          },
-          (stats.ratingBreakdown?.breakdown?.exact_ratings?.[2] ?? 0) > 0 && {
-            emoji: "🙁",
-            count: stats.ratingBreakdown?.breakdown?.exact_ratings?.[2] || 0,
-          },
-          (stats.ratingBreakdown?.breakdown?.exact_ratings?.[1] ?? 0) > 0 && {
-            emoji: "😞",
-            count: stats.ratingBreakdown?.breakdown?.exact_ratings?.[1] || 0,
-          },
-        ]}
-        description="The total number of customer feedback submissions received during the selected time period. This includes ratings, written comments, voice feedback, and surveys."
-      />
-      <StatCard
-        valueFontSize={
-          stats.csatScore?.value > 99
-            ? getResponsiveFontSize("md")
-            : getResponsiveFontSize("lg")
+            (stats.ratingBreakdown?.breakdown?.exact_ratings?.[4] ?? 0) > 0 && {
+              emoji: "🙂",
+              count: stats.ratingBreakdown?.breakdown?.exact_ratings?.[4] || 0,
+            },
+            (stats.ratingBreakdown?.breakdown?.exact_ratings?.[3] ?? 0) > 0 && {
+              emoji: "😐",
+              count: stats.ratingBreakdown?.breakdown?.exact_ratings?.[3] || 0,
+            },
+            (stats.ratingBreakdown?.breakdown?.exact_ratings?.[2] ?? 0) > 0 && {
+              emoji: "🙁",
+              count: stats.ratingBreakdown?.breakdown?.exact_ratings?.[2] || 0,
+            },
+            (stats.ratingBreakdown?.breakdown?.exact_ratings?.[1] ?? 0) > 0 && {
+              emoji: "😞",
+              count: stats.ratingBreakdown?.breakdown?.exact_ratings?.[1] || 0,
+            },
+          ].filter(Boolean);
         }
-        // change={parseChange(stats.totalReviews?.change)}
-        bottomRightSection={stats.totalReviews?.value}
-        onTitleClick={() => {
-          router.push({
-            pathname: "/reviews",
-            params: {
-              meets_threshold: 1,
-              is_overall: activeTab === "all_time" ? 1 : 0,
-              period: activeTab,
-            },
-          });
-        }}
-        isLoading={isLoading}
-        title="CSAT Score"
-        value={stats.csatScore?.value || 0}
-        change={parseChange(stats.csatScore?.change)}
-        subTitle="Satisfaction"
-        color="#ccfbf1"
-        showProgress
-        isShowPercentageOnValue
-        iconColor={COLORS["cyan-500"]}
-        description="A breakdown of customer feedback into positive, neutral, and negative sentiment. This is based on the meaning and emotion detected in customer comments."
-      />
-      <StatCard
-        bottomRightSection={stats.totalReviews?.value}
-        onTitleClick={() => {
-          router.push({
-            pathname: "/reviews",
-            params: {
-              is_overall: activeTab === "all_time" ? 1 : 0,
-              period: activeTab,
-            },
-          });
-        }}
-        isLoading={isLoading}
-        title="Avg. Rating"
-        value={stats.avgRating?.value || 0}
-        subTitle="out of 5"
-        color="#fbf5dd"
-        iconName="star"
-        iconColor={COLORS["orange-500"]}
-        iconSize={getResponsiveFontSize("3xl")}
-        Icon={AntDesign}
-        iconPosition="right"
-        description="The average of all numeric ratings submitted by customers in this period. Ratings alone don’t show the full picture, so we analyse them together with comments."
-      />
-      <StatCard
-        bottomRightSection={stats.totalReviews?.value}
-        onTitleClick={() => {
-          router.push({
-            pathname: "/reviews",
-            params: {
-              has_staff: 1,
-              is_overall: activeTab === "all_time" ? 1 : 0,
-              period: activeTab,
-            },
-          });
-        }}
-        isLoading={isLoading}
-        title="Staff-Linked"
-        value={stats.staffLinkedReviews?.value || 0}
-        total={stats.staffLinkedReviews?.total}
-        subTitle={
-          stats.staffLinkedReviews?.percentage !== undefined
-            ? `(${stats.staffLinkedReviews?.percentage}%) according to selected period`
-            : "according to selected period"
+
+        let parsedValue: any = box.value;
+        if (typeof parsedValue === "string" && parsedValue.includes("%")) {
+          parsedValue = parseFloat(parsedValue.replace("%", ""));
+        } else if (
+          typeof parsedValue === "string" &&
+          !isNaN(Number(parsedValue))
+        ) {
+          parsedValue = Number(parsedValue);
         }
-        isPercentage
-        color="#cde8fb"
-        iconName="user"
-        iconColor={COLORS["blue-500"]}
-        iconSize={getResponsiveFontSize("3xl")}
-        Icon={FontAwesome}
-        iconPosition="right"
-        description="Reviews that mention staff members directly or describe staff behaviour. Used to identify coaching opportunities and recognise positive performance."
-      />
-      <StatCard
-        bottomRightSection={stats.totalReviews?.value}
-        onTitleClick={() => {
-          router.push({
-            pathname: "/reviews",
-            params: {
-              sentiment_score:
-                stats.aiSentiment?.value?.toLowerCase().replace(/\s+/g, "_") ||
-                "neutral",
-              is_overall: activeTab === "all_time" ? 1 : 0,
-              period: activeTab,
-            },
-          });
-        }}
-        isLoading={isLoading}
-        title="Sentiment Score"
-        valueFontSize={getResponsiveFontSize("2xl")}
-        value={
-          stats.aiSentiment?.value
-            ? formatRole(stats.aiSentiment?.value)
-            : "Neutral"
-        }
-        subTitle={stats.aiSentiment?.subTitle || ""}
-        color="#F2E7F8"
-        iconName="brain"
-        iconColor={COLORS["purple-500"]}
-        iconSize={getResponsiveFontSize("xl")}
-        Icon={FontAwesome6}
-        iconPosition="right"
-        description="An overall score calculated by AI based on customer comments, language, and tone. It reflects how customers feel, not just what rating they selected."
-      />
-      <StatCard
-        bottomRightSection={stats.totalReviews?.value}
-        onTitleClick={() => {
-          router.push({
-            pathname: "/reviews",
-            params: {
-              topics:
-                stats.topTopic?.value &&
-                stats.topTopic?.value !== "N/A" &&
-                stats.topTopic?.value !== "[]"
-                  ? stats.topTopic?.value
-                  : "",
-              is_overall: activeTab === "all_time" ? 1 : 0,
-              period: activeTab,
-            },
-          });
-        }}
-        isLoading={isLoading}
-        title="Top Topic"
-        valueFontSize={
-          stats.topTopic?.value.split(" ").length > 1
-            ? getResponsiveFontSize("xl")
-            : getResponsiveFontSize("2xl")
-        }
-        value={
-          stats.topTopic?.value && stats.topTopic?.value !== "[]"
-            ? stats.topTopic?.value
-            : "N/A"
-        }
-        subTitle={stats.topTopic?.subTitle || ""}
-        color="#d5fffdff"
-        iconName="shield-crown"
-        iconColor={COLORS["cyan-500"]}
-        iconSize={getResponsiveFontSize("3xl")}
-        Icon={MaterialCommunityIcons}
-        iconPosition="right"
-        description="The most common themes mentioned by customers, such as staff behaviour, wait time, or cleanliness. Topics are grouped automatically using AI."
-      />
-      <StatCard
-        bottomRightSection={stats.totalReviews?.value}
-        onTitleClick={() => {
-          router.push({
-            pathname: "/reviews",
-            params: {
-              meets_threshold: 0,
-              is_overall: activeTab === "all_time" ? 1 : 0,
-              period: activeTab,
-            },
-          });
-        }}
-        isLoading={isLoading}
-        title="Action Required"
-        value={stats.flagged?.value || 0}
-        iconName="flag-variant"
-        iconColor={COLORS["red-600"]}
-        iconSize={getResponsiveFontSize("3xl")}
-        Icon={MaterialCommunityIcons}
-        iconPosition="right"
-        color="#fee2e2"
-        description="Reviews that need attention. These may include strong negative feedback, repeated issues, or a mismatch between ratings and comments."
-      />
-      <StatCard
-        bottomRightSection={stats.totalReviews?.value}
-        onTitleClick={() => {
-          router.push({
-            pathname: "/reviews",
-            params: {
-              is_repeat_issue: 1,
-              is_overall: activeTab === "all_time" ? 1 : 0,
-              period: activeTab,
-            },
-          });
-        }}
-        isLoading={isLoading}
-        title="Repeat Issue"
-        valueFontSize={getResponsiveFontSize("lg")}
-        value={stats.repeatIssue?.value || "N/A"}
-        subTitle={stats.repeatIssue?.subTitle || "Recurring problems"}
-        iconName="warning"
-        iconColor={COLORS["orange-500"]}
-        iconSize={
-          stats.repeatIssue?.value.split(" ").length > 1
-            ? getResponsiveFontSize("2xl")
-            : getResponsiveFontSize("3xl")
-        }
-        Icon={Ionicons}
-        iconPosition="right"
-        color="#fef9c3"
-        description="Tracks recurring problems mentioned across multiple reviews. Identifying patterns helps prioritize which issues to fix first."
-      />
+
+        return (
+          <StatCard
+            cardKey={box.key}
+            key={box.key || index.toString()}
+            onTitleClick={() => handleCardClick(box)}
+            isLoading={isLoading}
+            title={box.label || "Loading..."}
+            value={parsedValue}
+            subTitle={box.sub_value}
+            change={parseChange(box.trend)}
+            color={colors.bg}
+            iconName={box.icon}
+            iconColor={colors.icon}
+            iconSize={getResponsiveFontSize("xl")}
+            Icon={EmojiIcon}
+            iconPosition={getPosition}
+            description={
+              box.label === "Total Reviews"
+                ? "The total number of customer feedback submissions received during the selected time period. This includes ratings, written comments, voice feedback, and surveys."
+                : undefined
+            }
+            valueFontSize={getResponsiveFontSize("2xl")}
+            showProgress={
+              box.key === "TOTAL_REVIEWS" || box.key === "CSAT_SCORE"
+            }
+            max={box.key === "TOTAL_REVIEWS" ? stats.allReviews : 100}
+            breakdown={breakdown}
+            isShowPercentageOnValue={
+              box.key === "CSAT_SCORE" ||
+              (typeof box.value === "string" && box.value.includes("%"))
+            }
+            bottomRightSection={stats.totalReviews?.value}
+          />
+        );
+      })}
+
       <ReviewTrendChart activeTypeTab={activeTypeTab} activeTab={activeTab} />
     </View>
   );

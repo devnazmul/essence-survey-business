@@ -27,11 +27,11 @@ export default function SettingsScreen() {
   const updateBusiness = useBusinessStore((state) => state.updateBusiness);
   const settings = useBusinessStore((state) => state.settings); // Need settings for validation
   const fetchBusinessSettings = useBusinessStore(
-    (state) => state.fetchBusinessSettings
+    (state) => state.fetchBusinessSettings,
   );
   const isLoading = useBusinessStore((state) => state.isLoading);
   const isFetchingSettings = useBusinessStore(
-    (state) => state.isFetchingSettings
+    (state) => state.isFetchingSettings,
   );
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
@@ -48,7 +48,7 @@ export default function SettingsScreen() {
   useFocusEffect(
     useCallback(() => {
       fetchBusinessSettings();
-    }, [fetchBusinessSettings])
+    }, [fetchBusinessSettings]),
   ); // Dependency included to satisfy lint
 
   const validateSettings = () => {
@@ -191,7 +191,7 @@ export default function SettingsScreen() {
           <TouchableOpacity
             onPress={handleSave}
             disabled={isLoading}
-            className={`w-full py-3 rounded-xl items-center shadow-sm ${isLoading ? "bg-green-300" : "bg-green-500"}`}
+            className={`w-full py-3 rounded-xl items-center shadow-sm ${isLoading ? "bg-green-400" : "bg-primary"}`}
           >
             {isLoading ? (
               <ActivityIndicator color="white" />

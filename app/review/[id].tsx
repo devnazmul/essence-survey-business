@@ -8,7 +8,7 @@ import { useCustomQuery } from "@/hooks/useCustomQuery";
 import { useDimension } from "@/hooks/useDimension";
 import { formatRole } from "@/utils/formatRole";
 import { transformReviewData } from "@/utils/transformReviewData";
-import { Entypo, Feather, FontAwesome } from "@expo/vector-icons";
+import { Entypo, Feather, FontAwesome, Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React from "react";
 import {
@@ -35,7 +35,6 @@ export default function ReviewDetailsScreen() {
     queryKey: ["review", id],
     queryFunc: () => singleReview(id as string),
   });
-
   // Transform the review data
   const review = transformReviewData(rawReview as any);
 
@@ -288,7 +287,7 @@ export default function ReviewDetailsScreen() {
                                 />
                               );
                           }
-                        }
+                        },
                       )}
                     </View>
                     <Text className="text-gray-600 font-semibold">
@@ -333,60 +332,20 @@ export default function ReviewDetailsScreen() {
         )}
 
         {/* Full Comment */}
-        {review?.comment && (
-          <View className="mb-6">
-            <Text className="font-bold text-gray-900 mb-2">Comment</Text>
-            <View className="bg-base-300 p-4 rounded-xl border border-gray-200">
-              <Text className="text-gray-400 leading-6 font-medium">
-                {review?.comment}
-              </Text>
-            </View>
-          </View>
+        {!!review?.isAiProcessed && (
+          <>
+            {review?.comment && (
+              <View className="mb-6">
+                <Text className="font-bold text-gray-900 mb-2">Comment</Text>
+                <View className="bg-base-300 p-4 rounded-xl border border-gray-200">
+                  <Text className="text-gray-400 leading-6 font-medium">
+                    {review?.comment}
+                  </Text>
+                </View>
+              </View>
+            )}
+          </>
         )}
-
-        {/* Key Phrases */}
-        {/* {review?.keyPhrases?.length > 0 && (
-          <View className="bg-base-300 p-4 rounded-xl border border-gray-200 mb-6">
-            <Text className="font-bold text-gray-900 mb-2">Key Phrases</Text>
-            <View className="flex-row flex-wrap gap-2">
-              {review?.keyPhrases?.map((phrase, index) => (
-                <View
-                  key={index}
-                  className="bg-blue-100 px-3 py-1 rounded-full"
-                >
-                  <Text className="text-blue-800 text-sm">{phrase}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        )} */}
-
-        {/* Topics */}
-        {/* {review?.topics?.length > 0 && (
-          <View className="bg-base-300 p-4 rounded-xl border border-gray-200 mb-6">
-            <Text className="font-bold text-gray-900 mb-2">Topics</Text>
-            <View className="flex-row flex-wrap gap-2">
-              {review?.topics?.map((topic, index) => (
-                <View key={index} className="bg-primary px-3 py-1 rounded-full">
-                  <Text className="text-base-300 text-sm">{topic}</Text>
-                </View>
-              ))}
-            </View>
-          </View>
-        )} */}
-
-        {/* Voice Review */}
-        {/* {review?.isVoiceReview && review?.voiceUrl && (
-          <View className="bg-base-300 p-4 rounded-xl border border-gray-200 mb-6">
-            <Text className="font-bold text-gray-900 mb-2">Voice Review</Text>
-            <View className="flex-row items-center">
-              <FontAwesome name="microphone" size={20} color={COLORS.primary} />
-              <Text className="text-gray-600 ml-2">
-                Duration: {review?.voiceDuration}s
-              </Text>
-            </View>
-          </View>
-        )} */}
 
         {review?.replyContent && (
           <View className="mb-6">
@@ -407,14 +366,31 @@ export default function ReviewDetailsScreen() {
       </ScrollView>
 
       {/* Footer Button */}
+
       {!review?.replyContent && (
         <View className="p-4 bg-base-300 border-t border-gray-200">
-          <Button
-            label="Respond to Review"
-            onPress={() => router.push(`/review/respond/${review?.id}`)}
-            size="lg"
-            textClassName="text-center"
-          />
+          {!review?.isAiProcessed ? (
+            <View
+              className={`bg-orange-50 flex-row items-center gap-2  border px-5 py-3  border-orange-600 rounded-xl w-`}
+            >
+              <Ionicons name="sparkles" size={16} color="#d08700" />
+              <Text
+                className={`text-orange-600 font-medium`}
+                style={{
+                  fontSize: getResponsiveFontSize("sm"),
+                }}
+              >
+                You cannot reply until this review is fully processed by AI.
+              </Text>
+            </View>
+          ) : (
+            <Button
+              label="Respond to Review"
+              onPress={() => router.push(`/review/respond/${review?.id}`)}
+              size="lg"
+              textClassName="text-center"
+            />
+          )}
         </View>
       )}
     </SafeAreaView>

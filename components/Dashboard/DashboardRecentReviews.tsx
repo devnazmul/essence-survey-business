@@ -1,22 +1,21 @@
 import { COLORS } from "@/constants";
-import { useDashboardReviews } from "@/hooks/useDashboard";
 import { useDimension } from "@/hooks/useDimension";
 import { useBusinessStore } from "@/store/useBusinessStore";
 import { router } from "expo-router";
-import React, { useEffect } from "react";
+import React from "react";
 import { ActivityIndicator, Text, TouchableOpacity, View } from "react-native";
 import ReviewCard from "../ReviewCard";
 
-interface IDashboardRecentReviewsProps {}
-const DashboardRecentReviews: React.FC<IDashboardRecentReviewsProps> = () => {
+interface IDashboardRecentReviewsProps {
+  period?: string;
+  isLoading?: boolean;
+}
+const DashboardRecentReviews: React.FC<IDashboardRecentReviewsProps> = ({
+  period = "last_30_days",
+  isLoading = false,
+}) => {
   const reviews = useBusinessStore((state) => state.reviews);
   const { getResponsiveFontSize } = useDimension();
-  const { isLoading, refetch } = useDashboardReviews("last_30_days");
-
-  useEffect(() => {
-    refetch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <>

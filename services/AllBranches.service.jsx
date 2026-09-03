@@ -1,4 +1,9 @@
-import { deleteBranch, getAllBranches, toggleBranch } from "@/api/branch";
+import {
+  deleteBranch,
+  getAllBranches,
+  getBranchOverview,
+  toggleBranch,
+} from "@/api/branch";
 import { QUERY_KEYS } from "@/constants/queryKeys";
 import { useCustomQuery } from "@/hooks/useCustomQuery";
 import { useAlertStore } from "@/store/useAlertStore";
@@ -64,28 +69,38 @@ export default function useAllBranchesService() {
       }),
   });
 
+  const { data: overviewResponse, refetch: refetchOverview } = useCustomQuery({
+    queryKey: ["BRANCHES_OVERVIEW", filters],
+    queryFunc: async ({ signal }) =>
+      await getBranchOverview({
+        signal,
+        ...filters,
+      }),
+  });
+
   const onRefresh = async () => {
     await refetch();
+    await refetchOverview();
   };
+
+  const overviewData = overviewResponse?.data || {};
 
   const stats = [
     {
       label: "Total Branches",
-      value: data?.summary?.total_branches || 0,
+      value: overviewData?.total_branches?.value || 0,
       icon: <MaterialIcons name="account-tree" size={24} color="#2DCE24" />,
       handler: () => router.push("/(dashboard)/reviews"),
     },
     {
       label: "Average Rating",
-      value: `${data?.summary?.avg_rating || 0}/${
-        data?.summary?.rating_out_of || 5
-      }`,
+      value: `${overviewData?.avg_rating?.value || 0}/5`,
       icon: <FontAwesome name="star" size={24} color="#FACC15" />,
       handler: () => router.push("/(dashboard)/reviews"),
     },
     {
       label: "Overall Sentiment",
-      value: data?.summary?.overall_sentiment,
+      value: overviewData?.overall_sentiment?.label || "Neutral",
       icon: <MaterialCommunityIcons name="brain" size={24} color="#A855F7" />,
       handler: () => router.push("/(dashboard)/reviews"),
     },
@@ -252,6 +267,7 @@ export default function useAllBranchesService() {
 
   return {
     data,
+    overviewData,
     isLoading,
     isStatusChanging,
     handleChangeStatus,

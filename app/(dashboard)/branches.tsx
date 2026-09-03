@@ -29,6 +29,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function BranchesScreen() {
   const {
     data,
+    overviewData,
     isLoading,
     handleAddBranch,
     handleEdit,
@@ -43,7 +44,7 @@ export default function BranchesScreen() {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
 
   const branches = data?.data || [];
-  const summary = data?.summary || {};
+  const summary = overviewData || {};
 
   const handleSearch = (text: string) => {
     setFilters((prev: any) => ({ ...prev, search_key: text }));
@@ -70,29 +71,32 @@ export default function BranchesScreen() {
       <View className="flex-row flex-wrap justify-between mb-4">
         <StatCard
           title="Total Branches"
-          value={summary.total_branches || 0}
+          value={summary.total_branches?.value || 0}
+          change={summary.total_branches?.change_value}
           color="#E7F8ED"
           iconName="account-tree"
           iconColor="#2DCE24"
           Icon={MaterialIcons}
           iconSize={20}
           iconPosition="left"
-          bottomRightSection={summary.total_branches || 0}
+          bottomRightSection={summary.total_branches?.value || 0}
         />
         <StatCard
           title="Avg Rating"
-          value={`${summary.avg_rating || 0} out of 5`}
+          value={`${summary.avg_rating?.value || 0} out of 5`}
+          change={summary.avg_rating?.change_value}
           color="#FFFBEB"
           iconName="star"
           iconColor="#FACC15"
           Icon={MaterialIcons}
           iconSize={20}
           iconPosition="left"
-          bottomRightSection={summary.total_reviews || 0}
+          bottomRightSection={summary.avg_rating?.review_count || 0}
         />
         <StatCard
           title="Sentiment"
-          value={summary.overall_sentiment || "Neutral"}
+          value={summary.overall_sentiment?.label || "Neutral"}
+          change={summary.overall_sentiment?.change_value}
           color="#F5F3FF"
           iconName="brain"
           iconColor="#A855F7"
@@ -100,7 +104,7 @@ export default function BranchesScreen() {
           iconSize={20}
           iconPosition="left"
           fullWidth
-          bottomRightSection={summary.total_reviews || 0}
+          bottomRightSection={summary.overall_sentiment?.review_count || 0}
         />
       </View>
 
