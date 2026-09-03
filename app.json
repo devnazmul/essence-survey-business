@@ -15,7 +15,8 @@
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "UIBackgroundModes": ["remote-notification"],
-        "NSUserNotificationUsageDescription": "Allow Feed Genius Business Suite to send you notifications, including alerts, sounds, and icon badges."
+        "NSUserNotificationUsageDescription": "Allow Feed Genius Business Suite to send you notifications, including alerts, sounds, and icon badges.",
+        "NSLocationWhenInUseUsageDescription": "Feed Genius Business Suite uses your location to display maps and provide location-aware survey features."
       },
       "config": {
         "googleMapsApiKey": "AIzaSyDKdgxA3ph7Z7bnq2TGH0fFrySkZu2B2G4"
